@@ -1,0 +1,12 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: uc-info
+
+  security:
+    user:
+      name: admin
+      password: admin
+      roles: ADMIN
