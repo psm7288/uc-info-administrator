@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>UC Info 관리자 로그인</title>
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+<body>
+
+<div class="page">
+    <section class="login-section">
+        <div class="login-card">
+
+            <div class="mobile-brand">
+                <div class="logo">UC</div>
+                <h1>UC Info</h1>
+                <p>Administrator Portal</p>
+            </div>
+
+            <div class="login-title">
+                <h2>관리자 로그인</h2>
+
+            </div>
+
+            <form action="/login" method="post">
+                <div class="input-group">
+                    <label for="adminId">관리자 ID</label>
+                    <input type="text" id="adminId" name="username" placeholder="관리자 아이디를 입력하세요">
+                </div>
+
+                <div class="input-group">
+                    <label for="password">비밀번호</label>
+                    <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요">
+                </div>
+
+                <button type="submit" class="login-button">
+                    로그인 <span>›</span>
+                </button>
+            </form>
+
+            <div class="help-box">
+                <p>관리자 계정은 학과 또는 부서 담당자에게만 제공됩니다.</p>
+            </div>
+
+            <p class="test-account">테스트 계정 ID: admin / PW: 1234</p>
+        </div>
+    </section>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>UC Info 관리자 대시보드</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+
+<div class="admin-layout">
+
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="logo">UC</div>
+            <div>
+                <h1>UC Info</h1>
+                <p>Admin Portal</p>
+            </div>
+        </div>
+
+        <nav class="menu">
+            <a href="/dashboard" class="active">대시보드</a>
+            <a href="/notices">공지 관리</a>
+            <a href="/scholarships">장학금 관리</a>
+            <a href="/banners">배너 관리</a>
+            <a href="/events">행사 관리</a>
+            <a href="/logout">로그아웃</a>
+        </nav>
+    </aside>
+
+    <main class="main">
+
+        <section class="hero-card">
+            <div>
+                <p class="date-text">2026. 05. 11 (월)</p>
+                <h2>관리자 대시보드</h2>
+                <span class="status-badge">시스템 정상 운영 중</span>
+            </div>
+
+            <div class="admin-badge">관리자</div>
+        </section>
+
+        <section class="stat-grid">
+            <div class="stat-card">
+                <div class="stat-icon blue">학생</div>
+                <span class="increase">+12</span>
+                <strong>4,832</strong>
+                <p>총 학생</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon green">공지</div>
+                <span class="increase">+89</span>
+                <strong>1,247</strong>
+                <p>오늘 접속</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon yellow">알림</div>
+                <span class="increase">+3</span>
+                <strong>8</strong>
+                <p>신규 공지</p>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon gray">경고</div>
+                <span class="decrease">-1</span>
+                <strong>2</strong>
+                <p>오류 발생</p>
+            </div>
+        </section>
+
+        <section class="content-grid">
+
+            <div class="panel wide">
+                <div class="panel-header">
+                    <div>
+                        <h3>접속 현황</h3>
+                        <p>시간대별 실시간 접속자 수</p>
+                    </div>
+
+                    <div class="tab-group">
+                        <button class="active">오늘</button>
+                        <button>주간</button>
+                        <button>월간</button>
+                    </div>
+                </div>
+
+                <div class="chart-box">
+                    <svg viewBox="0 0 600 220" preserveAspectRatio="none">
+                        <line x1="0" y1="180" x2="600" y2="180"></line>
+                        <line x1="0" y1="135" x2="600" y2="135"></line>
+                        <line x1="0" y1="90" x2="600" y2="90"></line>
+                        <line x1="0" y1="45" x2="600" y2="45"></line>
+
+                        <polyline
+                                points="0,180 75,120 150,145 225,80 300,105 375,115 450,130 525,160 600,178">
+                        </polyline>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h3>기능별 사용률</h3>
+                        <p>오늘 기준 누적 사용량</p>
+                    </div>
+                </div>
+
+                <div class="progress-list">
+                    <div class="progress-item">
+                        <div class="progress-title">
+                            <span>학생증 QR</span>
+                            <strong>88%</strong>
+                        </div>
+                        <div class="progress-bar">
+                            <span style="width: 88%;"></span>
+                        </div>
+                    </div>
+
+                    <div class="progress-item">
+                        <div class="progress-title">
+                            <span>식단표</span>
+                            <strong>74%</strong>
+                        </div>
+                        <div class="progress-bar">
+                            <span style="width: 74%;"></span>
+                        </div>
+                    </div>
+
+                    <div class="progress-item">
+                        <div class="progress-title">
+                            <span>시간표</span>
+                            <strong>69%</strong>
+                        </div>
+                        <div class="progress-bar">
+                            <span style="width: 69%;"></span>
+                        </div>
+                    </div>
+
+                    <div class="progress-item">
+                        <div class="progress-title">
+                            <span>공지사항</span>
+                            <strong>51%</strong>
+                        </div>
+                        <div class="progress-bar light">
+                            <span style="width: 51%;"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h3>최근 활동</h3>
+                    </div>
+                    <a href="#">전체 보기</a>
+                </div>
+
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon green">✓</div>
+                        <div>
+                            <strong>식단표 데이터 자동 업데이트 완료</strong>
+                            <p>10분 전</p>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon yellow">!</div>
+                        <div>
+                            <strong>API 서버 응답 지연 감지</strong>
+                            <p>18분 전</p>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon blue">학</div>
+                        <div>
+                            <strong>신규 학생 32명 등록 완료</strong>
+                            <p>32분 전</p>
+                        </div>
+                    </div>
+
+                    <div class="activity-item">
+                        <div class="activity-icon red">보</div>
+                        <div>
+                            <strong>무단 접근 시도 차단</strong>
+                            <p>2시간 전</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel quick-panel">
+                <div class="panel-header">
+                    <div>
+                        <h3>빠른 실행</h3>
+                    </div>
+                </div>
+
+                <div class="quick-grid">
+                    <a href="/notices/new">공지 등록</a>
+                    <a href="/scholarships/new">장학 등록</a>
+                    <a href="/banners/new">배너 등록</a>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

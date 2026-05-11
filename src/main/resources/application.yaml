@@ -8,5 +8,5 @@ spring:
   security:
     user:
       name: admin
-      password: admin
+      password: 1234
       roles: ADMIN
