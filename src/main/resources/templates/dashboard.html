@@ -1,218 +1,1165 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>UC Info 관리자 대시보드</title>
-    <link rel="stylesheet" href="/css/dashboard.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap"
+            rel="stylesheet"
+    />
+
+    <link rel="stylesheet" th:href="@{/css/dashboard.css}" />
 </head>
 <body>
-
-<div class="admin-layout">
-
-    <aside class="sidebar">
-        <div class="brand">
-            <div class="logo">UC</div>
+<div id="adminView" class="admin-view">
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-brand">
+            <div class="brand-icon small">UC</div>
             <div>
-                <h1>UC Info</h1>
-                <p>Admin Portal</p>
+                <strong>UC Info</strong>
+                <p>Admin System</p>
             </div>
         </div>
 
-        <nav class="menu">
-            <a href="/dashboard" class="active">대시보드</a>
-            <a href="/notices">공지 관리</a>
-            <a href="/scholarships">장학금 관리</a>
-            <a href="/banners">배너 관리</a>
-            <a href="/events">행사 관리</a>
-            <a href="/logout">로그아웃</a>
+        <nav class="sidebar-nav">
+            <button class="nav-item active" data-page="dashboardPage" type="button">
+                <span class="nav-dot"></span>
+                <strong>대시보드</strong>
+            </button>
+
+            <button class="nav-item" data-page="noticePage" type="button">
+                <span class="nav-dot"></span>
+                <strong>공지 관리</strong>
+            </button>
+
+            <button class="nav-item" data-page="trackingPage" type="button">
+                <span class="nav-dot"></span>
+                <strong>열람 트래킹</strong>
+            </button>
+
+            <button class="nav-item" data-page="resendPage" type="button">
+                <span class="nav-dot"></span>
+                <strong>미확인자 재발송</strong>
+            </button>
+
+            <button class="nav-item" data-page="bannerPage" type="button">
+                <span class="nav-dot"></span>
+                <strong>배너 관리</strong>
+            </button>
+
+            <button class="nav-item" data-page="benefitPage" type="button">
+                <span class="nav-dot"></span>
+                <strong>장학금</strong>
+            </button>
+
+            <button class="nav-item" data-page="schedulePage" type="button">
+                <span class="nav-dot"></span>
+                <strong>학사 일정</strong>
+            </button>
+
+            <button class="nav-item" data-page="shuttlePage" type="button">
+                <span class="nav-dot"></span>
+                <strong>셔틀버스</strong>
+            </button>
+
+            <button class="nav-item" data-page="settingPage" type="button">
+                <span class="nav-dot"></span>
+                <strong>관리자 설정</strong>
+            </button>
         </nav>
+
+        <div class="sidebar-user">
+            <span>현재 권한</span>
+            <strong>컴퓨터공학과 관리자</strong>
+            <p>공지 작성, 열람률 확인, 푸시 재발송 가능</p>
+        </div>
     </aside>
 
-    <main class="main">
-
-        <section class="hero-card">
-            <div>
-                <p class="date-text">2026. 05. 11 (월)</p>
-                <h2>관리자 대시보드</h2>
-                <span class="status-badge">시스템 정상 운영 중</span>
+    <main class="main-area">
+        <header class="header">
+            <div class="header-left">
+                <button id="menuBtn" class="icon-btn mobile-only" type="button">☰</button>
+                <div>
+                    <span id="pageLabel">Dashboard</span>
+                    <h2 id="pageTitle">관리자 대시보드</h2>
+                </div>
             </div>
 
-            <div class="admin-badge">관리자</div>
+            <div class="header-right">
+                <div class="search-area">
+                    <input type="text" placeholder="공지, 학생, 장학금 검색" />
+                    <button type="button">검색</button>
+                </div>
+
+                <button id="openNoticeDrawer" class="icon-btn notice-icon" type="button">
+                    <i></i>
+                    알림
+                </button>
+
+                <button class="secondary-btn" type="button" data-modal="noticeCreateModal">
+                    공지 작성
+                </button>
+
+                <a class="line-btn logout-link" th:href="@{/login}">로그아웃</a>
+            </div>
+        </header>
+
+        <!-- 대시보드 -->
+        <section id="dashboardPage" class="page active">
+            <div class="dashboard-top">
+                <section class="main-hero">
+                    <div>
+                        <span>UC INFO ADMIN</span>
+                        <h3>오늘 처리해야 할 관리 업무가 있습니다.</h3>
+                        <p>
+                            중요 공지 미확인자가 119명입니다.
+                            열람률을 확인하고 푸시 알림을 재발송하세요.
+                        </p>
+                    </div>
+
+                    <div class="hero-buttons">
+                        <button class="white-btn" type="button" data-page-move="trackingPage">
+                            열람률 보기
+                        </button>
+                        <button class="dark-btn" type="button" data-modal="resendModal">
+                            재발송 팝업
+                        </button>
+                    </div>
+                </section>
+
+                <section class="today-card">
+                    <span>Today Task</span>
+                    <strong>6</strong>
+                    <p>검토 대기 2건, 알림 재발송 1건, 배너 예약 3건</p>
+                    <button type="button" data-modal="taskModal">업무 보기</button>
+                </section>
+            </div>
+
+            <div class="metric-grid">
+                <article class="metric-card">
+                    <span>게시 중 공지</span>
+                    <strong>42</strong>
+                    <p>이번 주 +12건</p>
+                </article>
+
+                <article class="metric-card">
+                    <span>전체 열람률</span>
+                    <strong>78%</strong>
+                    <p>전주 대비 +6%</p>
+                </article>
+
+                <article class="metric-card warning">
+                    <span>미확인자</span>
+                    <strong>119</strong>
+                    <p>재발송 필요</p>
+                </article>
+
+                <article class="metric-card">
+                    <span>활성 배너</span>
+                    <strong>5</strong>
+                    <p>정상 노출 중</p>
+                </article>
+            </div>
+
+            <div class="dashboard-grid">
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3>최근 공지</h3>
+                            <p>학생 앱에 노출 중인 공식 공지입니다.</p>
+                        </div>
+                        <button class="text-btn" type="button" data-page-move="noticePage">
+                            전체 보기
+                        </button>
+                    </div>
+
+                    <div class="notice-list">
+                        <article class="notice-row">
+                            <div class="notice-badge important">중요</div>
+                            <div class="notice-info">
+                                <h4>2026학년도 컴퓨터공학과 졸업작품 신청 안내</h4>
+                                <p>대상 3학년 · 열람률 78% · 미확인 42명</p>
+                            </div>
+                            <div class="row-actions">
+                                <span class="pill live">게시중</span>
+                                <button type="button" data-modal="previewModal">미리보기</button>
+                            </div>
+                        </article>
+
+                        <article class="notice-row">
+                            <div class="notice-badge academic">학사</div>
+                            <div class="notice-info">
+                                <h4>기말고사 강의실 변경 안내</h4>
+                                <p>대상 전체 · 열람률 64% · 미확인 118명</p>
+                            </div>
+                            <div class="row-actions">
+                                <span class="pill live">게시중</span>
+                                <button type="button" data-modal="previewModal">미리보기</button>
+                            </div>
+                        </article>
+
+                        <article class="notice-row">
+                            <div class="notice-badge scholarship">장학</div>
+                            <div class="notice-info">
+                                <h4>울산 지역 인재 장학금 신청 마감 임박</h4>
+                                <p>대상 전체 · 승인 대기</p>
+                            </div>
+                            <div class="row-actions">
+                                <span class="pill wait">검토중</span>
+                                <button type="button" data-modal="approveModal">승인</button>
+                            </div>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="panel quick-panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3>빠른 실행</h3>
+                            <p>자주 사용하는 관리자 기능입니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="quick-list">
+                        <button type="button" data-modal="noticeCreateModal">
+                            <span>공지 작성</span>
+                            <strong>새 공식 공지 등록</strong>
+                        </button>
+
+                        <button type="button" data-modal="previewModal">
+                            <span>미리보기</span>
+                            <strong>학생 앱 노출 화면 확인</strong>
+                        </button>
+
+                        <button type="button" data-modal="resendModal">
+                            <span>재발송</span>
+                            <strong>미확인자 푸시 알림</strong>
+                        </button>
+
+                        <button type="button" data-modal="deleteModal">
+                            <span>삭제 확인</span>
+                            <strong>삭제 확인 팝업 테스트</strong>
+                        </button>
+                    </div>
+                </section>
+            </div>
         </section>
 
-        <section class="stat-grid">
-            <div class="stat-card">
-                <div class="stat-icon blue">학생</div>
-                <span class="increase">+12</span>
-                <strong>4,832</strong>
-                <p>총 학생</p>
-            </div>
+        <!-- 공지 관리 -->
+        <section id="noticePage" class="page">
+            <section class="panel">
+                <div class="panel-head">
+                    <div>
+                        <h3>공지 관리</h3>
+                        <p>공지 등록, 수정, 미리보기, 승인, 삭제를 관리합니다.</p>
+                    </div>
+                    <button class="secondary-btn" type="button" data-modal="noticeCreateModal">
+                        새 공지
+                    </button>
+                </div>
 
-            <div class="stat-card">
-                <div class="stat-icon green">공지</div>
-                <span class="increase">+89</span>
-                <strong>1,247</strong>
-                <p>오늘 접속</p>
-            </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>공지 제목</th>
+                            <th>카테고리</th>
+                            <th>대상</th>
+                            <th>게시 기간</th>
+                            <th>열람률</th>
+                            <th>상태</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <strong>졸업작품 신청 안내</strong>
+                                <span>컴퓨터공학과 관리자 등록</span>
+                            </td>
+                            <td>학과 공지</td>
+                            <td>컴퓨터공학과 3학년</td>
+                            <td>05.11 ~ 06.07</td>
+                            <td>78%</td>
+                            <td><span class="pill live">게시중</span></td>
+                            <td class="table-actions">
+                                <button type="button" data-modal="noticeEditModal">수정</button>
+                                <button type="button" data-modal="previewModal">미리보기</button>
+                                <button type="button" data-modal="deleteModal">삭제</button>
+                            </td>
+                        </tr>
 
-            <div class="stat-card">
-                <div class="stat-icon yellow">알림</div>
-                <span class="increase">+3</span>
-                <strong>8</strong>
-                <p>신규 공지</p>
-            </div>
+                        <tr>
+                            <td>
+                                <strong>기말고사 강의실 변경 안내</strong>
+                                <span>교무처 등록</span>
+                            </td>
+                            <td>학사 공지</td>
+                            <td>전체 학과</td>
+                            <td>05.10 ~ 05.28</td>
+                            <td>64%</td>
+                            <td><span class="pill live">게시중</span></td>
+                            <td class="table-actions">
+                                <button type="button" data-modal="noticeEditModal">수정</button>
+                                <button type="button" data-modal="previewModal">미리보기</button>
+                                <button type="button" data-modal="resendModal">재발송</button>
+                            </td>
+                        </tr>
 
-            <div class="stat-card">
-                <div class="stat-icon gray">경고</div>
-                <span class="decrease">-1</span>
-                <strong>2</strong>
-                <p>오류 발생</p>
-            </div>
+                        <tr>
+                            <td>
+                                <strong>울산 지역 인재 장학금 신청</strong>
+                                <span>학생복지팀 등록</span>
+                            </td>
+                            <td>장학 공지</td>
+                            <td>전체 학과</td>
+                            <td>05.09 ~ 05.18</td>
+                            <td>51%</td>
+                            <td><span class="pill wait">검토중</span></td>
+                            <td class="table-actions">
+                                <button type="button" data-modal="approveModal">승인</button>
+                                <button type="button" data-modal="noticeEditModal">수정</button>
+                                <button type="button" data-modal="deleteModal">삭제</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
         </section>
 
-        <section class="content-grid">
+        <!-- 열람 트래킹 -->
+        <section id="trackingPage" class="page">
+            <div class="metric-grid">
+                <article class="metric-card">
+                    <span>전체 대상자</span>
+                    <strong>540</strong>
+                    <p>공지 대상 학생</p>
+                </article>
 
-            <div class="panel wide">
-                <div class="panel-header">
-                    <div>
-                        <h3>접속 현황</h3>
-                        <p>시간대별 실시간 접속자 수</p>
-                    </div>
+                <article class="metric-card">
+                    <span>열람 인원</span>
+                    <strong>421</strong>
+                    <p>확인 완료</p>
+                </article>
 
-                    <div class="tab-group">
-                        <button class="active">오늘</button>
-                        <button>주간</button>
-                        <button>월간</button>
-                    </div>
-                </div>
+                <article class="metric-card warning">
+                    <span>미열람 인원</span>
+                    <strong>119</strong>
+                    <p>재발송 필요</p>
+                </article>
 
-                <div class="chart-box">
-                    <svg viewBox="0 0 600 220" preserveAspectRatio="none">
-                        <line x1="0" y1="180" x2="600" y2="180"></line>
-                        <line x1="0" y1="135" x2="600" y2="135"></line>
-                        <line x1="0" y1="90" x2="600" y2="90"></line>
-                        <line x1="0" y1="45" x2="600" y2="45"></line>
-
-                        <polyline
-                                points="0,180 75,120 150,145 225,80 300,105 375,115 450,130 525,160 600,178">
-                        </polyline>
-                    </svg>
-                </div>
+                <article class="metric-card">
+                    <span>열람률</span>
+                    <strong>78%</strong>
+                    <p>전체 기준</p>
+                </article>
             </div>
 
-            <div class="panel">
-                <div class="panel-header">
-                    <div>
-                        <h3>기능별 사용률</h3>
-                        <p>오늘 기준 누적 사용량</p>
-                    </div>
-                </div>
-
-                <div class="progress-list">
-                    <div class="progress-item">
-                        <div class="progress-title">
-                            <span>학생증 QR</span>
-                            <strong>88%</strong>
-                        </div>
-                        <div class="progress-bar">
-                            <span style="width: 88%;"></span>
+            <div class="split-grid">
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3>학과별 열람률</h3>
+                            <p>공지 대상 학과 기준입니다.</p>
                         </div>
                     </div>
 
-                    <div class="progress-item">
-                        <div class="progress-title">
-                            <span>식단표</span>
-                            <strong>74%</strong>
+                    <div class="progress-list">
+                        <div class="progress-row">
+                            <span>컴퓨터공학과</span>
+                            <div><i style="width: 78%"></i></div>
+                            <strong>78%</strong>
                         </div>
-                        <div class="progress-bar">
-                            <span style="width: 74%;"></span>
+                        <div class="progress-row">
+                            <span>전기전자공학과</span>
+                            <div><i style="width: 72%"></i></div>
+                            <strong>72%</strong>
+                        </div>
+                        <div class="progress-row">
+                            <span>기계공학부</span>
+                            <div><i style="width: 65%"></i></div>
+                            <strong>65%</strong>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3>학년별 열람률</h3>
+                            <p>공지 대상 학년 기준입니다.</p>
                         </div>
                     </div>
 
-                    <div class="progress-item">
-                        <div class="progress-title">
-                            <span>시간표</span>
+                    <div class="progress-list">
+                        <div class="progress-row">
+                            <span>1학년</span>
+                            <div><i style="width: 69%"></i></div>
                             <strong>69%</strong>
                         </div>
-                        <div class="progress-bar">
-                            <span style="width: 69%;"></span>
+                        <div class="progress-row">
+                            <span>2학년</span>
+                            <div><i style="width: 74%"></i></div>
+                            <strong>74%</strong>
+                        </div>
+                        <div class="progress-row">
+                            <span>3학년</span>
+                            <div><i style="width: 86%"></i></div>
+                            <strong>86%</strong>
                         </div>
                     </div>
-
-                    <div class="progress-item">
-                        <div class="progress-title">
-                            <span>공지사항</span>
-                            <strong>51%</strong>
-                        </div>
-                        <div class="progress-bar light">
-                            <span style="width: 51%;"></span>
-                        </div>
-                    </div>
-                </div>
+                </section>
             </div>
 
-            <div class="panel">
-                <div class="panel-header">
+            <section class="panel margin-top">
+                <div class="panel-head">
                     <div>
-                        <h3>최근 활동</h3>
+                        <h3>미확인자 목록</h3>
+                        <p>아직 공지를 확인하지 않은 학생입니다.</p>
                     </div>
-                    <a href="#">전체 보기</a>
+                    <button class="secondary-btn" type="button" data-modal="resendModal">
+                        전체 재발송
+                    </button>
                 </div>
 
-                <div class="activity-list">
-                    <div class="activity-item">
-                        <div class="activity-icon green">✓</div>
-                        <div>
-                            <strong>식단표 데이터 자동 업데이트 완료</strong>
-                            <p>10분 전</p>
-                        </div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon yellow">!</div>
-                        <div>
-                            <strong>API 서버 응답 지연 감지</strong>
-                            <p>18분 전</p>
-                        </div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon blue">학</div>
-                        <div>
-                            <strong>신규 학생 32명 등록 완료</strong>
-                            <p>32분 전</p>
-                        </div>
-                    </div>
-
-                    <div class="activity-item">
-                        <div class="activity-icon red">보</div>
-                        <div>
-                            <strong>무단 접근 시도 차단</strong>
-                            <p>2시간 전</p>
-                        </div>
-                    </div>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>이름</th>
+                            <th>학번</th>
+                            <th>학과</th>
+                            <th>학년</th>
+                            <th>최근 접속</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>김민준</td>
+                            <td>20260011</td>
+                            <td>컴퓨터공학과</td>
+                            <td>3학년</td>
+                            <td>오늘 09:10</td>
+                            <td class="table-actions">
+                                <button type="button" data-toast="개별 알림이 발송되었습니다.">개별 알림</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>이서연</td>
+                            <td>20260037</td>
+                            <td>컴퓨터공학과</td>
+                            <td>3학년</td>
+                            <td>어제 18:22</td>
+                            <td class="table-actions">
+                                <button type="button" data-toast="개별 알림이 발송되었습니다.">개별 알림</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>박지훈</td>
+                            <td>20260048</td>
+                            <td>컴퓨터공학과</td>
+                            <td>3학년</td>
+                            <td>3일 전</td>
+                            <td class="table-actions">
+                                <button type="button" data-toast="개별 알림이 발송되었습니다.">개별 알림</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
-
-            <div class="panel quick-panel">
-                <div class="panel-header">
-                    <div>
-                        <h3>빠른 실행</h3>
-                    </div>
-                </div>
-
-                <div class="quick-grid">
-                    <a href="/notices/new">공지 등록</a>
-                    <a href="/scholarships/new">장학 등록</a>
-                    <a href="/banners/new">배너 등록</a>
-                </div>
-            </div>
-
+            </section>
         </section>
 
-    </main>
+        <!-- 미확인자 재발송 -->
+        <section id="resendPage" class="page">
+            <div class="resend-layout">
+                <section class="resend-card">
+                    <span>재발송 대상</span>
+                    <h3>미확인자 119명에게 푸시 알림을 재발송합니다.</h3>
+                    <p>
+                        대상자 미리보기, 알림 문구 수정, 발송 결과 표시까지
+                        모두 동작하도록 구성했습니다.
+                    </p>
+                    <button class="white-btn" type="button" data-modal="resendModal">
+                        재발송 팝업 열기
+                    </button>
+                </section>
 
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3>재발송 기록</h3>
+                            <p>최근 알림 발송 결과입니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="log-list">
+                        <article>
+                            <span>완료</span>
+                            <strong>졸업작품 신청 안내</strong>
+                            <p>119명 대상 · 오늘 10:24</p>
+                        </article>
+                        <article>
+                            <span>완료</span>
+                            <strong>기말고사 강의실 변경 안내</strong>
+                            <p>118명 대상 · 어제 16:02</p>
+                        </article>
+                        <article>
+                            <span>대기</span>
+                            <strong>장학금 신청 마감 안내</strong>
+                            <p>승인 후 발송 예정</p>
+                        </article>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <!-- 배너 관리 -->
+        <section id="bannerPage" class="page">
+            <section class="panel">
+                <div class="panel-head">
+                    <div>
+                        <h3>배너 관리</h3>
+                        <p>배너 추가, 수정, 삭제 팝업을 테스트할 수 있습니다.</p>
+                    </div>
+                    <button class="secondary-btn" type="button" data-modal="bannerModal">
+                        배너 등록
+                    </button>
+                </div>
+
+                <div class="banner-grid">
+                    <article class="banner-card blue">
+                        <div class="banner-preview">
+                            <span>컴퓨터공학과 공식 안내</span>
+                            <strong>졸업작품 신청 기간 안내</strong>
+                        </div>
+                        <div class="banner-body">
+                            <span class="pill live">노출중</span>
+                            <p>05.11 ~ 06.07 · 컴퓨터공학과 관리자</p>
+                            <div class="table-actions">
+                                <button type="button" data-modal="bannerModal">수정</button>
+                                <button type="button" data-modal="deleteModal">삭제</button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="banner-card purple">
+                        <div class="banner-preview">
+                            <span>장학금 안내</span>
+                            <strong>울산 지역 인재 장학금</strong>
+                        </div>
+                        <div class="banner-body">
+                            <span class="pill wait">예약</span>
+                            <p>05.15 ~ 05.18 · 학생복지팀</p>
+                            <div class="table-actions">
+                                <button type="button" data-modal="bannerModal">수정</button>
+                                <button type="button" data-modal="deleteModal">삭제</button>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="banner-card dark">
+                        <div class="banner-preview">
+                            <span>시스템 안내</span>
+                            <strong>LMS 정기 점검 안내</strong>
+                        </div>
+                        <div class="banner-body">
+                            <span class="pill off">종료</span>
+                            <p>05.01 ~ 05.05 · 정보지원팀</p>
+                            <div class="table-actions">
+                                <button type="button" data-modal="bannerModal">복사</button>
+                                <button type="button" data-modal="deleteModal">삭제</button>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </section>
+
+        <!-- 장학금 -->
+        <section id="benefitPage" class="page">
+            <section class="panel">
+                <div class="panel-head">
+                    <div>
+                        <h3>장학금 관리</h3>
+                        <p>장학금 정보를 등록하고 마감 임박 항목을 강조합니다.</p>
+                    </div>
+                    <button class="secondary-btn" type="button" data-modal="scholarshipModal">
+                        장학금 등록
+                    </button>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>장학금명</th>
+                            <th>유형</th>
+                            <th>대상</th>
+                            <th>마감일</th>
+                            <th>상태</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>
+                                <strong>울산 지역 인재 장학금</strong>
+                                <span>지역 기관 연계</span>
+                            </td>
+                            <td>지역 장학</td>
+                            <td>울산 거주 재학생</td>
+                            <td>05.18</td>
+                            <td><span class="pill danger">D-7</span></td>
+                            <td class="table-actions">
+                                <button type="button" data-modal="scholarshipModal">수정</button>
+                                <button type="button" data-toast="공지와 연결되었습니다.">공지 연결</button>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>
+                                <strong>성적 우수 장학금</strong>
+                                <span>교내 정규 장학</span>
+                            </td>
+                            <td>교내 장학</td>
+                            <td>학과별 성적 우수자</td>
+                            <td>06.12</td>
+                            <td><span class="pill live">접수중</span></td>
+                            <td class="table-actions">
+                                <button type="button" data-modal="scholarshipModal">수정</button>
+                                <button type="button" data-toast="공지와 연결되었습니다.">공지 연결</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+
+        <!-- 학사 일정 -->
+        <section id="schedulePage" class="page">
+            <section class="panel">
+                <div class="panel-head">
+                    <div>
+                        <h3>학사 일정 관리</h3>
+                        <p>주요 학사 일정을 등록하고 수정합니다.</p>
+                    </div>
+                    <button class="secondary-btn" type="button" data-modal="scheduleModal">
+                        일정 추가
+                    </button>
+                </div>
+
+                <div class="timeline-list">
+                    <article>
+                        <span>05.13</span>
+                        <div>
+                            <strong>수강 정정 기간</strong>
+                            <p>05.13 ~ 05.15 · 전체 학생</p>
+                        </div>
+                        <button type="button" data-modal="scheduleModal">수정</button>
+                    </article>
+
+                    <article>
+                        <span>06.15</span>
+                        <div>
+                            <strong>기말고사 기간</strong>
+                            <p>06.15 ~ 06.21 · 학사 일정</p>
+                        </div>
+                        <button type="button" data-modal="scheduleModal">수정</button>
+                    </article>
+
+                    <article>
+                        <span>06.22</span>
+                        <div>
+                            <strong>하계 방학 시작</strong>
+                            <p>06.22부터 · 전체 학생</p>
+                        </div>
+                        <button type="button" data-modal="scheduleModal">수정</button>
+                    </article>
+                </div>
+            </section>
+        </section>
+
+        <!-- 셔틀버스 -->
+        <section id="shuttlePage" class="page">
+            <section class="panel">
+                <div class="panel-head">
+                    <div>
+                        <h3>셔틀버스 관리</h3>
+                        <p>노선, 시간표, 운행 상태를 관리합니다.</p>
+                    </div>
+                    <button class="secondary-btn" type="button" data-toast="노선 추가 기능은 준비 중입니다.">
+                        노선 추가
+                    </button>
+                </div>
+
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>노선명</th>
+                            <th>출발지</th>
+                            <th>운행 시간</th>
+                            <th>상태</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>동부캠퍼스 순환</td>
+                            <td>정문 → 학과동</td>
+                            <td>08:00 ~ 18:30</td>
+                            <td><span class="pill live">정상</span></td>
+                            <td class="table-actions">
+                                <button type="button" data-toast="노선 정보가 수정되었습니다.">수정</button>
+                                <button type="button" data-modal="deleteModal">운행중단</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>울산역 연계</td>
+                            <td>울산역 → 대학</td>
+                            <td>07:40 / 08:20</td>
+                            <td><span class="pill live">정상</span></td>
+                            <td class="table-actions">
+                                <button type="button" data-toast="노선 정보가 수정되었습니다.">수정</button>
+                                <button type="button" data-modal="deleteModal">운행중단</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </section>
+
+        <!-- 관리자 설정 -->
+        <section id="settingPage" class="page">
+            <div class="split-grid">
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3>관리자 설정</h3>
+                            <p>계정, 알림, API 연동 상태입니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="setting-list">
+                        <article>
+                            <div>
+                                <strong>시스템 관리자 정보</strong>
+                                <p>대표 관리자 이름, 소속, 이메일 관리</p>
+                            </div>
+                            <button type="button" data-modal="accountModal">수정</button>
+                        </article>
+
+                        <article>
+                            <div>
+                                <strong>알림 설정</strong>
+                                <p>공지 등록, 승인, 미확인자 알림 사용 여부</p>
+                            </div>
+                            <span class="switch on"></span>
+                        </article>
+
+                        <article>
+                            <div>
+                                <strong>API 연동 상태</strong>
+                                <p>Firebase, 학생 CSV, 푸시 알림 서버 상태</p>
+                            </div>
+                            <span class="pill live">정상</span>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-head">
+                        <div>
+                            <h3>권한 설정</h3>
+                            <p>관리자 유형별 기능 접근 권한입니다.</p>
+                        </div>
+                    </div>
+
+                    <div class="setting-list">
+                        <article>
+                            <div>
+                                <strong>학과 관리자</strong>
+                                <p>공지 작성, 열람률 확인, 재발송</p>
+                            </div>
+                            <span class="switch on"></span>
+                        </article>
+
+                        <article>
+                            <div>
+                                <strong>부서 관리자</strong>
+                                <p>장학금, 일정, 배너 등록</p>
+                            </div>
+                            <span class="switch on"></span>
+                        </article>
+
+                        <article>
+                            <div>
+                                <strong>학생회 관리자</strong>
+                                <p>행사 등록은 승인 후 게시</p>
+                            </div>
+                            <span class="switch"></span>
+                        </article>
+                    </div>
+                </section>
+            </div>
+        </section>
+    </main>
 </div>
 
+<!-- 알림 드로어 -->
+<aside id="noticeDrawer" class="drawer hidden">
+    <div class="drawer-head">
+        <div>
+            <h3>알림 센터</h3>
+            <p>관리자 확인이 필요한 알림입니다.</p>
+        </div>
+        <button class="drawer-close" type="button">×</button>
+    </div>
+
+    <div class="drawer-list">
+        <article>
+            <span class="dot danger"></span>
+            <div>
+                <strong>공지 승인 대기</strong>
+                <p>장학금 공지 1건이 승인 대기 중입니다.</p>
+            </div>
+        </article>
+
+        <article>
+            <span class="dot info"></span>
+            <div>
+                <strong>미확인자 증가</strong>
+                <p>기말고사 공지 미확인자가 118명입니다.</p>
+            </div>
+        </article>
+
+        <article>
+            <span class="dot success"></span>
+            <div>
+                <strong>배너 예약 완료</strong>
+                <p>장학금 배너가 05.15에 노출됩니다.</p>
+            </div>
+        </article>
+    </div>
+</aside>
+
+<div id="modalBackdrop" class="modal-backdrop hidden"></div>
+
+<!-- 공지 작성 팝업 -->
+<section id="noticeCreateModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-head">
+        <h3>공지 작성</h3>
+        <button class="modal-close" type="button">×</button>
+    </div>
+
+    <div class="modal-body">
+        <form class="modal-form">
+            <label>공지 제목</label>
+            <input type="text" value="2026학년도 컴퓨터공학과 졸업작품 신청 안내" />
+
+            <label>카테고리</label>
+            <select>
+                <option>학과 공지</option>
+                <option>학사 공지</option>
+                <option>장학 공지</option>
+            </select>
+
+            <label>본문</label>
+            <textarea>공지 내용을 입력하세요.</textarea>
+        </form>
+    </div>
+
+    <div class="modal-actions">
+        <button class="line-btn modal-close" type="button">취소</button>
+        <button class="primary-btn" type="button" data-save="공지 등록이 완료되었습니다.">게시하기</button>
+    </div>
+</section>
+
+<!-- 공지 수정 팝업 -->
+<section id="noticeEditModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-head">
+        <h3>공지 수정</h3>
+        <button class="modal-close" type="button">×</button>
+    </div>
+
+    <div class="modal-body">
+        <form class="modal-form">
+            <label>공지 제목</label>
+            <input type="text" value="졸업작품 신청 안내" />
+
+            <label>게시 상태</label>
+            <select>
+                <option>게시중</option>
+                <option>임시 저장</option>
+                <option>게시 종료</option>
+            </select>
+
+            <label>수정 내용</label>
+            <textarea>공지 수정 내용을 입력하세요.</textarea>
+        </form>
+    </div>
+
+    <div class="modal-actions">
+        <button class="line-btn modal-close" type="button">취소</button>
+        <button class="primary-btn" type="button" data-save="공지 수정이 완료되었습니다.">저장</button>
+    </div>
+</section>
+
+<!-- 미리보기 팝업 -->
+<section id="previewModal" class="modal preview-modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-head">
+        <h3>공지 미리보기</h3>
+        <button class="modal-close" type="button">×</button>
+    </div>
+
+    <div class="modal-body">
+        <div class="phone-preview">
+            <div class="phone-top">UC Info</div>
+            <article>
+                <span>컴퓨터공학과 공식 공지</span>
+                <h4>2026학년도 컴퓨터공학과 졸업작품 신청 안내</h4>
+                <p>
+                    컴퓨터공학과 졸업작품 신청 일정과 제출 방법을 안내합니다.
+                    신청 대상 학생은 기간 내 신청서를 제출해주시기 바랍니다.
+                </p>
+            </article>
+        </div>
+    </div>
+
+    <div class="modal-actions">
+        <button class="primary-btn modal-close" type="button">확인</button>
+    </div>
+</section>
+
+<!-- 재발송 팝업 -->
+<section id="resendModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-head">
+        <h3>미확인자 재발송</h3>
+        <button class="modal-close" type="button">×</button>
+    </div>
+
+    <div class="modal-body">
+        <div class="modal-summary">
+            <strong>119명</strong>
+            <p>아직 공지를 확인하지 않은 학생에게 푸시 알림을 발송합니다.</p>
+        </div>
+
+        <form class="modal-form">
+            <label>재발송 대상</label>
+            <select>
+                <option>전체 미확인자 119명</option>
+                <option>3학년 미확인자</option>
+                <option>최근 24시간 미접속자</option>
+            </select>
+
+            <label>알림 문구</label>
+            <textarea>[UC Info] 졸업작품 신청 안내 공지를 아직 확인하지 않았습니다.</textarea>
+        </form>
+    </div>
+
+    <div class="modal-actions">
+        <button class="line-btn modal-close" type="button">취소</button>
+        <button class="primary-btn" type="button" data-save="미확인자 119명에게 푸시 알림이 발송되었습니다.">
+            재발송
+        </button>
+    </div>
+</section>
+
+<!-- 승인 팝업 -->
+<section id="approveModal" class="modal small-modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-head">
+        <h3>공지 승인</h3>
+        <button class="modal-close" type="button">×</button>
+    </div>
+
+    <div class="modal-body">
+        <p class="confirm-text">이 공지를 승인하고 학생 앱에 게시하시겠습니까?</p>
+    </div>
+
+    <div class="modal-actions">
+        <button class="line-btn modal-close" type="button">취소</button>
+        <button class="primary-btn" type="button" data-save="공지 승인이 완료되었습니다.">승인</button>
+    </div>
+</section>
+
+<!-- 삭제 팝업 -->
+<section id="deleteModal" class="modal small-modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-head">
+        <h3>삭제 확인</h3>
+        <button class="modal-close" type="button">×</button>
+    </div>
+
+    <div class="modal-body">
+        <p class="confirm-text danger-text">
+            삭제한 항목은 복구할 수 없습니다. 정말 삭제하시겠습니까?
+        </p>
+    </div>
+
+    <div class="modal-actions">
+        <button class="line-btn modal-close" type="button">취소</button>
+        <button class="danger-btn" type="button" data-save="삭제가 완료되었습니다.">삭제</button>
+    </div>
+</section>
+
+<!-- 배너 팝업 -->
+<section id="bannerModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-head">
+        <h3>배너 등록/수정</h3>
+        <button class="modal-close" type="button">×</button>
+    </div>
+
+    <div class="modal-body">
+        <form class="modal-form">
+            <label>배너 제목</label>
+            <input type="text" value="졸업작품 신청 기간 안내" />
+
+            <label>게시 기간</label>
+            <input type="text" value="05.11 ~ 06.07" />
+
+            <label>노출 상태</label>
+            <select>
+                <option>노출중</option>
+                <option>예약</option>
+                <option>종료</option>
+            </select>
+        </form>
+    </div>
+
+    <div class="modal-actions">
+        <button class="line-btn modal-close" type="button">취소</button>
+        <button class="primary-btn" type="button" data-save="배너 저장이 완료되었습니다.">저장</button>
+    </div>
+</section>
+
+<!-- 장학금 팝업 -->
+<section id="scholarshipModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-head">
+        <h3>장학금 등록/수정</h3>
+        <button class="modal-close" type="button">×</button>
+    </div>
+
+    <div class="modal-body">
+        <form class="modal-form">
+            <label>장학금명</label>
+            <input type="text" value="울산 지역 인재 장학금" />
+
+            <label>대상</label>
+            <input type="text" value="울산 거주 재학생" />
+
+            <label>마감일</label>
+            <input type="date" value="2026-05-18" />
+        </form>
+    </div>
+
+    <div class="modal-actions">
+        <button class="line-btn modal-close" type="button">취소</button>
+        <button class="primary-btn" type="button" data-save="장학금 정보가 저장되었습니다.">저장</button>
+    </div>
+</section>
+
+<!-- 일정 팝업 -->
+<section id="scheduleModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-head">
+        <h3>학사 일정 등록/수정</h3>
+        <button class="modal-close" type="button">×</button>
+    </div>
+
+    <div class="modal-body">
+        <form class="modal-form">
+            <label>일정명</label>
+            <input type="text" value="기말고사 기간" />
+
+            <label>시작일</label>
+            <input type="date" value="2026-06-15" />
+
+            <label>종료일</label>
+            <input type="date" value="2026-06-21" />
+        </form>
+    </div>
+
+    <div class="modal-actions">
+        <button class="line-btn modal-close" type="button">취소</button>
+        <button class="primary-btn" type="button" data-save="학사 일정이 저장되었습니다.">저장</button>
+    </div>
+</section>
+
+<!-- 계정 팝업 -->
+<section id="accountModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-head">
+        <h3>관리자 정보 수정</h3>
+        <button class="modal-close" type="button">×</button>
+    </div>
+
+    <div class="modal-body">
+        <form class="modal-form">
+            <label>관리자 이름</label>
+            <input type="text" value="한구윤 관리자" />
+
+            <label>소속</label>
+            <input type="text" value="컴퓨터공학과" />
+
+            <label>이메일</label>
+            <input type="email" value="cs_admin@uc.ac.kr" />
+        </form>
+    </div>
+
+    <div class="modal-actions">
+        <button class="line-btn modal-close" type="button">취소</button>
+        <button class="primary-btn" type="button" data-save="관리자 정보가 수정되었습니다.">저장</button>
+    </div>
+</section>
+
+<!-- 오늘 업무 팝업 -->
+<section id="taskModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-head">
+        <h3>오늘의 업무</h3>
+        <button class="modal-close" type="button">×</button>
+    </div>
+
+    <div class="modal-body">
+        <div class="task-modal-list">
+            <article>
+                <span>검토</span>
+                <div>
+                    <strong>장학금 공지 승인</strong>
+                    <p>학생복지팀 등록 공지</p>
+                </div>
+            </article>
+
+            <article>
+                <span>재발송</span>
+                <div>
+                    <strong>졸업작품 공지 미확인자</strong>
+                    <p>119명 대상</p>
+                </div>
+            </article>
+
+            <article>
+                <span>예약</span>
+                <div>
+                    <strong>장학금 배너 노출</strong>
+                    <p>05.15 시작</p>
+                </div>
+            </article>
+        </div>
+    </div>
+
+    <div class="modal-actions">
+        <button class="primary-btn modal-close" type="button">확인</button>
+    </div>
+</section>
+
+<div id="toast" class="toast hidden">처리가 완료되었습니다.</div>
+
+<script th:src="@{/js/dashboard.js}"></script>
 </body>
 </html>

@@ -1,51 +1,120 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>UC Info 관리자 로그인</title>
-    <link rel="stylesheet" href="/css/login.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UC Info Admin</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap"
+            rel="stylesheet"
+    />
+
+    <link rel="stylesheet" th:href="@{/css/login.css}" />
 </head>
 <body>
+<main class="login-page">
+    <section class="login-left">
+        <div class="login-left-inner">
+            <div class="brand-area">
+                <div class="brand-logo">UC</div>
+                <h1>UC Info Admin</h1>
+            </div>
 
-<div class="page">
-    <section class="login-section">
+            <div class="hero-content">
+                <span class="system-badge">공식 학과 정보 통합 관리 시스템</span>
+
+                <h2>
+                    울산과학대학교<br />
+                    공지와 학생 정보를<br />
+                    한 곳에서 관리합니다.
+                </h2>
+
+                <p>
+                    학과별 공지, 장학금, 학사 일정, 셔틀버스, 행사 배너까지<br />
+                    학생에게 전달되는 모든 정보를 신뢰감 있게 운영하는 관리자 페이지입니다.
+                </p>
+            </div>
+
+            <div class="stat-row">
+                <div class="stat-card">
+                    <strong>128</strong>
+                    <span>이번 달 등록 공지</span>
+                </div>
+
+                <div class="stat-card">
+                    <strong>92%</strong>
+                    <span>중요 공지 열람률</span>
+                </div>
+
+                <div class="stat-card">
+                    <strong>14</strong>
+                    <span>운영 부서</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="login-right">
         <div class="login-card">
-
-            <div class="mobile-brand">
-                <div class="logo">UC</div>
-                <h1>UC Info</h1>
-                <p>Administrator Portal</p>
-            </div>
-
-            <div class="login-title">
+            <div class="login-card-title">
                 <h2>관리자 로그인</h2>
-
+                <p>
+                    학과 또는 부서 관리자 계정으로 접속하여 공식 공지와 학생 편의 정보를 관리합니다.
+                </p>
             </div>
 
-            <form action="/login" method="post">
-                <div class="input-group">
+            <div class="login-error" th:if="${param.error}">
+                아이디 또는 비밀번호가 올바르지 않습니다.
+            </div>
+
+            <form class="login-form" th:action="@{/login}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <div class="form-group">
                     <label for="adminId">관리자 ID</label>
-                    <input type="text" id="adminId" name="username" placeholder="관리자 아이디를 입력하세요">
+                    <input
+                            id="adminId"
+                            name="username"
+                            type="text"
+                            value="admin"
+                            placeholder="관리자 아이디를 입력하세요"
+                    />
                 </div>
 
-                <div class="input-group">
-                    <label for="password">비밀번호</label>
-                    <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요">
+                <div class="form-group">
+                    <label for="adminPassword">비밀번호</label>
+                    <input
+                            id="adminPassword"
+                            name="password"
+                            type="password"
+                            value="1234"
+                            placeholder="비밀번호를 입력하세요"
+                    />
                 </div>
 
-                <button type="submit" class="login-button">
-                    로그인 <span>›</span>
+                <div class="login-option-row">
+                    <label class="check-label">
+                        <input type="checkbox" name="remember" checked />
+                        <span>로그인 유지</span>
+                    </label>
+
+                    <a href="#">비밀번호 찾기</a>
+                </div>
+
+                <button type="submit" class="login-submit-btn">
+                    관리자 페이지 접속
                 </button>
             </form>
 
-            <div class="help-box">
-                <p>관리자 계정은 학과 또는 부서 담당자에게만 제공됩니다.</p>
+            <div class="login-help-box">
+                <p>
+                    관리자 계정으로 로그인해야 대시보드에 접근할 수 있습니다.
+                </p>
             </div>
-
-            <p class="test-account">테스트 계정 ID: admin / PW: 1234</p>
         </div>
     </section>
-</div>
-
+</main>
 </body>
 </html>
