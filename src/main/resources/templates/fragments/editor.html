@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="noticeEditor" class="editor-wrap">
+    <div class="editor-toolbar">
+        <button type="button" data-command="bold">B</button>
+        <button type="button" data-command="italic">I</button>
+        <button type="button" data-command="underline">U</button>
+        <button type="button" data-command="insertUnorderedList">목록</button>
+        <button type="button" data-command="insertOrderedList">번호</button>
+        <button type="button" data-command="createLink">링크</button>
+        <button type="button" data-command="removeFormat">초기화</button>
+    </div>
+
+    <div
+            id="noticeEditor"
+            class="notice-editor"
+            contenteditable="true"
+            data-placeholder="공지 내용을 입력하세요.">
+    </div>
+
+    <textarea id="noticeContent" name="content" hidden></textarea>
+</div>
+</body>
+</html>

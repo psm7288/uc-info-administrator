@@ -1,9 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const bannerButtons = document.querySelectorAll("[data-banner-toast]");
+    const shuttleButtons = document.querySelectorAll("[data-shuttle-toast]");
 
-    bannerButtons.forEach(function (button) {
+    shuttleButtons.forEach(function (button) {
         button.addEventListener("click", function () {
-            const message = button.dataset.bannerToast || "배너 작업이 처리되었습니다.";
+            const message = button.dataset.shuttleToast || "셔틀버스 정보가 처리되었습니다.";
 
             if (typeof showToast === "function") {
                 showToast(message);

@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head('공지 관리')}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/pages/notice.css}" />
+</head>
+<body>
+<div class="admin-view">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <main class="main-area">
+        <div th:replace="~{fragments/header :: header('공지 관리', 'Notice')}"></div>
+
+        <section class="panel notice-filter-panel">
+            <div class="panel-head">
+                <div>
+                    <h3>공지 검색</h3>
+                    <p>카테고리, 상태, 키워드 기준으로 공지를 찾습니다.</p>
+                </div>
+
+                <a class="primary-btn" th:href="@{/notices/new}">
+                    새 공지 작성
+                </a>
+            </div>
+
+            <form class="notice-filter-form">
+                <input type="text" placeholder="공지 제목 또는 내용 검색" />
+
+                <select>
+                    <option>전체 카테고리</option>
+                    <option>학과 공지</option>
+                    <option>학사 공지</option>
+                    <option>장학 공지</option>
+                    <option>행사 공지</option>
+                </select>
+
+                <select>
+                    <option>전체 상태</option>
+                    <option>게시중</option>
+                    <option>검토중</option>
+                    <option>임시저장</option>
+                    <option>게시종료</option>
+                </select>
+
+                <button class="secondary-btn" type="button" data-toast="검색 조건이 적용되었습니다.">
+                    검색
+                </button>
+            </form>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <div>
+                    <h3>공지 목록</h3>
+                    <p>학생 앱에 노출되는 공식 공지를 관리합니다.</p>
+                </div>
+
+                <div class="notice-list-title">
+                    <span class="pill info">총 42건</span>
+                </div>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>공지 제목</th>
+                        <th>카테고리</th>
+                        <th>대상</th>
+                        <th>게시 기간</th>
+                        <th>열람률</th>
+                        <th>상태</th>
+                        <th>관리</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr>
+                        <td>
+                            <div class="notice-title-cell">
+                                <strong>2026학년도 컴퓨터공학과 졸업작품 신청 안내</strong>
+                                <p>컴퓨터공학과 관리자 · 중요 공지</p>
+                                <div class="notice-meta">
+                                    <span>상단 고정</span>
+                                    <span>푸시 발송</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>학과 공지</td>
+                        <td>컴퓨터공학과 3학년</td>
+                        <td>05.11 ~ 06.07</td>
+                        <td>78%</td>
+                        <td>
+                            <span class="pill live">게시중</span>
+                        </td>
+                        <td class="table-actions">
+                            <a th:href="@{/notices/1/edit}">수정</a>
+                            <button type="button" data-modal="previewModal">미리보기</button>
+                            <button type="button" data-modal="resendModal">재발송</button>
+                            <button type="button" data-modal="deleteModal">삭제</button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <div class="notice-title-cell">
+                                <strong>기말고사 강의실 변경 안내</strong>
+                                <p>교무처 · 학사 일정 관련 공지</p>
+                                <div class="notice-meta">
+                                    <span>전체 학과</span>
+                                    <span>마감 임박</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>학사 공지</td>
+                        <td>전체 학생</td>
+                        <td>05.10 ~ 05.28</td>
+                        <td>64%</td>
+                        <td>
+                            <span class="pill live">게시중</span>
+                        </td>
+                        <td class="table-actions">
+                            <a th:href="@{/notices/2/edit}">수정</a>
+                            <button type="button" data-modal="previewModal">미리보기</button>
+                            <button type="button" data-modal="resendModal">재발송</button>
+                            <button type="button" data-modal="deleteModal">삭제</button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <div class="notice-title-cell">
+                                <strong>울산 지역 인재 장학금 신청 마감 임박</strong>
+                                <p>학생복지팀 · 외부 장학금 안내</p>
+                                <div class="notice-meta">
+                                    <span>D-7</span>
+                                    <span>장학금</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>장학 공지</td>
+                        <td>전체 학생</td>
+                        <td>05.09 ~ 05.18</td>
+                        <td>51%</td>
+                        <td>
+                            <span class="pill wait">검토중</span>
+                        </td>
+                        <td class="table-actions">
+                            <button type="button" data-modal="approveModal">승인</button>
+                            <a th:href="@{/notices/3/edit}">수정</a>
+                            <button type="button" data-modal="previewModal">미리보기</button>
+                            <button type="button" data-modal="deleteModal">삭제</button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <div class="notice-title-cell">
+                                <strong>동아리 연합 모집 행사 안내</strong>
+                                <p>학생회 · 행사 홍보</p>
+                                <div class="notice-meta">
+                                    <span>행사</span>
+                                    <span>배너 연결</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>행사 공지</td>
+                        <td>전체 학생</td>
+                        <td>05.15 ~ 05.22</td>
+                        <td>대기</td>
+                        <td>
+                            <span class="pill off">임시저장</span>
+                        </td>
+                        <td class="table-actions">
+                            <a th:href="@{/notices/4/edit}">수정</a>
+                            <button type="button" data-modal="previewModal">미리보기</button>
+                            <button type="button" data-modal="deleteModal">삭제</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<aside id="noticeDrawer" class="drawer hidden">
+    <div class="drawer-head">
+        <div>
+            <h3>알림 센터</h3>
+            <p>관리자 확인이 필요한 알림입니다.</p>
+        </div>
+        <button class="drawer-close" type="button">×</button>
+    </div>
+
+    <div class="drawer-list">
+        <article>
+            <span class="dot danger"></span>
+            <div>
+                <strong>공지 승인 대기</strong>
+                <p>장학금 공지 1건이 승인 대기 중입니다.</p>
+            </div>
+        </article>
+
+        <article>
+            <span class="dot info"></span>
+            <div>
+                <strong>미확인자 증가</strong>
+                <p>기말고사 공지 미확인자가 118명입니다.</p>
+            </div>
+        </article>
+
+        <article>
+            <span class="dot success"></span>
+            <div>
+                <strong>배너 예약 완료</strong>
+                <p>장학금 배너가 05.15에 노출됩니다.</p>
+            </div>
+        </article>
+    </div>
+</aside>
+
+<div th:replace="~{fragments/modals :: modals}"></div>
+<div th:replace="~{fragments/toast :: toast}"></div>
+
+<script th:src="@{/js/common/toast.js}"></script>
+<script th:src="@{/js/common/modal.js}"></script>
+<script th:src="@{/js/common/sidebar.js}"></script>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/pages/notice.js}"></script>
+</body>
+</html>

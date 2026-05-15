@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head('공지 수정')}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/common/editor.css}" />
+    <link rel="stylesheet" th:href="@{/css/pages/notice.css}" />
+</head>
+<body>
+<div class="admin-view">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <main class="main-area">
+        <div th:replace="~{fragments/header :: header('공지 수정', 'Notice Edit')}"></div>
+
+        <section class="panel notice-write-panel">
+            <div class="panel-head">
+                <div>
+                    <h3>공지 수정</h3>
+                    <p>기존 공지 내용을 수정하고 다시 게시할 수 있습니다.</p>
+                </div>
+
+                <a class="line-btn" th:href="@{/notices}">
+                    목록으로
+                </a>
+            </div>
+
+            <form class="notice-form" th:action="@{/notices/1/edit}" method="post">
+                <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                <div class="notice-form-grid">
+                    <div class="field full">
+                        <label for="title">공지 제목</label>
+                        <input
+                                id="title"
+                                name="title"
+                                type="text"
+                                value="2026학년도 컴퓨터공학과 졸업작품 신청 안내"
+                                placeholder="공지 제목을 입력하세요"
+                        />
+                    </div>
+
+                    <div class="field">
+                        <label for="category">카테고리</label>
+                        <select id="category" name="category">
+                            <option value="DEPARTMENT" selected>학과 공지</option>
+                            <option value="ACADEMIC">학사 공지</option>
+                            <option value="SCHOLARSHIP">장학 공지</option>
+                            <option value="EVENT">행사 공지</option>
+                            <option value="EMPLOYMENT">취업 공지</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="targetDepartment">대상 학과</label>
+                        <select id="targetDepartment" name="targetDepartment">
+                            <option value="ALL">전체 학과</option>
+                            <option value="COMPUTER" selected>컴퓨터공학과</option>
+                            <option value="ELECTRONIC">전기전자공학과</option>
+                            <option value="MECHANICAL">기계공학부</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="targetGrade">대상 학년</label>
+                        <select id="targetGrade" name="targetGrade">
+                            <option value="ALL">전체 학년</option>
+                            <option value="1">1학년</option>
+                            <option value="2">2학년</option>
+                            <option value="3" selected>3학년</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="priority">공지 중요도</label>
+                        <select id="priority" name="priority">
+                            <option value="NORMAL">일반 공지</option>
+                            <option value="IMPORTANT" selected>중요 공지</option>
+                            <option value="URGENT">긴급 공지</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="startDate">게시 시작일</label>
+                        <input id="startDate" name="startDate" type="date" value="2026-05-11" />
+                    </div>
+
+                    <div class="field">
+                        <label for="endDate">게시 종료일</label>
+                        <input id="endDate" name="endDate" type="date" value="2026-06-07" />
+                    </div>
+
+                    <div class="field">
+                        <label for="status">게시 상태</label>
+                        <select id="status" name="status">
+                            <option value="PUBLISHED" selected>게시중</option>
+                            <option value="DRAFT">임시 저장</option>
+                            <option value="WAITING">검토중</option>
+                            <option value="CLOSED">게시 종료</option>
+                        </select>
+                    </div>
+
+                    <div class="field full">
+                        <label>공지 내용</label>
+
+                        <div class="editor-wrap">
+                            <div class="editor-toolbar">
+                                <button type="button" data-command="bold">B</button>
+                                <button type="button" data-command="italic">I</button>
+                                <button type="button" data-command="underline">U</button>
+                                <button type="button" data-command="insertUnorderedList">목록</button>
+                                <button type="button" data-command="insertOrderedList">번호</button>
+                                <button type="button" data-command="createLink">링크</button>
+                                <button type="button" data-command="removeFormat">초기화</button>
+                            </div>
+
+                            <div
+                                    id="noticeEditor"
+                                    class="notice-editor"
+                                    contenteditable="true"
+                                    data-placeholder="공지 내용을 입력하세요.">
+                                <p>컴퓨터공학과 졸업작품 신청 일정과 제출 방법을 안내합니다.</p>
+                                <p>신청 대상 학생은 기간 내 신청서를 제출해주시기 바랍니다.</p>
+                                <ul>
+                                    <li>대상: 컴퓨터공학과 3학년</li>
+                                    <li>기간: 2026년 5월 11일 ~ 6월 7일</li>
+                                    <li>제출: 학과 사무실 또는 온라인 신청</li>
+                                </ul>
+                            </div>
+
+                            <textarea id="noticeContent" name="content" hidden></textarea>
+                        </div>
+                    </div>
+
+                    <div class="field full">
+                        <label for="attachment">첨부파일</label>
+                        <input id="attachment" name="attachment" type="file" />
+                        <p class="field-help">
+                            기존 첨부파일: 졸업작품_신청서.pdf · 새 파일을 선택하면 기존 파일을 대체합니다.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-actions notice-actions">
+                    <button class="line-btn" type="button" data-modal="previewModal">
+                        미리보기
+                    </button>
+
+                    <button class="secondary-btn" type="submit" name="saveType" value="DRAFT">
+                        임시 저장
+                    </button>
+
+                    <button class="primary-btn" type="submit" name="saveType" value="PUBLISHED">
+                        수정 완료
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+</div>
+
+<div th:replace="~{fragments/modals :: modals}"></div>
+<div th:replace="~{fragments/toast :: toast}"></div>
+
+<script th:src="@{/js/common/toast.js}"></script>
+<script th:src="@{/js/common/modal.js}"></script>
+<script th:src="@{/js/common/sidebar.js}"></script>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/common/editor.js}"></script>
+<script th:src="@{/js/pages/notice-write.js}"></script>
+</body>
+</html>

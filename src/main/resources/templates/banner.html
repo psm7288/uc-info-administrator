@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head('배너 관리')}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/pages/banner.css}" />
+</head>
+<body>
+<div class="admin-view">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <main class="main-area">
+        <div th:replace="~{fragments/header :: header('배너 관리', 'Banner')}"></div>
+
+        <section class="banner-hero">
+            <div>
+                <span>Main Banner</span>
+                <h3>학생 앱 메인 화면에 노출되는 주요 배너를 관리합니다.</h3>
+                <p>
+                    학과 공지, 장학금, 행사, 공모전 등 중요한 정보를 카드뉴스형 배너로 노출할 수 있습니다.
+                </p>
+            </div>
+
+            <button class="white-btn" type="button" data-modal="bannerModal">
+                배너 등록
+            </button>
+        </section>
+
+        <section class="banner-summary-grid">
+            <article class="metric-card">
+                <span>활성 배너</span>
+                <strong>1</strong>
+                <p>현재 노출 중</p>
+            </article>
+
+            <article class="metric-card">
+                <span>예약 배너</span>
+                <strong>0</strong>
+                <p>예약 대기 없음</p>
+            </article>
+
+            <article class="metric-card">
+                <span>이번 주 클릭</span>
+                <strong>326</strong>
+                <p>학생 앱 기준</p>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <div>
+                    <h3>배너 목록</h3>
+                    <p>학생 앱 메인에 표시되는 배너입니다.</p>
+                </div>
+
+                <button class="primary-btn" type="button" data-modal="bannerModal">
+                    새 배너 등록
+                </button>
+            </div>
+
+            <div class="banner-card-list">
+                <article class="banner-manage-card">
+                    <div class="banner-preview blue">
+                        <span>컴퓨터공학과 공식 안내</span>
+                        <strong>졸업작품 신청 기간 안내</strong>
+                        <p>05.11 ~ 06.07</p>
+                    </div>
+
+                    <div class="banner-info">
+                        <div>
+                            <span class="pill live">노출중</span>
+                            <h4>졸업작품 신청 기간 안내</h4>
+                            <p>컴퓨터공학과 3학년 대상 · 메인 상단 배너</p>
+                        </div>
+
+                        <div class="table-actions">
+                            <button type="button" data-modal="bannerModal">수정</button>
+                            <button type="button" data-toast="배너가 복사되었습니다.">복사</button>
+                            <button type="button" data-modal="deleteModal">삭제</button>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="panel banner-guide-panel">
+            <div class="panel-head">
+                <div>
+                    <h3>배너 운영 기준</h3>
+                    <p>공식 정보 앱의 신뢰성을 위해 배너 등록 기준을 유지합니다.</p>
+                </div>
+            </div>
+
+            <div class="banner-guide-list">
+                <article>
+                    <strong>공식성 유지</strong>
+                    <p>학과, 부서, 학생회 등 발신 주체가 명확한 정보만 등록합니다.</p>
+                </article>
+
+                <article>
+                    <strong>노출 기간 설정</strong>
+                    <p>마감일이 있는 공지는 게시 종료일을 반드시 설정합니다.</p>
+                </article>
+
+                <article>
+                    <strong>중복 등록 방지</strong>
+                    <p>같은 내용의 공지는 공지사항과 배너를 연결하여 관리합니다.</p>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+
+<aside id="noticeDrawer" class="drawer hidden">
+    <div class="drawer-head">
+        <div>
+            <h3>알림 센터</h3>
+            <p>배너 관리 알림입니다.</p>
+        </div>
+        <button class="drawer-close" type="button">×</button>
+    </div>
+
+    <div class="drawer-list">
+        <article>
+            <span class="dot success"></span>
+            <div>
+                <strong>배너 정상 노출</strong>
+                <p>졸업작품 신청 배너가 학생 앱에 노출 중입니다.</p>
+            </div>
+        </article>
+    </div>
+</aside>
+
+<div th:replace="~{fragments/modals :: modals}"></div>
+<div th:replace="~{fragments/toast :: toast}"></div>
+
+<script th:src="@{/js/common/toast.js}"></script>
+<script th:src="@{/js/common/modal.js}"></script>
+<script th:src="@{/js/common/sidebar.js}"></script>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/pages/banner.js}"></script>
+</body>
+</html>

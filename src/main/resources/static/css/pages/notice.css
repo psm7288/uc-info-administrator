@@ -1,0 +1,240 @@
+.notice-write-panel {
+    max-width: 1180px;
+}
+
+.notice-form {
+    padding: 24px;
+}
+
+.notice-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.notice-form-grid .full {
+    grid-column: 1 / -1;
+}
+
+.field-help {
+    margin-top: 8px;
+    color: var(--sub);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.notice-actions {
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+}
+
+/* Notice list page */
+
+.notice-filter-panel {
+    margin-bottom: 20px;
+}
+
+.notice-filter-form {
+    display: grid;
+    grid-template-columns: 1.2fr 180px 180px auto;
+    gap: 12px;
+    padding: 22px 24px;
+}
+
+.notice-filter-form input,
+.notice-filter-form select {
+    height: 44px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+    color: var(--text);
+    font-size: 13px;
+}
+
+.notice-filter-form input:focus,
+.notice-filter-form select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.notice-list-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.notice-title-cell strong {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.notice-title-cell p {
+    color: var(--sub);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.notice-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.notice-meta span {
+    display: inline-flex;
+    padding: 5px 8px;
+    border-radius: 999px;
+    color: var(--sub);
+    background: #f2f4f7;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.notice-empty {
+    padding: 64px 24px;
+    text-align: center;
+    color: var(--sub);
+}
+
+.notice-empty strong {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text);
+    font-size: 18px;
+    letter-spacing: -0.04em;
+}
+
+.notice-empty p {
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* Preview card inside notice pages */
+
+.notice-preview-card {
+    padding: 22px;
+    border-radius: 22px;
+    background: #fff;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-soft);
+}
+
+.notice-preview-card .preview-label {
+    display: inline-flex;
+    margin-bottom: 14px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    color: var(--primary);
+    background: var(--primary-soft);
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.notice-preview-card h3 {
+    margin-bottom: 10px;
+    font-size: 22px;
+    line-height: 1.35;
+    letter-spacing: -0.05em;
+}
+
+.notice-preview-card p {
+    color: var(--sub);
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+/* Responsive */
+
+@media (max-width: 980px) {
+    .notice-filter-form {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .notice-filter-form button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 700px) {
+    .notice-form {
+        padding: 18px;
+    }
+}
+
+.notice-form-grid {
+    grid-template-columns: 1fr;
+}
+
+.notice-filter-form {
+    grid-template-columns: 1fr;
+    padding: 18px;
+}
+
+.notice-actions {
+    flex-direction: column;
+}
+
+.notice-actions button,
+.notice-actions a {
+    width: 100%;
+}
+
+.notice-list-title {
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+/* Notice write form force layout */
+
+.notice-form .field {
+    display: grid;
+    gap: 9px;
+}
+
+.notice-form .field label {
+    display: block;
+    color: #344054;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.notice-form .field input,
+.notice-form .field select,
+.notice-form .field textarea {
+    width: 100%;
+    height: 47px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 15px;
+    background: #fff;
+    color: var(--text);
+    font-size: 14px;
+}
+
+.notice-form .field input[type="file"] {
+    height: auto;
+    padding: 12px 14px;
+}
+
+.notice-form .field input:focus,
+.notice-form .field select:focus,
+.notice-form .field textarea:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.notice-write-panel .line-btn,
+.notice-write-panel .primary-btn,
+.notice-write-panel .secondary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 16px;
+}

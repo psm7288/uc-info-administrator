@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head('장학금 관리')}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/pages/scholarship.css}" />
+</head>
+<body>
+<div class="admin-view">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <main class="main-area">
+        <div th:replace="~{fragments/header :: header('장학금 관리', 'Scholarship')}"></div>
+
+        <section class="scholarship-hero">
+            <div>
+                <span>Scholarship Benefit</span>
+                <h3>교내·외 장학금 정보를 한 곳에서 관리합니다.</h3>
+                <p>
+                    학생들이 놓치기 쉬운 장학금 정보를 통합하고, 마감 임박 항목을 강조해 안내합니다.
+                </p>
+            </div>
+
+            <button class="white-btn" type="button" data-modal="scholarshipModal">
+                장학금 등록
+            </button>
+        </section>
+
+        <section class="scholarship-summary-grid">
+            <article class="metric-card">
+                <span>등록 장학금</span>
+                <strong>1</strong>
+                <p>현재 관리 중</p>
+            </article>
+
+            <article class="metric-card warning">
+                <span>마감 임박</span>
+                <strong>1</strong>
+                <p>D-7 항목</p>
+            </article>
+
+            <article class="metric-card">
+                <span>공지 연결</span>
+                <strong>1</strong>
+                <p>학생 앱 노출 중</p>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <div>
+                    <h3>장학금 목록</h3>
+                    <p>학생에게 안내할 장학금 정보를 관리합니다.</p>
+                </div>
+
+                <button class="primary-btn" type="button" data-modal="scholarshipModal">
+                    새 장학금 등록
+                </button>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>장학금명</th>
+                        <th>유형</th>
+                        <th>대상</th>
+                        <th>마감일</th>
+                        <th>상태</th>
+                        <th>관리</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr>
+                        <td>
+                            <strong>울산 지역 인재 장학금</strong>
+                            <span>지역 기관 연계 · 학생복지팀 등록</span>
+                        </td>
+                        <td>지역 장학</td>
+                        <td>울산 거주 재학생</td>
+                        <td>2026.05.18</td>
+                        <td>
+                            <span class="pill danger">D-7</span>
+                        </td>
+                        <td class="table-actions">
+                            <button type="button" data-modal="scholarshipModal">수정</button>
+                            <button type="button" data-toast="장학금 공지가 연결되었습니다.">공지 연결</button>
+                            <button type="button" data-modal="deleteModal">삭제</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel scholarship-guide-panel">
+            <div class="panel-head">
+                <div>
+                    <h3>장학금 운영 기준</h3>
+                    <p>학생이 실질적인 혜택을 빠르게 확인할 수 있도록 관리합니다.</p>
+                </div>
+            </div>
+
+            <div class="scholarship-guide-list">
+                <article>
+                    <strong>마감 임박 강조</strong>
+                    <p>마감일이 가까운 장학금은 D-Day 배지로 표시합니다.</p>
+                </article>
+
+                <article>
+                    <strong>대상 조건 명확화</strong>
+                    <p>학과, 학년, 거주 조건 등 신청 대상을 명확하게 표시합니다.</p>
+                </article>
+
+                <article>
+                    <strong>공지 연결</strong>
+                    <p>장학금 상세 내용은 공지사항과 연결해 학생 앱에 노출합니다.</p>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+
+<aside id="noticeDrawer" class="drawer hidden">
+    <div class="drawer-head">
+        <div>
+            <h3>알림 센터</h3>
+            <p>장학금 관리 알림입니다.</p>
+        </div>
+        <button class="drawer-close" type="button">×</button>
+    </div>
+
+    <div class="drawer-list">
+        <article>
+            <span class="dot danger"></span>
+            <div>
+                <strong>장학금 마감 임박</strong>
+                <p>울산 지역 인재 장학금 신청 마감까지 7일 남았습니다.</p>
+            </div>
+        </article>
+    </div>
+</aside>
+
+<div th:replace="~{fragments/modals :: modals}"></div>
+<div th:replace="~{fragments/toast :: toast}"></div>
+
+<script th:src="@{/js/common/toast.js}"></script>
+<script th:src="@{/js/common/modal.js}"></script>
+<script th:src="@{/js/common/sidebar.js}"></script>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/pages/scholarship.js}"></script>
+</body>
+</html>

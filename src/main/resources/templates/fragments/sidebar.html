@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<body>
+<aside th:fragment="sidebar" id="sidebar" class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon small">UC</div>
+        <div>
+            <strong>UC Info</strong>
+            <p>Admin System</p>
+        </div>
+    </div>
+
+    <nav class="sidebar-nav">
+        <a class="nav-item" th:href="@{/dashboard}">
+            <span class="nav-dot"></span>
+            <strong>대시보드</strong>
+        </a>
+
+        <a class="nav-item" th:href="@{/notices}">
+            <span class="nav-dot"></span>
+            <strong>공지 관리</strong>
+        </a>
+
+        <a class="nav-item" th:href="@{/tracking}">
+            <span class="nav-dot"></span>
+            <strong>열람 트래킹</strong>
+        </a>
+
+        <a class="nav-item" th:href="@{/resend}">
+            <span class="nav-dot"></span>
+            <strong>미확인자 재발송</strong>
+        </a>
+
+        <a class="nav-item" th:href="@{/banners}">
+            <span class="nav-dot"></span>
+            <strong>배너 관리</strong>
+        </a>
+
+        <a class="nav-item" th:href="@{/scholarships}">
+            <span class="nav-dot"></span>
+            <strong>장학금</strong>
+        </a>
+
+        <a class="nav-item" th:href="@{/schedules}">
+            <span class="nav-dot"></span>
+            <strong>학사 일정</strong>
+        </a>
+
+        <a class="nav-item" th:href="@{/shuttles}">
+            <span class="nav-dot"></span>
+            <strong>셔틀버스</strong>
+        </a>
+
+        <a class="nav-item" th:href="@{/settings}">
+            <span class="nav-dot"></span>
+            <strong>관리자 설정</strong>
+        </a>
+    </nav>
+
+    <div class="sidebar-user">
+        <span>현재 권한</span>
+        <strong>컴퓨터공학과 관리자</strong>
+        <p>공지 작성, 열람률 확인, 푸시 재발송 가능</p>
+    </div>
+</aside>
+</body>
+</html>

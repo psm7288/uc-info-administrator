@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head('미확인자 재발송')}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/pages/resend.css}" />
+</head>
+<body>
+<div class="admin-view">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <main class="main-area">
+        <div th:replace="~{fragments/header :: header('미확인자 재발송', 'Push Resend')}"></div>
+
+        <section class="resend-hero">
+            <div>
+                <span>Unread Notice Push</span>
+                <h3>아직 공지를 확인하지 않은 학생에게 알림을 다시 보냅니다.</h3>
+                <p>
+                    공지별 미확인자를 확인하고, 필요한 대상에게 푸시 알림을 재발송할 수 있습니다.
+                </p>
+            </div>
+
+            <button class="white-btn" type="button" data-modal="resendModal">
+                재발송 팝업 열기
+            </button>
+        </section>
+
+        <section class="resend-grid">
+            <article class="metric-card">
+                <span>재발송 대상</span>
+                <strong>119</strong>
+                <p>미확인 학생 수</p>
+            </article>
+
+            <article class="metric-card">
+                <span>대상 공지</span>
+                <strong>1</strong>
+                <p>중요 공지 기준</p>
+            </article>
+
+            <article class="metric-card warning">
+                <span>최근 발송</span>
+                <strong>10:24</strong>
+                <p>오늘 재발송 완료</p>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <div>
+                    <h3>재발송 대상 공지</h3>
+                    <p>미확인자가 있는 공지 1건을 표시합니다.</p>
+                </div>
+
+                <button class="primary-btn" type="button" data-modal="resendModal">
+                    전체 재발송
+                </button>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>공지 제목</th>
+                        <th>대상</th>
+                        <th>열람률</th>
+                        <th>미확인자</th>
+                        <th>최근 재발송</th>
+                        <th>관리</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr>
+                        <td>
+                            <strong>2026학년도 컴퓨터공학과 졸업작품 신청 안내</strong>
+                            <span>컴퓨터공학과 관리자 · 중요 공지</span>
+                        </td>
+                        <td>컴퓨터공학과 3학년</td>
+                        <td>78%</td>
+                        <td>
+                            <span class="pill danger">119명</span>
+                        </td>
+                        <td>오늘 10:24</td>
+                        <td class="table-actions">
+                            <button type="button" data-modal="resendModal">재발송</button>
+                            <a th:href="@{/tracking}">열람률 보기</a>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel resend-log-panel">
+            <div class="panel-head">
+                <div>
+                    <h3>최근 재발송 기록</h3>
+                    <p>관리자가 발송한 최근 알림 기록입니다.</p>
+                </div>
+            </div>
+
+            <div class="resend-log-list">
+                <article>
+                    <span class="pill live">완료</span>
+                    <div>
+                        <strong>졸업작품 신청 안내</strong>
+                        <p>119명 대상 · 오늘 10:24 · 푸시 알림 발송 완료</p>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+
+<aside id="noticeDrawer" class="drawer hidden">
+    <div class="drawer-head">
+        <div>
+            <h3>알림 센터</h3>
+            <p>재발송이 필요한 알림입니다.</p>
+        </div>
+        <button class="drawer-close" type="button">×</button>
+    </div>
+
+    <div class="drawer-list">
+        <article>
+            <span class="dot danger"></span>
+            <div>
+                <strong>미확인자 119명</strong>
+                <p>졸업작품 신청 안내 공지를 아직 확인하지 않았습니다.</p>
+            </div>
+        </article>
+    </div>
+</aside>
+
+<div th:replace="~{fragments/modals :: modals}"></div>
+<div th:replace="~{fragments/toast :: toast}"></div>
+
+<script th:src="@{/js/common/toast.js}"></script>
+<script th:src="@{/js/common/modal.js}"></script>
+<script th:src="@{/js/common/sidebar.js}"></script>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/pages/resend.js}"></script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head('셔틀버스 관리')}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/pages/shuttle.css}" />
+</head>
+<body>
+<div class="admin-view">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <main class="main-area">
+        <div th:replace="~{fragments/header :: header('셔틀버스 관리', 'Shuttle Bus')}"></div>
+
+        <section class="shuttle-hero">
+            <div>
+                <span>Student Convenience</span>
+                <h3>학생 편의 정보를 위한 셔틀버스 노선과 운행 상태를 관리합니다.</h3>
+                <p>
+                    노선, 출발지, 운행 시간, 운행 상태를 관리하여 학생들이 빠르게 이동 정보를 확인할 수 있게 합니다.
+                </p>
+            </div>
+
+            <button class="white-btn" type="button" data-toast="노선 추가 기능은 준비 중입니다.">
+                노선 추가
+            </button>
+        </section>
+
+        <section class="shuttle-summary-grid">
+            <article class="metric-card">
+                <span>운영 노선</span>
+                <strong>1</strong>
+                <p>현재 관리 중</p>
+            </article>
+
+            <article class="metric-card">
+                <span>운행 상태</span>
+                <strong>정상</strong>
+                <p>학생 앱 노출 중</p>
+            </article>
+
+            <article class="metric-card warning">
+                <span>점검 필요</span>
+                <strong>0</strong>
+                <p>이상 없음</p>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <div>
+                    <h3>셔틀버스 노선 목록</h3>
+                    <p>학생 앱 편의 정보 영역에 표시되는 셔틀버스 정보입니다.</p>
+                </div>
+
+                <button class="primary-btn" type="button" data-toast="노선 추가 기능은 준비 중입니다.">
+                    새 노선 추가
+                </button>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>노선명</th>
+                        <th>출발지</th>
+                        <th>도착지</th>
+                        <th>운행 시간</th>
+                        <th>상태</th>
+                        <th>관리</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr>
+                        <td>
+                            <strong>동부캠퍼스 순환 노선</strong>
+                            <span>정문, 학과동, 도서관 경유</span>
+                        </td>
+                        <td>정문 승강장</td>
+                        <td>학과동</td>
+                        <td>08:00 ~ 18:30</td>
+                        <td>
+                            <span class="pill live">정상 운행</span>
+                        </td>
+                        <td class="table-actions">
+                            <button type="button" data-toast="노선 정보가 수정되었습니다.">수정</button>
+                            <button type="button" data-toast="운행 상태가 갱신되었습니다.">상태 갱신</button>
+                            <button type="button" data-modal="deleteModal">운행 중단</button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section class="panel shuttle-route-panel">
+            <div class="panel-head">
+                <div>
+                    <h3>노선 미리보기</h3>
+                    <p>학생 앱에 표시될 셔틀버스 노선 카드입니다.</p>
+                </div>
+            </div>
+
+            <div class="shuttle-preview-list">
+                <article class="shuttle-preview-card">
+                    <div class="route-badge">UC</div>
+
+                    <div class="route-info">
+                        <span class="pill live">정상 운행</span>
+                        <h4>동부캠퍼스 순환 노선</h4>
+                        <p>정문 승강장 → 학과동 → 도서관 → 정문 승강장</p>
+
+                        <div class="route-time">
+                            <strong>첫차 08:00</strong>
+                            <strong>막차 18:30</strong>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="panel shuttle-guide-panel">
+            <div class="panel-head">
+                <div>
+                    <h3>셔틀버스 정보 운영 기준</h3>
+                    <p>학생들이 잘못된 운행 정보를 보지 않도록 정확하게 관리합니다.</p>
+                </div>
+            </div>
+
+            <div class="shuttle-guide-list">
+                <article>
+                    <strong>운행 상태 갱신</strong>
+                    <p>휴차, 지연, 정상 운행 상태를 빠르게 반영합니다.</p>
+                </article>
+
+                <article>
+                    <strong>시간표 관리</strong>
+                    <p>학기 중, 방학 중 운행 시간이 다를 경우 별도로 관리합니다.</p>
+                </article>
+
+                <article>
+                    <strong>노선 안내</strong>
+                    <p>학생이 쉽게 이해할 수 있도록 경유지를 간단하게 표시합니다.</p>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+
+<aside id="noticeDrawer" class="drawer hidden">
+    <div class="drawer-head">
+        <div>
+            <h3>알림 센터</h3>
+            <p>셔틀버스 관리 알림입니다.</p>
+        </div>
+        <button class="drawer-close" type="button">×</button>
+    </div>
+
+    <div class="drawer-list">
+        <article>
+            <span class="dot success"></span>
+            <div>
+                <strong>셔틀버스 정상 운행</strong>
+                <p>동부캠퍼스 순환 노선이 정상 운행 중입니다.</p>
+            </div>
+        </article>
+    </div>
+</aside>
+
+<div th:replace="~{fragments/modals :: modals}"></div>
+<div th:replace="~{fragments/toast :: toast}"></div>
+
+<script th:src="@{/js/common/toast.js}"></script>
+<script th:src="@{/js/common/modal.js}"></script>
+<script th:src="@{/js/common/sidebar.js}"></script>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/pages/shuttle.js}"></script>
+</body>
+</html>

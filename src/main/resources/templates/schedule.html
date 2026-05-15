@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head('학사 일정 관리')}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/pages/schedule.css}" />
+</head>
+<body>
+<div class="admin-view">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <main class="main-area">
+        <div th:replace="~{fragments/header :: header('학사 일정 관리', 'Schedule')}"></div>
+
+        <section class="schedule-hero">
+            <div>
+                <span>Academic Calendar</span>
+                <h3>학사 일정과 주요 학교 일정을 관리합니다.</h3>
+                <p>
+                    시험 기간, 수강 신청, 방학, 행사 일정을 학생 앱에 정확하게 안내합니다.
+                </p>
+            </div>
+
+            <button class="white-btn" type="button" data-modal="scheduleModal">
+                일정 추가
+            </button>
+        </section>
+
+        <section class="schedule-summary-grid">
+            <article class="metric-card">
+                <span>등록 일정</span>
+                <strong>1</strong>
+                <p>현재 관리 중</p>
+            </article>
+
+            <article class="metric-card warning">
+                <span>다가오는 일정</span>
+                <strong>1</strong>
+                <p>7일 이내</p>
+            </article>
+
+            <article class="metric-card">
+                <span>학생 앱 노출</span>
+                <strong>ON</strong>
+                <p>정상 노출 중</p>
+            </article>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <div>
+                    <h3>학사 일정 목록</h3>
+                    <p>학생 앱 일정 화면에 표시되는 학사 일정입니다.</p>
+                </div>
+
+                <button class="primary-btn" type="button" data-modal="scheduleModal">
+                    새 일정 추가
+                </button>
+            </div>
+
+            <div class="schedule-list">
+                <article class="schedule-card">
+                    <div class="schedule-date">
+                        <strong>06.15</strong>
+                        <span>월요일</span>
+                    </div>
+
+                    <div class="schedule-info">
+                        <span class="pill info">학사 일정</span>
+                        <h4>기말고사 기간</h4>
+                        <p>2026.06.15 ~ 2026.06.21 · 전체 학생 대상</p>
+                    </div>
+
+                    <div class="table-actions">
+                        <button type="button" data-modal="scheduleModal">수정</button>
+                        <button type="button" data-toast="일정이 학생 앱에 노출되었습니다.">노출 확인</button>
+                        <button type="button" data-modal="deleteModal">삭제</button>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <section class="panel schedule-guide-panel">
+            <div class="panel-head">
+                <div>
+                    <h3>일정 운영 기준</h3>
+                    <p>학생이 중요한 일정을 놓치지 않도록 정확하게 관리합니다.</p>
+                </div>
+            </div>
+
+            <div class="schedule-guide-list">
+                <article>
+                    <strong>기간 일정 등록</strong>
+                    <p>시험 기간, 수강 신청 기간처럼 여러 날 이어지는 일정은 시작일과 종료일을 모두 입력합니다.</p>
+                </article>
+
+                <article>
+                    <strong>대상 구분</strong>
+                    <p>전체 학생, 특정 학과, 특정 학년 대상 일정을 구분합니다.</p>
+                </article>
+
+                <article>
+                    <strong>앱 노출 확인</strong>
+                    <p>등록 후 학생 앱 일정 화면에서 정상 노출되는지 확인합니다.</p>
+                </article>
+            </div>
+        </section>
+    </main>
+</div>
+
+<aside id="noticeDrawer" class="drawer hidden">
+    <div class="drawer-head">
+        <div>
+            <h3>알림 센터</h3>
+            <p>학사 일정 관리 알림입니다.</p>
+        </div>
+        <button class="drawer-close" type="button">×</button>
+    </div>
+
+    <div class="drawer-list">
+        <article>
+            <span class="dot info"></span>
+            <div>
+                <strong>기말고사 일정 등록됨</strong>
+                <p>기말고사 기간 일정이 학생 앱에 노출 중입니다.</p>
+            </div>
+        </article>
+    </div>
+</aside>
+
+<div th:replace="~{fragments/modals :: modals}"></div>
+<div th:replace="~{fragments/toast :: toast}"></div>
+
+<script th:src="@{/js/common/toast.js}"></script>
+<script th:src="@{/js/common/modal.js}"></script>
+<script th:src="@{/js/common/sidebar.js}"></script>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/pages/schedule.js}"></script>
+</body>
+</html>

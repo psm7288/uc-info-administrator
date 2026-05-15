@@ -12,7 +12,7 @@
             rel="stylesheet"
     />
 
-    <link rel="stylesheet" th:href="@{/css/login.css}" />
+    <link rel="stylesheet" th:href="@{/css/pages/login.css}" />
 </head>
 <body>
 <main class="login-page">
@@ -70,8 +70,13 @@
                 아이디 또는 비밀번호가 올바르지 않습니다.
             </div>
 
+            <div class="login-success" th:if="${param.logout}">
+                정상적으로 로그아웃되었습니다.
+            </div>
+
             <form class="login-form" th:action="@{/login}" method="post">
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
                 <div class="form-group">
                     <label for="adminId">관리자 ID</label>
                     <input
@@ -80,6 +85,7 @@
                             type="text"
                             value="admin"
                             placeholder="관리자 아이디를 입력하세요"
+                            autocomplete="username"
                     />
                 </div>
 
@@ -91,12 +97,13 @@
                             type="password"
                             value="1234"
                             placeholder="비밀번호를 입력하세요"
+                            autocomplete="current-password"
                     />
                 </div>
 
                 <div class="login-option-row">
                     <label class="check-label">
-                        <input type="checkbox" name="remember" checked />
+                        <input type="checkbox" name="remember-me" />
                         <span>로그인 유지</span>
                     </label>
 
@@ -111,6 +118,7 @@
             <div class="login-help-box">
                 <p>
                     관리자 계정으로 로그인해야 대시보드에 접근할 수 있습니다.
+                    초기 계정은 admin / 1234 입니다.
                 </p>
             </div>
         </div>

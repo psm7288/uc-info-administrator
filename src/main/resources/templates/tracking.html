@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head('열람 트래킹')}"></th:block>
+
+    <link rel="stylesheet" th:href="@{/css/pages/tracking.css}" />
+</head>
+<body>
+<div class="admin-view">
+    <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+
+    <main class="main-area">
+        <div th:replace="~{fragments/header :: header('열람 트래킹', 'Tracking')}"></div>
+
+        <section class="tracking-summary-grid">
+            <article class="metric-card">
+                <span>전체 대상자</span>
+                <strong>540</strong>
+                <p>공지 대상 학생</p>
+            </article>
+
+            <article class="metric-card">
+                <span>열람 인원</span>
+                <strong>421</strong>
+                <p>확인 완료</p>
+            </article>
+
+            <article class="metric-card warning">
+                <span>미열람 인원</span>
+                <strong>119</strong>
+                <p>재발송 필요</p>
+            </article>
+
+            <article class="metric-card">
+                <span>전체 열람률</span>
+                <strong>78%</strong>
+                <p>전주 대비 +6%</p>
+            </article>
+        </section>
+
+        <section class="panel tracking-filter-panel">
+            <div class="panel-head">
+                <div>
+                    <h3>공지별 열람 현황</h3>
+                    <p>공지별 열람률과 미확인자 수를 확인합니다.</p>
+                </div>
+
+                <button class="secondary-btn" type="button" data-modal="resendModal">
+                    미확인자 재발송
+                </button>
+            </div>
+
+            <form class="tracking-filter-form">
+                <select>
+                    <option>전체 공지</option>
+                    <option>졸업작품 신청 안내</option>
+                    <option>기말고사 강의실 변경 안내</option>
+                    <option>장학금 신청 마감 안내</option>
+                </select>
+
+                <select>
+                    <option>전체 학과</option>
+                    <option>컴퓨터공학과</option>
+                    <option>전기전자공학과</option>
+                    <option>기계공학부</option>
+                </select>
+
+                <select>
+                    <option>전체 학년</option>
+                    <option>1학년</option>
+                    <option>2학년</option>
+                    <option>3학년</option>
+                </select>
+
+                <button class="secondary-btn" type="button" data-toast="열람 조건이 적용되었습니다.">
+                    조회
+                </button>
+            </form>
+        </section>
+
+        <section class="tracking-grid">
+            <section class="panel">
+                <div class="panel-head">
+                    <div>
+                        <h3>학과별 열람률</h3>
+                        <p>공지 대상 학과 기준입니다.</p>
+                    </div>
+                </div>
+
+                <div class="progress-list">
+                    <div class="progress-row">
+                        <span>컴퓨터공학과</span>
+                        <div><i style="width: 78%"></i></div>
+                        <strong>78%</strong>
+                    </div>
+
+                    <div class="progress-row">
+                        <span>전기전자공학과</span>
+                        <div><i style="width: 72%"></i></div>
+                        <strong>72%</strong>
+                    </div>
+
+                    <div class="progress-row">
+                        <span>기계공학부</span>
+                        <div><i style="width: 65%"></i></div>
+                        <strong>65%</strong>
+                    </div>
+
+                    <div class="progress-row">
+                        <span>간호학과</span>
+                        <div><i style="width: 81%"></i></div>
+                        <strong>81%</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <div>
+                        <h3>학년별 열람률</h3>
+                        <p>공지 대상 학년 기준입니다.</p>
+                    </div>
+                </div>
+
+                <div class="progress-list">
+                    <div class="progress-row">
+                        <span>1학년</span>
+                        <div><i style="width: 69%"></i></div>
+                        <strong>69%</strong>
+                    </div>
+
+                    <div class="progress-row">
+                        <span>2학년</span>
+                        <div><i style="width: 74%"></i></div>
+                        <strong>74%</strong>
+                    </div>
+
+                    <div class="progress-row">
+                        <span>3학년</span>
+                        <div><i style="width: 86%"></i></div>
+                        <strong>86%</strong>
+                    </div>
+
+                    <div class="progress-row">
+                        <span>복학생</span>
+                        <div><i style="width: 58%"></i></div>
+                        <strong>58%</strong>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <section class="panel tracking-table-panel">
+            <div class="panel-head">
+                <div>
+                    <h3>미확인자 목록</h3>
+                    <p>아직 공지를 확인하지 않은 학생입니다.</p>
+                </div>
+
+                <button class="primary-btn" type="button" data-modal="resendModal">
+                    전체 재발송
+                </button>
+            </div>
+
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>이름</th>
+                        <th>학번</th>
+                        <th>학과</th>
+                        <th>학년</th>
+                        <th>최근 접속</th>
+                        <th>대상 공지</th>
+                        <th>관리</th>
+                    </tr>
+                    </thead>
+
+                    <tbody>
+                    <tr>
+                        <td>김민준</td>
+                        <td>20260011</td>
+                        <td>컴퓨터공학과</td>
+                        <td>3학년</td>
+                        <td>오늘 09:10</td>
+                        <td>졸업작품 신청 안내</td>
+                        <td class="table-actions">
+                            <button type="button" data-toast="개별 알림이 발송되었습니다.">
+                                개별 알림
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>이서연</td>
+                        <td>20260037</td>
+                        <td>컴퓨터공학과</td>
+                        <td>3학년</td>
+                        <td>어제 18:22</td>
+                        <td>졸업작품 신청 안내</td>
+                        <td class="table-actions">
+                            <button type="button" data-toast="개별 알림이 발송되었습니다.">
+                                개별 알림
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>박지훈</td>
+                        <td>20260048</td>
+                        <td>컴퓨터공학과</td>
+                        <td>3학년</td>
+                        <td>3일 전</td>
+                        <td>기말고사 강의실 변경 안내</td>
+                        <td class="table-actions">
+                            <button type="button" data-toast="개별 알림이 발송되었습니다.">
+                                개별 알림
+                            </button>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>최유진</td>
+                        <td>20260052</td>
+                        <td>전기전자공학과</td>
+                        <td>2학년</td>
+                        <td>5일 전</td>
+                        <td>장학금 신청 마감 안내</td>
+                        <td class="table-actions">
+                            <button type="button" data-toast="개별 알림이 발송되었습니다.">
+                                개별 알림
+                            </button>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</div>
+
+<aside id="noticeDrawer" class="drawer hidden">
+    <div class="drawer-head">
+        <div>
+            <h3>알림 센터</h3>
+            <p>관리자 확인이 필요한 알림입니다.</p>
+        </div>
+        <button class="drawer-close" type="button">×</button>
+    </div>
+
+    <div class="drawer-list">
+        <article>
+            <span class="dot danger"></span>
+            <div>
+                <strong>미확인자 증가</strong>
+                <p>기말고사 공지 미확인자가 118명입니다.</p>
+            </div>
+        </article>
+
+        <article>
+            <span class="dot info"></span>
+            <div>
+                <strong>열람률 하락</strong>
+                <p>복학생 대상 공지 열람률이 낮습니다.</p>
+            </div>
+        </article>
+    </div>
+</aside>
+
+<div th:replace="~{fragments/modals :: modals}"></div>
+<div th:replace="~{fragments/toast :: toast}"></div>
+
+<script th:src="@{/js/common/toast.js}"></script>
+<script th:src="@{/js/common/modal.js}"></script>
+<script th:src="@{/js/common/sidebar.js}"></script>
+<script th:src="@{/js/common/common.js}"></script>
+<script th:src="@{/js/pages/tracking.js}"></script>
+</body>
+</html>
