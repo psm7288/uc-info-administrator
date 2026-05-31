@@ -1,36 +1,36 @@
 package uc.dev.uc_info.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import uc.dev.uc_info.repository.NoticeRepository;
 
 @Controller
+@RequestMapping("/notices")
+@RequiredArgsConstructor
 public class NoticeController {
 
-    @GetMapping("/notices")
-    public String noticeListPage() {
-        return "notice";
+    private final NoticeRepository noticeRepository;
+
+    @GetMapping
+    public String list(Model model) {
+        model.addAttribute("notices", noticeRepository.findAllByOrderByCreatedAtDesc());
+        model.addAttribute("totalCount", noticeRepository.count());
+        model.addAttribute("publishedCount", noticeRepository.countByStatus("PUBLISHED"));
+        return "notice/notice";
     }
 
-    @GetMapping("/notices/new")
-    public String noticeWritePage() {
-        return "notice-write";
+    @GetMapping("/new")
+    public String writeForm() {
+        return "notice/notice-write";
     }
 
-    @PostMapping("/notices")
-    public String createNotice() {
-        // TODO: 추후 NoticeRequest, NoticeService 연결 예정
-        return "redirect:/notices";
-    }
-
-    @GetMapping("/notices/{id}/edit")
-    public String noticeEditPage() {
-        return "notice-edit";
-    }
-
-    @PostMapping("/notices/{id}/edit")
-    public String updateNotice() {
-        // TODO: 추후 NoticeRequest, NoticeService 연결 예정
-        return "redirect:/notices";
+    @GetMapping("/{id}/edit")
+    public String editForm(@PathVariable Long id, Model model) {
+        noticeRepository.findById(id).ifPresent(n -> model.addAttribute("notice", n));
+        return "notice/notice-edit";
     }
 }
