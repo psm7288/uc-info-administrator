@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/meta :: common('공지 수정')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/common/editor.css}" />
+    <link rel="stylesheet" th:href="@{/css/pages/notice.css}" />
+</head>
+<body>
+    <div class="admin-view">
+        <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
+
+        <main class="main-area">
+            <div th:replace="~{fragments/header :: header('공지 수정', 'Notice Edit')}"></div>
+
+            <section class="panel notice-write-panel">
+                <div class="panel-head">
+                    <div><h3>공지 수정</h3><p>기존 공지 내용을 수정하고 다시 게시할 수 있습니다.</p></div>
+                    <a class="line-btn" th:href="@{/notices}">목록으로</a>
+                </div>
+
+                <form class="notice-form"
+                      th:action="${notice != null} ? @{'/notices/' + ${notice.noticeId} + '/edit'} : @{/notices}"
+                      method="post">
+                    <input th:if="${_csrf != null}" type="hidden"
+                           th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                    <div class="notice-form-grid">
+                        <div class="field full">
+                            <label for="title">공지 제목</label>
+                            <input id="title" name="title" type="text"
+                                   th:value="${notice?.title}"
+                                   placeholder="공지 제목을 입력하세요" />
+                        </div>
+                        <div class="field">
+                            <label for="category">카테고리</label>
+                            <select id="category" name="category">
+                                <option value="DEPARTMENT" th:selected="${notice?.category == 'DEPARTMENT'}">학과 공지</option>
+                                <option value="ACADEMIC"   th:selected="${notice?.category == 'ACADEMIC'}">학사 공지</option>
+                                <option value="SCHOLARSHIP" th:selected="${notice?.category == 'SCHOLARSHIP'}">장학 공지</option>
+                                <option value="EVENT"      th:selected="${notice?.category == 'EVENT'}">행사 공지</option>
+                                <option value="EMPLOYMENT" th:selected="${notice?.category == 'EMPLOYMENT'}">취업 공지</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="priority">공지 중요도</label>
+                            <select id="priority" name="priority">
+                                <option value="NORMAL"    th:selected="${notice?.priority == 'NORMAL'}">일반 공지</option>
+                                <option value="IMPORTANT" th:selected="${notice?.priority == 'IMPORTANT'}">중요 공지</option>
+                                <option value="URGENT"    th:selected="${notice?.priority == 'URGENT'}">긴급 공지</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="status">게시 상태</label>
+                            <select id="status" name="status">
+                                <option value="PUBLISHED" th:selected="${notice?.status == 'PUBLISHED'}">게시중</option>
+                                <option value="DRAFT"     th:selected="${notice?.status == 'DRAFT'}">임시 저장</option>
+                                <option value="WAITING"   th:selected="${notice?.status == 'WAITING'}">검토중</option>
+                                <option value="CLOSED"    th:selected="${notice?.status == 'CLOSED'}">게시 종료</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="startDate">게시 시작일</label>
+                            <input id="startDate" name="startDate" type="date"
+                                   th:value="${notice?.startDate}" />
+                        </div>
+                        <div class="field">
+                            <label for="endDate">게시 종료일</label>
+                            <input id="endDate" name="endDate" type="date"
+                                   th:value="${notice?.endDate}" />
+                        </div>
+                        <div class="field full">
+                            <label>공지 내용</label>
+                            <div class="editor-wrap">
+                                <div class="editor-toolbar">
+                                    <button type="button" data-command="bold">B</button>
+                                    <button type="button" data-command="italic">I</button>
+                                    <button type="button" data-command="underline">U</button>
+                                    <button type="button" data-command="insertUnorderedList">목록</button>
+                                    <button type="button" data-command="insertOrderedList">번호</button>
+                                    <button type="button" data-command="createLink">링크</button>
+                                    <button type="button" data-command="removeFormat">초기화</button>
+                                </div>
+                                <div id="noticeEditor" class="notice-editor" contenteditable="true"
+                                     data-placeholder="공지 내용을 입력하세요."
+                                     th:utext="${notice?.content}"></div>
+                                <textarea id="noticeContent" name="content" hidden></textarea>
+                            </div>
+                        </div>
+                        <div class="field full">
+                            <label for="attachment">첨부파일</label>
+                            <input id="attachment" name="attachment" type="file" />
+                            <p class="field-help" th:if="${notice?.attachmentUrl != null}"
+                               th:text="'기존 파일: ' + ${notice.attachmentUrl} + ' · 새 파일 선택 시 대체됩니다.'">기존 파일</p>
+                        </div>
+                    </div>
+
+                    <div class="form-actions notice-actions">
+                        <button class="line-btn" type="button" data-modal="previewModal">미리보기</button>
+                        <button class="secondary-btn" type="submit" name="saveType" value="DRAFT">임시 저장</button>
+                        <button class="primary-btn" type="submit" name="saveType" value="PUBLISHED">수정 완료</button>
+                    </div>
+                </form>
+            </section>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <div th:replace="~{fragments/modals :: modals}"></div>
+    <div th:replace="~{fragments/toast :: toast}"></div>
+
+    <script defer th:src="@{/js/common/toast.js}"></script>
+    <script defer th:src="@{/js/common/modal.js}"></script>
+    <script defer th:src="@{/js/common/sidebar.js}"></script>
+    <script defer th:src="@{/js/common/common.js}"></script>
+    <script defer th:src="@{/js/common/editor.js}"></script>
+    <script defer th:src="@{/js/pages/notice-write.js}"></script>
+</body>
+</html>

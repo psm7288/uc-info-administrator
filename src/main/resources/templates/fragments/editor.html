@@ -1,6 +1,3 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<body>
 <div th:fragment="noticeEditor" class="editor-wrap">
     <div class="editor-toolbar">
         <button type="button" data-command="bold">B</button>
@@ -12,14 +9,11 @@
         <button type="button" data-command="removeFormat">초기화</button>
     </div>
 
-    <div
-            id="noticeEditor"
-            class="notice-editor"
-            contenteditable="true"
-            data-placeholder="공지 내용을 입력하세요.">
-    </div>
+    <div id="noticeEditor"
+         class="notice-editor"
+         contenteditable="true"
+         data-placeholder="공지 내용을 입력하세요."></div>
 
+    <!-- 폼 전송 시 editor.js 가 innerHTML 을 여기에 채운다 -->
     <textarea id="noticeContent" name="content" hidden></textarea>
 </div>
-</body>
-</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/meta :: common('미확인자 재발송')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/pages/resend.css}" />
+</head>
+<body>
+    <div class="admin-view">
+        <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
+
+        <main class="main-area">
+            <div th:replace="~{fragments/header :: header('미확인자 재발송', 'Push Resend')}"></div>
+
+            <section class="resend-hero">
+                <div>
+                    <span>Unread Notice Push</span>
+                    <h3>아직 공지를 확인하지 않은 학생에게 알림을 다시 보냅니다.</h3>
+                    <p>공지별 미확인자를 확인하고, 필요한 대상에게 푸시 알림을 재발송할 수 있습니다.</p>
+                </div>
+                <button class="white-btn" type="button" data-modal="resendModal">재발송 팝업 열기</button>
+            </section>
+
+            <section class="resend-grid">
+                <article class="metric-card">
+                    <span>게시 중 공지</span>
+                    <strong th:text="${#lists.size(notices)}">0</strong>
+                    <p>재발송 대상</p>
+                </article>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <div><h3>재발송 대상 공지</h3><p>게시 중인 공지 목록입니다.</p></div>
+                    <button class="primary-btn" type="button" data-modal="resendModal">전체 재발송</button>
+                </div>
+
+                <div class="table-wrap" th:if="${not #lists.isEmpty(notices)}">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>공지 제목</th><th>작성자</th><th>게시일</th><th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="n : ${notices}">
+                            <td>
+                                <strong th:text="${n.title}">제목</strong>
+                                <span th:text="${n.admin.departmentName}">학과</span>
+                            </td>
+                            <td th:text="${n.admin.adminName}">관리자</td>
+                            <td th:text="${#temporals.format(n.createdAt, 'MM.dd HH:mm')}">날짜</td>
+                            <td class="table-actions">
+                                <button type="button" data-modal="resendModal">재발송</button>
+                                <a th:href="@{/tracking}">열람률 보기</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="notice-empty" th:if="${#lists.isEmpty(notices)}">
+                    <strong>게시 중인 공지가 없습니다</strong>
+                    <p>공지를 등록하면 재발송 기능을 사용할 수 있습니다.</p>
+                </div>
+            </section>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <aside id="noticeDrawer" class="drawer hidden">
+        <div class="drawer-head">
+            <div><h3>알림 센터</h3><p>재발송이 필요한 알림입니다.</p></div>
+            <button class="drawer-close" type="button">×</button>
+        </div>
+        <div class="drawer-list">
+            <article th:if="${not #lists.isEmpty(notices)}">
+                <span class="dot danger"></span>
+                <div>
+                    <strong>재발송 대상</strong>
+                    <p th:text="${#lists.size(notices)} + '건의 공지가 재발송 대상입니다.'">현황</p>
+                </div>
+            </article>
+            <article th:if="${#lists.isEmpty(notices)}">
+                <span class="dot info"></span>
+                <div><strong>재발송 대상 없음</strong><p>게시 중인 공지가 없습니다.</p></div>
+            </article>
+        </div>
+    </aside>
+
+    <div th:replace="~{fragments/modals :: modals}"></div>
+    <div th:replace="~{fragments/toast :: toast}"></div>
+
+    <script defer th:src="@{/js/common/toast.js}"></script>
+    <script defer th:src="@{/js/common/modal.js}"></script>
+    <script defer th:src="@{/js/common/sidebar.js}"></script>
+    <script defer th:src="@{/js/common/common.js}"></script>
+    <script defer th:src="@{/js/pages/resend.js}"></script>
+</body>
+</html>

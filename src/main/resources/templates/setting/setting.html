@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/meta :: common('관리자 설정')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/pages/setting.css}" />
+</head>
+<body>
+    <div class="admin-view">
+        <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
+
+        <main class="main-area">
+            <div th:replace="~{fragments/header :: header('관리자 설정', 'Settings')}"></div>
+
+            <section class="setting-hero">
+                <div>
+                    <span>Admin Settings</span>
+                    <h3>관리자 계정, 권한, 시스템 연동 상태를 관리합니다.</h3>
+                    <p>학과 관리자와 부서 관리자의 권한을 구분하고, 공지 발송과 시스템 연동 상태를 확인합니다.</p>
+                </div>
+                <button class="white-btn" type="button" data-modal="accountModal">관리자 정보 수정</button>
+            </section>
+
+            <section class="setting-grid">
+                <section class="panel">
+                    <div class="panel-head">
+                        <div><h3>관리자 계정</h3><p>현재 로그인한 관리자 정보입니다.</p></div>
+                    </div>
+                    <div class="setting-list">
+                        <article th:if="${admin != null}">
+                            <div>
+                                <strong th:text="${admin.adminName}">관리자명</strong>
+                                <p th:text="${admin.username} + ' · ' + ${admin.departmentName} + ' · 공지 작성/수정 가능'">계정 정보</p>
+                            </div>
+                            <button type="button" data-modal="accountModal">수정</button>
+                        </article>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-head">
+                        <div><h3>알림 설정</h3><p>공지 등록, 승인, 미확인자 알림 사용 여부입니다.</p></div>
+                    </div>
+                    <div class="setting-list">
+                        <article>
+                            <div><strong>공지 등록 알림</strong><p>새 공지가 등록되면 관리자에게 알림을 표시합니다.</p></div>
+                            <span class="switch" th:classappend="${admin != null and admin.alarmTracking} ? ' on'"></span>
+                        </article>
+                        <article>
+                            <div><strong>미확인자 재발송 알림</strong><p>열람률이 낮은 공지를 자동으로 표시합니다.</p></div>
+                            <span class="switch" th:classappend="${admin != null and admin.alarmSend} ? ' on'"></span>
+                        </article>
+                    </div>
+                </section>
+            </section>
+
+            <section class="panel margin-top">
+                <div class="panel-head">
+                    <div><h3>시스템 연동 상태</h3><p>Firebase, 학생 데이터, 푸시 알림 서버 상태입니다.</p></div>
+                </div>
+                <div class="system-list">
+                    <article>
+                        <span class="system-dot success"></span>
+                        <div><strong>Firebase 연동</strong><p>실시간 공지 및 푸시 알림 준비 상태</p></div>
+                        <span class="pill live">정상</span>
+                    </article>
+                    <article>
+                        <span class="system-dot success"></span>
+                        <div><strong>학생 데이터</strong><p>학번 기반 인증 연결 예정</p></div>
+                        <span class="pill wait">준비중</span>
+                    </article>
+                    <article>
+                        <span class="system-dot success"></span>
+                        <div><strong>푸시 알림 서버</strong><p>미확인자 재발송 기능 연결 예정</p></div>
+                        <span class="pill wait">준비중</span>
+                    </article>
+                </div>
+            </section>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <aside id="noticeDrawer" class="drawer hidden">
+        <div class="drawer-head">
+            <div><h3>알림 센터</h3><p>관리자 설정 알림입니다.</p></div>
+            <button class="drawer-close" type="button">×</button>
+        </div>
+        <div class="drawer-list">
+            <article>
+                <span class="dot info"></span>
+                <div>
+                    <strong th:text="${admin != null} ? ${admin.adminName} + ' 관리자' : '관리자'">관리자</strong>
+                    <p th:text="${admin != null} ? ${admin.departmentName} + ' 담당' : ''">학과</p>
+                </div>
+            </article>
+        </div>
+    </aside>
+
+    <div th:replace="~{fragments/modals :: modals}"></div>
+    <div th:replace="~{fragments/toast :: toast}"></div>
+
+    <script defer th:src="@{/js/common/toast.js}"></script>
+    <script defer th:src="@{/js/common/modal.js}"></script>
+    <script defer th:src="@{/js/common/sidebar.js}"></script>
+    <script defer th:src="@{/js/common/common.js}"></script>
+    <script defer th:src="@{/js/pages/setting.js}"></script>
+</body>
+</html>

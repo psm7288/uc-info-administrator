@@ -1,36 +1,44 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<body>
 <header th:fragment="header(pageTitle, pageLabel)" class="header">
-    <div class="header-left">
-        <button id="menuBtn" class="icon-btn mobile-only" type="button">☰</button>
+    <div class="header__inner">
+        <div class="header__left">
+            <button id="menuBtn" class="header__menu-button mobile-only" type="button" aria-label="메뉴 열기">☰</button>
 
-        <div>
-            <span th:text="${pageLabel}">Dashboard</span>
-            <h2 th:text="${pageTitle}">관리자 대시보드</h2>
-        </div>
-    </div>
-
-    <div class="header-right">
-        <div class="search-area">
-            <input type="text" placeholder="공지, 학생, 장학금 검색" />
-            <button type="button">검색</button>
+            <div class="header__titles">
+                <span class="header__label" th:text="${pageLabel}">Dashboard</span>
+                <h2 class="header__title" th:text="${pageTitle}">관리자 대시보드</h2>
+            </div>
         </div>
 
-        <button id="openNoticeDrawer" class="icon-btn notice-icon" type="button">
-            <i></i>
-            알림
-        </button>
+        <div class="header__right">
+            <!-- TODO: 검색 기능 연결 시 action(/search 등) 및 name 확정 -->
+            <form class="header__search" th:action="@{/search}" method="get">
+                <input class="header__search-input"
+                       name="q"
+                       type="search"
+                       placeholder="공지, 학생, 장학금 검색"
+                       aria-label="검색" />
+                <button class="header__search-button" type="submit">검색</button>
+            </form>
 
-        <a class="secondary-btn" th:href="@{/notices/new}">
-            공지 작성
-        </a>
+            <button id="openNoticeDrawer" class="header__icon-button" type="button" aria-label="알림 열기">
+                <i class="header__icon" aria-hidden="true"></i>
+                <span class="header__icon-label">알림</span>
+            </button>
 
-        <form th:action="@{/logout}" method="post" class="logout-form">
-            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-            <button class="line-btn logout-link" type="submit">로그아웃</button>
-        </form>
+            <a class="header__btn header__btn--primary" th:href="@{/notices/new}">공지 작성</a>
+
+            <!-- 로그인 관리자 정보. GlobalModelAdvice 가 admin 주입 -->
+            <div class="header__user" th:if="${admin != null}">
+                <span class="header__user-name" th:text="${admin.adminName}">관리자</span>
+                <span class="header__user-dept" th:text="${admin.departmentName}">학과</span>
+            </div>
+
+            <form class="header__logout" th:action="@{/logout}" method="post">
+                <!-- WHY: dev 프로파일에서 CSRF 비활성 시 _csrf 가 null 이므로 가드 -->
+                <input th:if="${_csrf != null}" type="hidden"
+                       th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button class="header__btn header__btn--ghost" type="submit">로그아웃</button>
+            </form>
+        </div>
     </div>
 </header>
-</body>
-</html>
