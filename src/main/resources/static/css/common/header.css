@@ -1,19 +1,34 @@
+/* 헤더 (BEM). fragments/header.html 의 header__* 클래스에 대응 */
 .header {
     min-height: 72px;
+    margin-bottom: 24px;
+}
+
+.header__inner {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 18px;
-    margin-bottom: 24px;
 }
 
-.header-left {
+.header__left {
     display: flex;
     align-items: center;
     gap: 12px;
 }
 
-.header-left span {
+.header__menu-button {
+    width: 54px;
+    min-width: 54px;
+    height: 54px;
+    padding: 0;
+    border-radius: 14px;
+    color: #344054;
+    background: #fff;
+    border: 1px solid var(--line);
+}
+
+.header__label {
     display: block;
     margin-bottom: 5px;
     color: var(--primary);
@@ -22,19 +37,19 @@
     letter-spacing: 0.06em;
 }
 
-.header-left h2 {
+.header__title {
     font-size: 28px;
     line-height: 1.2;
     letter-spacing: -0.06em;
 }
 
-.header-right {
+.header__right {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.search-area {
+.header__search {
     width: 300px;
     height: 44px;
     display: flex;
@@ -46,7 +61,7 @@
     box-shadow: var(--shadow-soft);
 }
 
-.search-area input {
+.header__search-input {
     min-width: 0;
     flex: 1;
     border: 0;
@@ -55,7 +70,7 @@
     font-size: 13px;
 }
 
-.search-area button {
+.header__search-button {
     height: 34px;
     padding: 0 12px;
     border-radius: 11px;
@@ -65,12 +80,13 @@
     font-weight: 900;
 }
 
-.icon-btn,
-.notice-icon {
+.header__icon-button {
     position: relative;
-    width: auto;
     min-width: 64px;
     height: 54px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     padding: 0 20px;
     border-radius: 18px;
     color: #344054;
@@ -81,18 +97,7 @@
     font-weight: 800;
 }
 
-#menuBtn {
-    width: 54px;
-    min-width: 54px;
-    padding: 0;
-    border-radius: 0;
-}
-
-.notice-icon {
-    gap: 6px;
-}
-
-.notice-icon i {
+.header__icon {
     position: absolute;
     top: 12px;
     right: 14px;
@@ -103,102 +108,78 @@
     border: 2px solid #fff;
 }
 
-.logout-form {
-    margin: 0;
-    display: flex;
-}
-
-.logout-link {
+/* 헤더 버튼(공통 버튼과 별개로 헤더 높이 맞춤) */
+.header__btn {
     height: 54px;
-    min-height: 54px;
-    padding: 0 24px;
-    border-radius: 18px;
-    font-size: 15px;
-    font-weight: 800;
-}
-
-.header-right .secondary-btn {
-    height: 54px;
-    min-height: 54px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 0 24px;
     border-radius: 18px;
     font-size: 15px;
     font-weight: 900;
-}
-.notice-icon i {
-    position: absolute;
-    top: 9px;
-    right: 10px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--red);
-    border: 2px solid #fff;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: 0.18s ease;
 }
 
+.header__btn--primary {
+    color: var(--primary);
+    background: var(--primary-soft);
+    border: 1px solid transparent;
+}
+
+.header__btn--ghost {
+    color: #111827;
+    background: #fff;
+    border: 1px solid var(--line);
+}
+
+.header__btn:hover {
+    transform: translateY(-1px);
+}
+
+.header__user {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    line-height: 1.3;
+}
+
+.header__user-name {
+    font-size: 13px;
+    font-weight: 900;
+    color: var(--text);
+}
+
+.header__user-dept {
+    font-size: 12px;
+    color: var(--sub);
+}
+
+.header__logout {
+    margin: 0;
+    display: flex;
+}
+
+/* 모바일 메뉴 버튼은 좁은 화면에서만 노출 */
 .mobile-only {
     display: none;
 }
 
-.logout-form {
-    margin: 0;
-}
-
-.logout-link {
-    height: 42px;
-}
-
-/* Responsive */
-
 @media (max-width: 980px) {
     .mobile-only {
-        display: inline-grid;
-        place-items: center;
-    }
-
-    .header {
-        align-items: flex-start;
-        min-height: auto;
-    }
-
-    .search-area {
-        width: 380px;
-        height: 54px;
-        display: flex;
-        align-items: center;
-        padding: 0 7px 0 18px;
-        border-radius: 22px;
-        background: #fff;
-        border: 1px solid var(--line);
-        box-shadow: var(--shadow-soft);
-    }
-
-    .search-area input {
-        min-width: 0;
-        flex: 1;
-        border: 0;
-        outline: none;
-        color: var(--text);
-        font-size: 14px;
-    }
-
-    .search-area button {
-        height: 42px;
-        padding: 0 18px;
-        border-radius: 15px;
-        color: var(--primary);
-        background: var(--primary-soft);
-        font-size: 14px;
-        font-weight: 900;
+        display: inline-flex;
     }
 }
 
 @media (max-width: 700px) {
-    .header-right {
-        gap: 7px;
+    .header__inner {
+        flex-wrap: wrap;
     }
 
-    .header-left h2 {
-        font-size: 24px;
+    .header__search {
+        width: 100%;
+        order: 3;
     }
 }
