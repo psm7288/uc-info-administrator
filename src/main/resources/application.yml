@@ -1,0 +1,41 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: uc-info
+
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/${POSTGRESQL_DATABASE}
+    driver-class-name: org.postgresql.Driver
+    username: ${POSTGRESQL_USERNAME}
+    password: ${POSTGRESQL_PASSWORD}
+
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        jdbc.time_zone: UTC
+
+  thymeleaf:
+    cache: true
+
+  web:
+    resources:
+      cache:
+        period: 365d
+      chain:
+        strategy:
+          content:
+            enabled: true
+            paths:
+              - "/**"
+
+logging:
+  level:
+    root: INFO
+    uc.dev.uc_info: DEBUG
