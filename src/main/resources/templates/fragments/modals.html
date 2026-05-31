@@ -1,307 +1,204 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<body>
-<div th:fragment="modals">
+<th:block th:fragment="modals">
+    <!-- 공통 백드롭 -->
     <div id="modalBackdrop" class="modal-backdrop hidden"></div>
 
-    <!-- 알림 드로어 -->
-    <aside id="noticeDrawer" class="drawer hidden">
-        <div class="drawer-head">
-            <div>
-                <h3>알림 센터</h3>
-                <p>관리자 확인이 필요한 알림입니다.</p>
-            </div>
-            <button class="drawer-close" type="button">×</button>
-        </div>
-
-        <div class="drawer-list">
-            <article>
-                <span class="dot danger"></span>
-                <div>
-                    <strong>공지 승인 대기</strong>
-                    <p>장학금 공지 1건이 승인 대기 중입니다.</p>
-                </div>
-            </article>
-
-            <article>
-                <span class="dot info"></span>
-                <div>
-                    <strong>미확인자 증가</strong>
-                    <p>졸업작품 공지 미확인자가 119명입니다.</p>
-                </div>
-            </article>
-
-            <article>
-                <span class="dot success"></span>
-                <div>
-                    <strong>배너 예약 완료</strong>
-                    <p>장학금 배너가 예약 노출됩니다.</p>
-                </div>
-            </article>
-        </div>
-    </aside>
-
-    <!-- 공지 미리보기 팝업 -->
-    <section id="previewModal" class="modal preview-modal hidden" role="dialog" aria-modal="true">
+    <!-- 미리보기: 학생 앱 노출 화면(폰 목업) -->
+    <div id="previewModal" class="modal preview-modal hidden" role="dialog" aria-modal="true" aria-labelledby="previewModalTitle">
         <div class="modal-head">
-            <h3>공지 미리보기</h3>
-            <button class="modal-close" type="button">×</button>
+            <h3 id="previewModalTitle">학생 앱 미리보기</h3>
+            <button class="modal-close" type="button" aria-label="닫기">×</button>
         </div>
-
         <div class="modal-body">
             <div class="phone-preview">
                 <div class="phone-top">UC Info</div>
-
                 <article>
-                    <span>컴퓨터공학과 공식 공지</span>
+                    <span>학과 공지</span>
                     <h4>2026학년도 컴퓨터공학과 졸업작품 신청 안내</h4>
-                    <p>
-                        컴퓨터공학과 졸업작품 신청 일정과 제출 방법을 안내합니다.
-                        신청 대상 학생은 기간 내 신청서를 제출해주시기 바랍니다.
-                    </p>
+                    <p>컴퓨터공학과 3학년 대상 · 신청 기간 05.11 ~ 06.07</p>
                 </article>
             </div>
         </div>
-
         <div class="modal-actions">
-            <button class="primary-btn modal-close" type="button">확인</button>
+            <button class="line-btn" type="button" data-modal-close>닫기</button>
         </div>
-    </section>
+    </div>
 
-    <!-- 미확인자 재발송 팝업 -->
-    <section id="resendModal" class="modal hidden" role="dialog" aria-modal="true">
+    <!-- 재발송: 미확인자 푸시 -->
+    <div id="resendModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="resendModalTitle">
         <div class="modal-head">
-            <h3>미확인자 재발송</h3>
-            <button class="modal-close" type="button">×</button>
+            <h3 id="resendModalTitle">미확인자 재발송</h3>
+            <button class="modal-close" type="button" aria-label="닫기">×</button>
         </div>
-
         <div class="modal-body">
             <div class="modal-summary">
                 <strong>119명</strong>
-                <p>아직 공지를 확인하지 않은 학생에게 푸시 알림을 발송합니다.</p>
+                <p>아직 확인하지 않은 학생에게 푸시 알림을 다시 보냅니다.</p>
             </div>
-
-            <form class="modal-form">
-                <label for="resendTarget">재발송 대상</label>
-                <select id="resendTarget">
-                    <option>전체 미확인자 119명</option>
-                    <option>3학년 미확인자</option>
-                    <option>최근 24시간 미접속자</option>
+            <div class="modal-form">
+                <label for="resendNotice">대상 공지</label>
+                <select id="resendNotice">
+                    <option>2026학년도 컴퓨터공학과 졸업작품 신청 안내</option>
+                    <option>기말고사 강의실 변경 안내</option>
                 </select>
 
-                <label for="resendMessage">알림 문구</label>
-                <textarea id="resendMessage">[UC Info] 졸업작품 신청 안내 공지를 아직 확인하지 않았습니다.</textarea>
-            </form>
+                <label for="resendMessage">알림 메시지</label>
+                <textarea id="resendMessage" placeholder="학생에게 표시될 알림 문구를 입력하세요."></textarea>
+            </div>
         </div>
-
         <div class="modal-actions">
-            <button class="line-btn modal-close" type="button">취소</button>
-            <button
-                    class="primary-btn"
-                    type="button"
-                    data-save="미확인자 119명에게 푸시 알림이 발송되었습니다.">
-                재발송
-            </button>
+            <button class="line-btn" type="button" data-modal-close>취소</button>
+            <button class="primary-btn" type="button" data-save="재발송이 완료되었습니다.">재발송</button>
         </div>
-    </section>
+    </div>
 
-    <!-- 승인 확인 팝업 -->
-    <section id="approveModal" class="modal small-modal hidden" role="dialog" aria-modal="true">
+    <!-- 승인: 검토중 공지 승인 -->
+    <div id="approveModal" class="modal small-modal hidden" role="dialog" aria-modal="true" aria-labelledby="approveModalTitle">
         <div class="modal-head">
-            <h3>공지 승인</h3>
-            <button class="modal-close" type="button">×</button>
+            <h3 id="approveModalTitle">공지 승인</h3>
+            <button class="modal-close" type="button" aria-label="닫기">×</button>
         </div>
+        <div class="modal-body">
+            <p class="confirm-text">선택한 공지를 승인하여 학생 앱에 게시합니다. 계속하시겠습니까?</p>
+        </div>
+        <div class="modal-actions">
+            <button class="line-btn" type="button" data-modal-close>취소</button>
+            <button class="primary-btn" type="button" data-save="공지가 승인되었습니다.">승인</button>
+        </div>
+    </div>
 
+    <!-- 삭제 확인 -->
+    <div id="deleteModal" class="modal small-modal hidden" role="dialog" aria-modal="true" aria-labelledby="deleteModalTitle">
+        <div class="modal-head">
+            <h3 id="deleteModalTitle">삭제 확인</h3>
+            <button class="modal-close" type="button" aria-label="닫기">×</button>
+        </div>
         <div class="modal-body">
             <p class="confirm-text">
-                이 공지를 승인하고 학생 앱에 게시하시겠습니까?
+                정말 삭제하시겠습니까?
+                <span class="danger-text">이 작업은 되돌릴 수 없습니다.</span>
             </p>
         </div>
-
         <div class="modal-actions">
-            <button class="line-btn modal-close" type="button">취소</button>
-            <button class="primary-btn" type="button" data-save="공지 승인이 완료되었습니다.">
-                승인
-            </button>
+            <button class="line-btn" type="button" data-modal-close>취소</button>
+            <button class="danger-btn" type="button" data-save="삭제되었습니다.">삭제</button>
         </div>
-    </section>
+    </div>
 
-    <!-- 삭제 확인 팝업 -->
-    <section id="deleteModal" class="modal small-modal hidden" role="dialog" aria-modal="true">
+    <!-- 업무 보기(대시보드 Today Task) -->
+    <div id="taskModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
         <div class="modal-head">
-            <h3>삭제 확인</h3>
-            <button class="modal-close" type="button">×</button>
+            <h3 id="taskModalTitle">오늘의 업무</h3>
+            <button class="modal-close" type="button" aria-label="닫기">×</button>
         </div>
-
         <div class="modal-body">
-            <p class="confirm-text danger-text">
-                삭제한 항목은 복구할 수 없습니다. 정말 삭제하시겠습니까?
-            </p>
-        </div>
-
-        <div class="modal-actions">
-            <button class="line-btn modal-close" type="button">취소</button>
-            <button class="danger-btn" type="button" data-save="삭제가 완료되었습니다.">
-                삭제
-            </button>
-        </div>
-    </section>
-
-    <!-- 배너 등록/수정 팝업 -->
-    <section id="bannerModal" class="modal hidden" role="dialog" aria-modal="true">
-        <div class="modal-head">
-            <h3>배너 등록/수정</h3>
-            <button class="modal-close" type="button">×</button>
-        </div>
-
-        <div class="modal-body">
-            <form class="modal-form">
-                <label for="bannerTitle">배너 제목</label>
-                <input id="bannerTitle" type="text" value="졸업작품 신청 기간 안내" />
-
-                <label for="bannerPeriod">게시 기간</label>
-                <input id="bannerPeriod" type="text" value="05.11 ~ 06.07" />
-
-                <label for="bannerStatus">노출 상태</label>
-                <select id="bannerStatus">
-                    <option>노출중</option>
-                    <option>예약</option>
-                    <option>종료</option>
-                </select>
-            </form>
-        </div>
-
-        <div class="modal-actions">
-            <button class="line-btn modal-close" type="button">취소</button>
-            <button class="primary-btn" type="button" data-save="배너 저장이 완료되었습니다.">
-                저장
-            </button>
-        </div>
-    </section>
-
-    <!-- 장학금 등록/수정 팝업 -->
-    <section id="scholarshipModal" class="modal hidden" role="dialog" aria-modal="true">
-        <div class="modal-head">
-            <h3>장학금 등록/수정</h3>
-            <button class="modal-close" type="button">×</button>
-        </div>
-
-        <div class="modal-body">
-            <form class="modal-form">
-                <label for="scholarshipTitle">장학금명</label>
-                <input id="scholarshipTitle" type="text" value="울산 지역 인재 장학금" />
-
-                <label for="scholarshipTarget">대상</label>
-                <input id="scholarshipTarget" type="text" value="울산 거주 재학생" />
-
-                <label for="scholarshipDeadline">마감일</label>
-                <input id="scholarshipDeadline" type="date" value="2026-05-18" />
-            </form>
-        </div>
-
-        <div class="modal-actions">
-            <button class="line-btn modal-close" type="button">취소</button>
-            <button class="primary-btn" type="button" data-save="장학금 정보가 저장되었습니다.">
-                저장
-            </button>
-        </div>
-    </section>
-
-    <!-- 학사 일정 등록/수정 팝업 -->
-    <section id="scheduleModal" class="modal hidden" role="dialog" aria-modal="true">
-        <div class="modal-head">
-            <h3>학사 일정 등록/수정</h3>
-            <button class="modal-close" type="button">×</button>
-        </div>
-
-        <div class="modal-body">
-            <form class="modal-form">
-                <label for="scheduleTitle">일정명</label>
-                <input id="scheduleTitle" type="text" value="기말고사 기간" />
-
-                <label for="scheduleStart">시작일</label>
-                <input id="scheduleStart" type="date" value="2026-06-15" />
-
-                <label for="scheduleEnd">종료일</label>
-                <input id="scheduleEnd" type="date" value="2026-06-21" />
-            </form>
-        </div>
-
-        <div class="modal-actions">
-            <button class="line-btn modal-close" type="button">취소</button>
-            <button class="primary-btn" type="button" data-save="학사 일정이 저장되었습니다.">
-                저장
-            </button>
-        </div>
-    </section>
-
-    <!-- 관리자 정보 수정 팝업 -->
-    <section id="accountModal" class="modal hidden" role="dialog" aria-modal="true">
-        <div class="modal-head">
-            <h3>관리자 정보 수정</h3>
-            <button class="modal-close" type="button">×</button>
-        </div>
-
-        <div class="modal-body">
-            <form class="modal-form">
-                <label for="adminName">관리자 이름</label>
-                <input id="adminName" type="text" value="한구윤 관리자" />
-
-                <label for="adminDepartment">소속</label>
-                <input id="adminDepartment" type="text" value="컴퓨터공학과" />
-
-                <label for="adminEmail">이메일</label>
-                <input id="adminEmail" type="email" value="cs_admin@uc.ac.kr" />
-            </form>
-        </div>
-
-        <div class="modal-actions">
-            <button class="line-btn modal-close" type="button">취소</button>
-            <button class="primary-btn" type="button" data-save="관리자 정보가 수정되었습니다.">
-                저장
-            </button>
-        </div>
-    </section>
-
-    <!-- 오늘 업무 팝업 -->
-    <section id="taskModal" class="modal hidden" role="dialog" aria-modal="true">
-        <div class="modal-head">
-            <h3>오늘의 업무</h3>
-            <button class="modal-close" type="button">×</button>
-        </div>
-
-        <div class="modal-body">
-            <div class="task-modal-list">
-                <article>
-                    <span>검토</span>
-                    <div>
-                        <strong>장학금 공지 승인</strong>
-                        <p>학생복지팀 등록 공지</p>
-                    </div>
-                </article>
-
-                <article>
-                    <span>재발송</span>
-                    <div>
-                        <strong>졸업작품 공지 미확인자</strong>
-                        <p>119명 대상</p>
-                    </div>
-                </article>
-
-                <article>
-                    <span>예약</span>
-                    <div>
-                        <strong>장학금 배너 노출</strong>
-                        <p>05.15 시작</p>
-                    </div>
-                </article>
+            <div class="modal-form">
+                <p class="confirm-text">검토 대기 2건 · 알림 재발송 1건 · 배너 예약 3건</p>
             </div>
         </div>
-
         <div class="modal-actions">
-            <button class="primary-btn modal-close" type="button">확인</button>
+            <button class="line-btn" type="button" data-modal-close>닫기</button>
         </div>
-    </section>
-</div>
-</body>
-</html>
+    </div>
+
+    <!-- 배너 등록/수정 -->
+    <div id="bannerModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="bannerModalTitle">
+        <div class="modal-head">
+            <h3 id="bannerModalTitle">배너 등록</h3>
+            <button class="modal-close" type="button" aria-label="닫기">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-form">
+                <label for="bannerTitle">배너 제목</label>
+                <input id="bannerTitle" type="text" placeholder="배너에 표시할 제목" />
+
+                <label for="bannerPeriod">노출 기간</label>
+                <input id="bannerPeriod" type="text" placeholder="예) 05.11 ~ 06.07" />
+
+                <label for="bannerLink">연결 공지</label>
+                <select id="bannerLink">
+                    <option>연결 안 함</option>
+                    <option>2026학년도 컴퓨터공학과 졸업작품 신청 안내</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="line-btn" type="button" data-modal-close>취소</button>
+            <button class="primary-btn" type="button" data-save="배너가 저장되었습니다.">저장</button>
+        </div>
+    </div>
+
+    <!-- 장학금 등록/수정 -->
+    <div id="scholarshipModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="scholarshipModalTitle">
+        <div class="modal-head">
+            <h3 id="scholarshipModalTitle">장학금 등록</h3>
+            <button class="modal-close" type="button" aria-label="닫기">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-form">
+                <label for="scholarshipName">장학금명</label>
+                <input id="scholarshipName" type="text" placeholder="예) 울산 지역 인재 장학금" />
+
+                <label for="scholarshipType">유형</label>
+                <select id="scholarshipType">
+                    <option>지역 장학</option>
+                    <option>성적 장학</option>
+                    <option>교내 장학</option>
+                    <option>외부 장학</option>
+                </select>
+
+                <label for="scholarshipDeadline">마감일</label>
+                <input id="scholarshipDeadline" type="date" />
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="line-btn" type="button" data-modal-close>취소</button>
+            <button class="primary-btn" type="button" data-save="장학금이 저장되었습니다.">저장</button>
+        </div>
+    </div>
+
+    <!-- 학사 일정 등록/수정 -->
+    <div id="scheduleModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="scheduleModalTitle">
+        <div class="modal-head">
+            <h3 id="scheduleModalTitle">학사 일정 추가</h3>
+            <button class="modal-close" type="button" aria-label="닫기">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-form">
+                <label for="scheduleTitle">일정명</label>
+                <input id="scheduleTitle" type="text" placeholder="예) 기말고사 기간" />
+
+                <label for="scheduleStart">시작일</label>
+                <input id="scheduleStart" type="date" />
+
+                <label for="scheduleEnd">종료일</label>
+                <input id="scheduleEnd" type="date" />
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="line-btn" type="button" data-modal-close>취소</button>
+            <button class="primary-btn" type="button" data-save="일정이 저장되었습니다.">저장</button>
+        </div>
+    </div>
+
+    <!-- 관리자 정보 수정 -->
+    <div id="accountModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
+        <div class="modal-head">
+            <h3 id="accountModalTitle">관리자 정보 수정</h3>
+            <button class="modal-close" type="button" aria-label="닫기">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-form">
+                <label for="accountName">관리자명</label>
+                <input id="accountName" type="text" placeholder="관리자 이름" />
+
+                <label for="accountDept">소속 학과/부서</label>
+                <input id="accountDept" type="text" placeholder="예) 컴퓨터공학과" />
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="line-btn" type="button" data-modal-close>취소</button>
+            <button class="primary-btn" type="button" data-save="관리자 정보가 저장되었습니다.">저장</button>
+        </div>
+    </div>
+
+</th:block>
