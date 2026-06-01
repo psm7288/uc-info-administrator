@@ -130,23 +130,6 @@
     background: var(--primary-soft);
 }
 
-/* 상태 pill */
-.pill {
-    display: inline-flex;
-    align-items: center;
-    padding: 5px 10px;
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 900;
-    white-space: nowrap;
-}
-
-.pill.live    { color: var(--green);  background: var(--green-soft); }
-.pill.wait    { color: var(--orange); background: var(--orange-soft); }
-.pill.off     { color: var(--sub);    background: var(--soft); }
-.pill.danger  { color: var(--red);    background: var(--red-soft); }
-.pill.info    { color: var(--primary); background: var(--primary-soft); }
-
 /* 빠른 실행 */
 .quick-panel .panel-head {
     border-bottom: 1px solid var(--line);
