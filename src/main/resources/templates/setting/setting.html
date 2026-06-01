@@ -43,11 +43,11 @@
                     <div class="setting-list">
                         <article>
                             <div><strong>공지 등록 알림</strong><p>새 공지가 등록되면 관리자에게 알림을 표시합니다.</p></div>
-                            <span class="switch" th:classappend="${admin != null and admin.alarmTracking} ? ' on'"></span>
+                            <span class="switch" th:classappend="${admin?.alarmTracking == true} ? ' on'"></span>
                         </article>
                         <article>
                             <div><strong>미확인자 재발송 알림</strong><p>열람률이 낮은 공지를 자동으로 표시합니다.</p></div>
-                            <span class="switch" th:classappend="${admin != null and admin.alarmSend} ? ' on'"></span>
+                            <span class="switch" th:classappend="${admin?.alarmSend == true} ? ' on'"></span>
                         </article>
                     </div>
                 </section>
