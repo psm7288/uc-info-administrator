@@ -24,20 +24,3 @@
     <link rel="stylesheet" th:href="@{/css/common/table.css}" />
     <link rel="stylesheet" th:href="@{/css/common/modal.css}" />
 </th:block>
-
-<th:block th:fragment="og(ogTitle, ogDesc, ogUrl)">
-    <meta name="description" th:content="${ogDesc}" />
-    <link rel="canonical" th:href="${ogUrl}" />
-
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="UC Info Admin" />
-    <meta property="og:title" th:content="${ogTitle}" />
-    <meta property="og:description" th:content="${ogDesc}" />
-    <meta property="og:url" th:content="${ogUrl}" />
-    <meta property="og:image" th:content="@{/images/og_image.png}" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" th:content="${ogTitle}" />
-    <meta name="twitter:description" th:content="${ogDesc}" />
-    <meta name="twitter:image" th:content="@{/images/og_image.png}" />
-</th:block>
