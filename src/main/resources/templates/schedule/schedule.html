@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/meta :: common('학사 일정 관리')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/pages/schedule.css}" />
+</head>
+<body>
+    <div class="admin-view">
+        <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
+
+        <main class="main-area">
+            <div th:replace="~{fragments/header :: header('학사 일정 관리', 'Schedule')}"></div>
+
+            <section class="schedule-hero">
+                <div>
+                    <span>Academic Calendar</span>
+                    <h3>학사 일정과 주요 학교 일정을 관리합니다.</h3>
+                    <p>시험 기간, 수강 신청, 방학, 행사 일정을 학생 앱에 정확하게 안내합니다.</p>
+                </div>
+                <button class="white-btn" type="button" data-modal="scheduleModal">일정 추가</button>
+            </section>
+
+            <section class="schedule-summary-grid">
+                <article class="metric-card">
+                    <span>등록 일정</span>
+                    <strong th:text="${totalCount}">0</strong>
+                    <p>현재 관리 중</p>
+                </article>
+                <article class="metric-card">
+                    <span>학생 앱 노출</span>
+                    <strong>ON</strong>
+                    <p>정상 노출 중</p>
+                </article>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <div><h3>학사 일정 목록</h3><p>학생 앱 일정 화면에 표시되는 학사 일정입니다.</p></div>
+                    <button class="primary-btn" type="button" data-modal="scheduleModal">새 일정 추가</button>
+                </div>
+
+                <div class="schedule-list" th:if="${not #lists.isEmpty(schedules)}">
+                    <article class="schedule-card" th:each="s : ${schedules}">
+                        <div class="schedule-date">
+                            <strong th:text="${#temporals.format(s.startDate, 'MM.dd')}">00.00</strong>
+                            <span th:text="${#temporals.format(s.startDate, 'E', new java.util.Locale('ko'))}">요일</span>
+                        </div>
+                        <div class="schedule-info">
+                            <span class="pill info" th:text="${s.category}">학사 일정</span>
+                            <h4 th:text="${s.title}">일정명</h4>
+                            <p>
+                                <span th:text="${#temporals.format(s.startDate, 'yyyy.MM.dd')}"></span>
+                                <span th:if="${s.endDate != null}"> ~ <span th:text="${#temporals.format(s.endDate, 'yyyy.MM.dd')}"></span></span>
+                            </p>
+                        </div>
+                        <div class="table-actions">
+                            <button type="button" data-modal="scheduleModal">수정</button>
+                            <button type="button" data-modal="deleteModal">삭제</button>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="notice-empty" th:if="${#lists.isEmpty(schedules)}">
+                    <strong>등록된 일정이 없습니다</strong>
+                    <p>새 일정 추가 버튼으로 학사 일정을 등록하세요.</p>
+                </div>
+            </section>
+
+            <section class="panel schedule-guide-panel">
+                <div class="panel-head">
+                    <div><h3>일정 운영 기준</h3><p>학생이 중요한 일정을 놓치지 않도록 정확하게 관리합니다.</p></div>
+                </div>
+                <div class="schedule-guide-list">
+                    <article><strong>기간 일정 등록</strong><p>시작일과 종료일을 모두 입력합니다.</p></article>
+                    <article><strong>대상 구분</strong><p>전체 학생, 특정 학과, 특정 학년 대상 일정을 구분합니다.</p></article>
+                    <article><strong>앱 노출 확인</strong><p>등록 후 학생 앱 일정 화면에서 정상 노출되는지 확인합니다.</p></article>
+                </div>
+            </section>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <aside id="noticeDrawer" class="drawer hidden">
+        <div class="drawer-head">
+            <div><h3>알림 센터</h3><p>학사 일정 관리 알림입니다.</p></div>
+            <button class="drawer-close" type="button">×</button>
+        </div>
+        <div class="drawer-list">
+            <article th:if="${totalCount > 0}">
+                <span class="dot info"></span>
+                <div>
+                    <strong>학사 일정</strong>
+                    <p th:text="${totalCount} + '건의 일정이 등록되어 있습니다.'">현황</p>
+                </div>
+            </article>
+        </div>
+    </aside>
+
+    <div th:replace="~{fragments/modals :: modals}"></div>
+    <div th:replace="~{fragments/toast :: toast}"></div>
+
+    <script defer th:src="@{/js/common/toast.js}"></script>
+    <script defer th:src="@{/js/common/modal.js}"></script>
+    <script defer th:src="@{/js/common/sidebar.js}"></script>
+    <script defer th:src="@{/js/common/common.js}"></script>
+    <script defer th:src="@{/js/pages/schedule.js}"></script>
+</body>
+</html>

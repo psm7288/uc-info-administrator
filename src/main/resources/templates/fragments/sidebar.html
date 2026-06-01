@@ -1,7 +1,4 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<body>
-<aside th:fragment="sidebar" id="sidebar" class="sidebar">
+<aside th:fragment="sidebar(currentUri)" id="sidebar" class="sidebar">
     <div class="sidebar-brand">
         <div class="brand-icon small">UC</div>
         <div>
@@ -11,57 +8,65 @@
     </div>
 
     <nav class="sidebar-nav">
-        <a class="nav-item" th:href="@{/dashboard}">
+        <a class="nav-item" th:href="@{/dashboard}"
+           th:classappend="${currentUri != null and #strings.startsWith(currentUri, '/dashboard')} ? 'active'">
             <span class="nav-dot"></span>
             <strong>대시보드</strong>
         </a>
 
-        <a class="nav-item" th:href="@{/notices}">
+        <a class="nav-item" th:href="@{/notices}"
+           th:classappend="${currentUri != null and #strings.startsWith(currentUri, '/notices')} ? 'active'">
             <span class="nav-dot"></span>
             <strong>공지 관리</strong>
         </a>
 
-        <a class="nav-item" th:href="@{/tracking}">
+        <a class="nav-item" th:href="@{/tracking}"
+           th:classappend="${currentUri != null and #strings.startsWith(currentUri, '/tracking')} ? 'active'">
             <span class="nav-dot"></span>
             <strong>열람 트래킹</strong>
         </a>
 
-        <a class="nav-item" th:href="@{/resend}">
+        <a class="nav-item" th:href="@{/resend}"
+           th:classappend="${currentUri != null and #strings.startsWith(currentUri, '/resend')} ? 'active'">
             <span class="nav-dot"></span>
             <strong>미확인자 재발송</strong>
         </a>
 
-        <a class="nav-item" th:href="@{/banners}">
+        <a class="nav-item" th:href="@{/banners}"
+           th:classappend="${currentUri != null and #strings.startsWith(currentUri, '/banners')} ? 'active'">
             <span class="nav-dot"></span>
             <strong>배너 관리</strong>
         </a>
 
-        <a class="nav-item" th:href="@{/scholarships}">
+        <a class="nav-item" th:href="@{/scholarships}"
+           th:classappend="${currentUri != null and #strings.startsWith(currentUri, '/scholarships')} ? 'active'">
             <span class="nav-dot"></span>
             <strong>장학금</strong>
         </a>
 
-        <a class="nav-item" th:href="@{/schedules}">
+        <a class="nav-item" th:href="@{/schedules}"
+           th:classappend="${currentUri != null and #strings.startsWith(currentUri, '/schedules')} ? 'active'">
             <span class="nav-dot"></span>
             <strong>학사 일정</strong>
         </a>
 
-        <a class="nav-item" th:href="@{/shuttles}">
+        <a class="nav-item" th:href="@{/shuttles}"
+           th:classappend="${currentUri != null and #strings.startsWith(currentUri, '/shuttles')} ? 'active'">
             <span class="nav-dot"></span>
             <strong>셔틀버스</strong>
         </a>
 
-        <a class="nav-item" th:href="@{/settings}">
+        <a class="nav-item" th:href="@{/settings}"
+           th:classappend="${currentUri != null and #strings.startsWith(currentUri, '/settings')} ? 'active'">
             <span class="nav-dot"></span>
             <strong>관리자 설정</strong>
         </a>
     </nav>
 
-    <div class="sidebar-user">
+    <!-- 로그인 관리자 정보. 컨트롤러에서 model 에 admin 주입 시 노출 -->
+    <div class="sidebar-user" th:if="${admin != null}">
         <span>현재 권한</span>
-        <strong>컴퓨터공학과 관리자</strong>
-        <p>공지 작성, 열람률 확인, 푸시 재발송 가능</p>
+        <strong th:text="${admin.adminName}">관리자</strong>
+        <p th:text="${admin.departmentName}">학과</p>
     </div>
 </aside>
-</body>
-</html>

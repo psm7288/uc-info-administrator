@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/meta :: common('관리자 대시보드')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/pages/dashboard.css}" />
+</head>
+<body>
+    <div class="admin-view">
+        <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
+
+        <main class="main-area">
+            <div th:replace="~{fragments/header :: header('관리자 대시보드', 'Dashboard')}"></div>
+
+            <section class="metric-grid">
+                <article class="metric-card">
+                    <span>게시 중 공지</span>
+                    <strong th:text="${publishedCount}">0</strong>
+                    <p>현재 노출 중</p>
+                </article>
+                <article class="metric-card warning" th:if="${waitingCount > 0}">
+                    <span>승인 대기</span>
+                    <strong th:text="${waitingCount}">0</strong>
+                    <p>검토 필요</p>
+                </article>
+                <article class="metric-card">
+                    <span>활성 배너</span>
+                    <strong th:text="${activeBannerCount}">0</strong>
+                    <p>정상 노출 중</p>
+                </article>
+                <article class="metric-card">
+                    <span>전체 학생</span>
+                    <strong th:text="${totalUserCount}">0</strong>
+                    <p>등록 학생 수</p>
+                </article>
+            </section>
+
+            <section class="dashboard-grid">
+                <section class="panel">
+                    <div class="panel-head">
+                        <div><h3>최근 공지</h3><p>학생 앱에 노출 중인 공식 공지입니다.</p></div>
+                        <a class="text-btn" th:href="@{/notices}">전체 보기</a>
+                    </div>
+
+                    <div class="notice-list" th:if="${not #lists.isEmpty(recentNotices)}">
+                        <article class="notice-row" th:each="n : ${recentNotices}">
+                            <div class="notice-badge"
+                                 th:classappend="${n.category == 'SCHOLARSHIP'} ? 'scholarship' : (${n.category == 'ACADEMIC'} ? 'academic' : 'important')"
+                                 th:text="${n.category == 'SCHOLARSHIP'} ? '장학' : (${n.category == 'ACADEMIC'} ? '학사' : '공지')">공지</div>
+                            <div class="notice-info">
+                                <h4 th:text="${n.title}">공지 제목</h4>
+                                <p th:text="'게시일 ' + ${#temporals.format(n.createdAt, 'MM.dd')}">날짜</p>
+                            </div>
+                            <div class="row-actions">
+                                <span class="pill live" th:if="${n.status == 'PUBLISHED'}">게시중</span>
+                                <span class="pill wait" th:if="${n.status == 'WAITING'}">검토중</span>
+                                <button type="button" data-modal="previewModal">미리보기</button>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="notice-empty" th:if="${#lists.isEmpty(recentNotices)}">
+                        <strong>등록된 공지가 없습니다</strong>
+                        <p>공지 작성 버튼으로 새 공지를 등록하세요.</p>
+                    </div>
+                </section>
+
+                <section class="panel quick-panel">
+                    <div class="panel-head">
+                        <div><h3>빠른 실행</h3><p>자주 사용하는 관리자 기능입니다.</p></div>
+                    </div>
+                    <div class="quick-list">
+                        <a th:href="@{/notices/new}"><span>공지 작성</span><strong>새 공식 공지 등록</strong></a>
+                        <button type="button" data-modal="resendModal"><span>재발송</span><strong>미확인자 푸시 알림</strong></button>
+                        <a th:href="@{/tracking}"><span>열람 현황</span><strong>공지 열람률 확인</strong></a>
+                        <a th:href="@{/banners}"><span>배너 관리</span><strong>앱 메인 배너 관리</strong></a>
+                    </div>
+                </section>
+            </section>
+
+            <section class="panel margin-top" th:if="${waitingCount > 0}">
+                <div class="panel-head">
+                    <div><h3>승인 대기 공지</h3><p>검토 후 승인하면 학생 앱에 노출됩니다.</p></div>
+                </div>
+                <div class="notice-list">
+                    <article class="notice-row" th:each="n : ${waitingNotices}">
+                        <div class="notice-badge wait">대기</div>
+                        <div class="notice-info">
+                            <h4 th:text="${n.title}">공지 제목</h4>
+                            <p th:text="${n.admin.adminName} + ' · ' + ${#temporals.format(n.createdAt, 'MM.dd HH:mm')}">작성자</p>
+                        </div>
+                        <div class="row-actions">
+                            <button type="button" data-modal="approveModal">승인</button>
+                            <a th:href="@{'/notices/' + ${n.noticeId} + '/edit'}">수정</a>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <aside id="noticeDrawer" class="drawer hidden">
+        <div class="drawer-head">
+            <div><h3>알림 센터</h3><p>관리자 확인이 필요한 알림입니다.</p></div>
+            <button class="drawer-close" type="button">×</button>
+        </div>
+        <div class="drawer-list">
+            <article th:if="${waitingCount > 0}">
+                <span class="dot danger"></span>
+                <div>
+                    <strong>공지 승인 대기</strong>
+                    <p th:text="${waitingCount} + '건이 승인 대기 중입니다.'">대기 현황</p>
+                </div>
+            </article>
+            <article th:if="${waitingCount == 0}">
+                <span class="dot success"></span>
+                <div><strong>대기 없음</strong><p>승인 대기 중인 공지가 없습니다.</p></div>
+            </article>
+        </div>
+    </aside>
+
+    <div th:replace="~{fragments/modals :: modals}"></div>
+    <div th:replace="~{fragments/toast :: toast}"></div>
+
+    <script defer th:src="@{/js/common/toast.js}"></script>
+    <script defer th:src="@{/js/common/modal.js}"></script>
+    <script defer th:src="@{/js/common/sidebar.js}"></script>
+    <script defer th:src="@{/js/common/common.js}"></script>
+    <script defer th:src="@{/js/pages/dashboard.js}"></script>
+</body>
+</html>

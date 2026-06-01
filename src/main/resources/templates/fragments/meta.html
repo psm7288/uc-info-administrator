@@ -1,11 +1,12 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<body>
-<th:block th:fragment="head(pageTitle)">
+<th:block th:fragment="common(pageTitle)">
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title th:text="${pageTitle} + ' | UC Info Admin'">UC Info Admin</title>
+
+    <link rel="icon" type="image/svg+xml" th:href="@{/images/logo-favicon.svg}" />
+    <link rel="icon" type="image/x-icon" th:href="@{/favicon.ico}" />
+    <link rel="apple-touch-icon" th:href="@{/images/apple-touch-icon.png}" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -19,8 +20,7 @@
     <link rel="stylesheet" th:href="@{/css/common/layout.css}" />
     <link rel="stylesheet" th:href="@{/css/common/sidebar.css}" />
     <link rel="stylesheet" th:href="@{/css/common/header.css}" />
+    <link rel="stylesheet" th:href="@{/css/common/footer.css}" />
     <link rel="stylesheet" th:href="@{/css/common/table.css}" />
     <link rel="stylesheet" th:href="@{/css/common/modal.css}" />
 </th:block>
-</body>
-</html>

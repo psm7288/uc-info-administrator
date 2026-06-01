@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/meta :: common('공지 관리')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/pages/notice.css}" />
+</head>
+<body>
+    <div class="admin-view">
+        <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
+
+        <main class="main-area">
+            <div th:replace="~{fragments/header :: header('공지 관리', 'Notice')}"></div>
+
+            <section class="panel notice-filter-panel">
+                <div class="panel-head">
+                    <div><h3>공지 검색</h3><p>카테고리, 상태, 키워드 기준으로 공지를 찾습니다.</p></div>
+                    <a class="primary-btn" th:href="@{/notices/new}">새 공지 작성</a>
+                </div>
+                <form class="notice-filter-form">
+                    <input type="text" name="keyword" placeholder="공지 제목 또는 내용 검색" />
+                    <select name="category">
+                        <option value="">전체 카테고리</option>
+                        <option value="DEPARTMENT">학과 공지</option>
+                        <option value="ACADEMIC">학사 공지</option>
+                        <option value="SCHOLARSHIP">장학 공지</option>
+                        <option value="EVENT">행사 공지</option>
+                        <option value="EMPLOYMENT">취업 공지</option>
+                    </select>
+                    <select name="status">
+                        <option value="">전체 상태</option>
+                        <option value="PUBLISHED">게시중</option>
+                        <option value="WAITING">검토중</option>
+                        <option value="DRAFT">임시저장</option>
+                        <option value="CLOSED">게시종료</option>
+                    </select>
+                    <button class="secondary-btn" type="submit">검색</button>
+                </form>
+            </section>
+
+            <section class="panel">
+                <div class="panel-head">
+                    <div><h3>공지 목록</h3><p>학생 앱에 노출되는 공식 공지를 관리합니다.</p></div>
+                    <span class="pill info" th:text="'총 ' + ${totalCount} + '건'">총 0건</span>
+                </div>
+
+                <div class="table-wrap" th:if="${not #lists.isEmpty(notices)}">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>공지 제목</th><th>카테고리</th><th>작성자</th>
+                            <th>게시 기간</th><th>상태</th><th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="n : ${notices}">
+                            <td>
+                                <div class="notice-title-cell">
+                                    <strong th:text="${n.title}">제목</strong>
+                                    <p th:text="${n.admin.adminName} + ' · ' + ${n.category}">작성자</p>
+                                    <div class="notice-meta">
+                                        <span th:if="${n.pinned}">상단 고정</span>
+                                        <span th:if="${n.pushSent}">푸시 발송</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td th:text="${n.category}">카테고리</td>
+                            <td th:text="${n.admin.adminName}">관리자</td>
+                            <td>
+                                <span th:if="${n.startDate != null}" th:text="${#temporals.format(n.startDate,'MM.dd')}"></span>
+                                <span th:if="${n.endDate != null}"> ~ <span th:text="${#temporals.format(n.endDate,'MM.dd')}"></span></span>
+                            </td>
+                            <td>
+                                <span class="pill live" th:if="${n.status == 'PUBLISHED'}">게시중</span>
+                                <span class="pill wait" th:if="${n.status == 'WAITING'}">검토중</span>
+                                <span class="pill off" th:if="${n.status == 'DRAFT'}">임시저장</span>
+                                <span class="pill off" th:if="${n.status == 'CLOSED'}">게시종료</span>
+                            </td>
+                            <td class="table-actions">
+                                <a th:href="@{'/notices/' + ${n.noticeId} + '/edit'}">수정</a>
+                                <button type="button" data-modal="previewModal">미리보기</button>
+                                <button type="button" data-modal="resendModal">재발송</button>
+                                <button type="button" data-modal="deleteModal">삭제</button>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="notice-empty" th:if="${#lists.isEmpty(notices)}">
+                    <strong>등록된 공지가 없습니다</strong>
+                    <p>새 공지 작성 버튼으로 공지를 등록하세요.</p>
+                </div>
+            </section>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <aside id="noticeDrawer" class="drawer hidden">
+        <div class="drawer-head">
+            <div><h3>알림 센터</h3><p>관리자 확인이 필요한 알림입니다.</p></div>
+            <button class="drawer-close" type="button">×</button>
+        </div>
+        <div class="drawer-list">
+            <article th:if="${publishedCount > 0}">
+                <span class="dot success"></span>
+                <div>
+                    <strong>게시 중 공지</strong>
+                    <p th:text="${publishedCount} + '건이 학생 앱에 노출 중입니다.'">현황</p>
+                </div>
+            </article>
+        </div>
+    </aside>
+
+    <div th:replace="~{fragments/modals :: modals}"></div>
+    <div th:replace="~{fragments/toast :: toast}"></div>
+
+    <script defer th:src="@{/js/common/toast.js}"></script>
+    <script defer th:src="@{/js/common/modal.js}"></script>
+    <script defer th:src="@{/js/common/sidebar.js}"></script>
+    <script defer th:src="@{/js/common/common.js}"></script>
+    <script defer th:src="@{/js/pages/notice.js}"></script>
+</body>
+</html>
