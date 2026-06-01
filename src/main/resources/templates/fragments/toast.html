@@ -1,10 +1,1 @@
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<body>
-<!--
-  전역 토스트. toast.js 의 showToast(message) 가 #toast 의 textContent 를 바꾸고
-  .hidden 클래스를 토글한다. 초기 상태는 hidden. CSS: modal.css 의 .toast
--->
 <div th:fragment="toast" id="toast" class="toast hidden" role="status" aria-live="polite"></div>
-</body>
-</html>
