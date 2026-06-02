@@ -27,14 +27,13 @@
 
             <a class="header__btn header__btn--primary" th:href="@{/notices/new}">공지 작성</a>
 
-            <!-- 로그인 관리자 정보. GlobalModelAdvice 가 admin 주입 -->
             <div class="header__user" th:if="${admin != null}">
                 <span class="header__user-name" th:text="${admin.adminName}">관리자</span>
-                <span class="header__user-dept" th:text="${admin.departmentName}">학과</span>
+                <span class="header__user-dept"
+                      th:text="${admin.department != null} ? ${admin.department.deptName} : '전체 관리자'">학과</span>
             </div>
 
             <form class="header__logout" th:action="@{/logout}" method="post">
-                <!-- WHY: dev 프로파일에서 CSRF 비활성 시 _csrf 가 null 이므로 가드 -->
                 <input th:if="${_csrf != null}" type="hidden"
                        th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                 <button class="header__btn header__btn--ghost" type="submit">로그아웃</button>
