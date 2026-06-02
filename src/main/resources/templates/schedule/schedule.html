@@ -43,7 +43,7 @@
                     <article class="schedule-card" th:each="s : ${schedules}">
                         <div class="schedule-date">
                             <strong th:text="${#temporals.format(s.startDate, 'MM.dd')}">00.00</strong>
-                            <span th:text="${#temporals.format(s.startDate, 'E', new java.util.Locale('ko'))}">요일</span>
+                            <span th:text="${#temporals.format(s.startDate, 'E', T(java.util.Locale).KOREAN)}">요일</span>
                         </div>
                         <div class="schedule-info">
                             <span class="pill info" th:text="${s.category}">학사 일정</span>
