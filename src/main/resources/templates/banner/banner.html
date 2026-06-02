@@ -42,7 +42,7 @@
                 <div class="banner-card-list" th:if="${not #lists.isEmpty(banners)}">
                     <article class="banner-manage-card" th:each="b : ${banners}">
                         <div class="banner-preview blue">
-                            <span th:text="${b.admin.departmentName}">학과</span>
+                            <span th:text="${b.admin.department != null} ? ${b.admin.department.deptName} : '전체 관리자'">학과</span>
                             <strong th:text="${b.title}">배너 제목</strong>
                             <p th:if="${b.startDate != null}"
                                th:text="${#temporals.format(b.startDate,'MM.dd')} + (${b.endDate} != null ? ' ~ ' + ${#temporals.format(b.endDate,'MM.dd')} : '')">기간</p>
@@ -53,7 +53,7 @@
                                 <span class="pill wait"      th:if="${b.status == 'SCHEDULED'}">예약</span>
                                 <span class="pill off"       th:if="${b.status == 'INACTIVE'}">비활성</span>
                                 <h4 th:text="${b.title}">배너 제목</h4>
-                                <p th:text="${b.admin.departmentName} + ' · 메인 배너'">설명</p>
+                                <p th:text="(${b.admin.department != null} ? ${b.admin.department.deptName} : '전체 관리자') + ' · 메인 배너'">설명</p>
                             </div>
                             <div class="table-actions">
                                 <button type="button" data-modal="bannerModal">수정</button>
