@@ -1,11 +1,7 @@
 package uc.dev.uc_info.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import uc.dev.uc_info.model.Notice;
-
-import java.util.List;
 
 /**
  * 공지(Notice) 영속성 접근 인터페이스.
@@ -35,7 +31,7 @@ import java.util.List;
 public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
     // TODO(담당): 위 주석의 조회 메서드들을 직접 선언.
-    //   - 단순 조건은 메서드 이름은 위와 같은 규칙으로.
-    //   - department OR 전체(null) 처럼 OR/NULL 조건은 @Query(JPQL)로.
+    //   - 단순 조건은 메서드 이름은 위와 같은 규칙입니다.
+    //   - department OR 전체(null) 처럼 OR/NULL 조건은 @Query(JPQL)입니다.
     //   - 참고 : JPQL는 엔티티명으로 조회를 합니다.
 }
