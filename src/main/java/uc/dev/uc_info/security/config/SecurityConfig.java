@@ -4,14 +4,33 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import uc.dev.uc_info.security.userdetails.CustomUserDetailService;
 
+/**
+ * Spring Security 설정.
+ *
+ * <p>인가 정책(권한 매트릭스 반영):</p>
+ * <ul>
+ *   <li>정적 리소스, /login : 누구나 접근(permitAll)</li>
+ *   <li>/shuttles/** : 셔틀버스는 학과 무관 학교 공통 정보 → SUPER_ADMIN 전용</li>
+ *   <li>그 외 전부 : 로그인한 관리자(authenticated)</li>
+ * </ul>
+ *
+ * <p>"DEPT_ADMIN 은 본인 학과만" 같은 데이터 범위 제한은 URL 인가로 표현할 수
+ * 없으므로 Service 레이어에서 admin.department 기준으로 필터링한다.</p>
+ *
+ * <p>@EnableMethodSecurity 로 @PreAuthorize 등 메서드 보안도 활성화되어 있어,
+ * 컨트롤러/서비스 메서드에 hasRole('SUPER_ADMIN') 등을 추가로 걸 수 있다.</p>
+ */
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -49,6 +68,7 @@ public class SecurityConfig {
                     .requestMatchers(   "/login",
                             "/css/**", "/js/**", "/images/**", "/script/**",
                             "/sitemap.xml", "/robots.txt", "/favicon.ico").permitAll()
+                    .requestMatchers("/shuttles/**").hasRole("SUPER_ADMIN")
                     .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex
