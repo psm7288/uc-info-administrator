@@ -46,12 +46,12 @@
                             </select>
                         </div>
                         <div class="field">
-                            <label for="targetDeptId">대상 학과</label>
-                            <select id="targetDeptId" name="targetDeptId">
+                            <label for="deptId">대상 학과</label>
+                            <select id="deptId" name="deptId">
                                 <option value="">전체 학과</option>
-                                <option value="1">컴퓨터공학과</option>
-                                <option value="2">전기전자공학과</option>
-                                <option value="3">기계공학부</option>
+                                <option th:each="dept : ${departments}"
+                                        th:value="${dept.deptId}"
+                                        th:text="${dept.deptName}">학과명</option>
                             </select>
                         </div>
                         <div class="field">
@@ -63,7 +63,6 @@
                                 <option value="3">3학년</option>
                             </select>
                         </div>
-
                         <div class="field">
                             <label for="startDate">게시 시작일</label>
                             <input id="startDate" name="startDate" type="date" />

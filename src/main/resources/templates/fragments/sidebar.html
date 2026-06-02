@@ -50,7 +50,8 @@
             <strong>학사 일정</strong>
         </a>
 
-        <a class="nav-item" th:href="@{/shuttles}"
+        <a class="nav-item" th:if="${admin != null and admin.role == 'SUPER_ADMIN'}"
+           th:href="@{/shuttles}"
            th:classappend="${currentUri != null and #strings.startsWith(currentUri, '/shuttles')} ? 'active'">
             <span class="nav-dot"></span>
             <strong>셔틀버스</strong>
@@ -63,10 +64,9 @@
         </a>
     </nav>
 
-    <!-- 로그인 관리자 정보. 컨트롤러에서 model 에 admin 주입 시 노출 -->
     <div class="sidebar-user" th:if="${admin != null}">
         <span>현재 권한</span>
         <strong th:text="${admin.adminName}">관리자</strong>
-        <p th:text="${admin.departmentName}">학과</p>
+        <p th:text="${admin.department != null} ? ${admin.department.deptName} : '전체 관리자'">학과</p>
     </div>
 </aside>
