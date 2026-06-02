@@ -29,7 +29,7 @@
                         <article th:if="${admin != null}">
                             <div>
                                 <strong th:text="${admin.adminName}">관리자명</strong>
-                                <p th:text="${admin.username} + ' · ' + ${admin.departmentName} + ' · 공지 작성/수정 가능'">계정 정보</p>
+                                <p th:text="${admin.username} + ' · ' + (${admin.department != null} ? ${admin.department.deptName} : '전체 관리자') + ' · 공지 작성/수정 가능'">계정 정보</p>
                             </div>
                             <button type="button" data-modal="accountModal">수정</button>
                         </article>
@@ -90,7 +90,7 @@
                 <span class="dot info"></span>
                 <div>
                     <strong th:text="${admin != null} ? ${admin.adminName} + ' 관리자' : '관리자'">관리자</strong>
-                    <p th:text="${admin != null} ? ${admin.departmentName} + ' 담당' : ''">학과</p>
+                    <p th:text="${admin != null and admin.department != null} ? ${admin.department.deptName} + ' 담당' : '전체 담당'">학과</p>
                 </div>
             </article>
         </div>
