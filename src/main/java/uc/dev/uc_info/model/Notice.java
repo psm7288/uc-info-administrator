@@ -3,6 +3,7 @@ package uc.dev.uc_info.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import uc.dev.uc_info.model.base.BaseUpdatableEntity;
 
 import java.time.LocalDate;
@@ -28,6 +29,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "notice")
 @Getter
+@Setter
 @NoArgsConstructor
 public class Notice extends BaseUpdatableEntity {
 
@@ -67,7 +69,7 @@ public class Notice extends BaseUpdatableEntity {
     @Column(name = "target_grade", length = 10)
     private String targetGrade;
 
-    /** 게시 상태: DRAFT/WAITING/PUBLISHED/CLOSED */
+    /** 게시 상태: DRAFT/PUBLISHED/CLOSED */
     @Column(name = "status", nullable = false, length = 20)
     private String status;
 
@@ -90,81 +92,4 @@ public class Notice extends BaseUpdatableEntity {
     /** 첨부파일 URL */
     @Column(name = "attachment_url")
     private String attachmentUrl;
-
-
-    // ============================================================
-    // 공지 생성
-    // ============================================================
-
-    /**
-     * 새로운 공지를 생성할 때 값을 설정한다.
-     */
-    public void create(
-            Admin admin,
-            Department department,
-            String title,
-            String content,
-            String category,
-            String priority,
-            String targetGrade,
-            String status,
-            LocalDate startDate,
-            LocalDate endDate
-    ) {
-        this.admin = admin;
-        this.department = department;
-        this.title = title;
-        this.content = content;
-        this.category = category;
-        this.priority = priority;
-        this.targetGrade = targetGrade;
-        this.status = status;
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
-
-
-    // ============================================================
-    // 공지 수정
-    // ============================================================
-
-    /**
-     * 기존 공지의 수정 가능한 값을 변경한다.
-     */
-    public void update(
-            Department department,
-            String title,
-            String content,
-            String category,
-            String priority,
-            String targetGrade,
-            LocalDate startDate,
-            LocalDate endDate
-    ) {
-        this.department = department;
-        this.title = title;
-        this.content = content;
-        this.category = category;
-        this.priority = priority;
-        this.targetGrade = targetGrade;
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
-
-
-    // ============================================================
-    // 상태 변경
-    // ============================================================
-
-    /**
-     * 공지 상태를 변경한다.
-     *
-     * DRAFT     : 임시저장
-     * WAITING   : 검토중
-     * PUBLISHED : 게시중
-     * CLOSED    : 게시종료
-     */
-    public void changeStatus(String status) {
-        this.status = status;
-    }
 }
