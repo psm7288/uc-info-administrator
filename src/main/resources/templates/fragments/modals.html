@@ -309,4 +309,24 @@
         </div>
     </div>
 
+    <!-- 공통 에러 안내 -->
+    <div id="errorModal" class="modal small-modal hidden" role="dialog" aria-modal="true" aria-labelledby="errorModalTitle">
+        <div class="modal-head">
+            <h3 id="errorModalTitle">오류 안내</h3>
+            <button class="modal-close" type="button" aria-label="닫기">×</button>
+        </div>
+        <div class="modal-body">
+            <p class="confirm-text danger-text" th:text="${errorMessage}">오류 메시지</p>
+        </div>
+        <div class="modal-actions">
+            <button class="line-btn" type="button" data-modal-close>확인</button>
+        </div>
+    </div>
+
+    <script th:if="${errorMessage != null}">
+        document.addEventListener("DOMContentLoaded", function () {
+            openModal("errorModal");
+        });
+    </script>
+
 </th:block>
