@@ -14,10 +14,8 @@ import uc.dev.uc_info.security.core.CustomUserPrincipal;
 import uc.dev.uc_info.service.NoticeService;
 
 /**
- * 공지 관리 컨트롤러.
- *
- * <p>공지 관련 HTTP 요청을 처리하며,
- * Repository를 직접 호출하지 않고 NoticeService만 사용한다.</p>
+ * 공지 관리 컨트롤러. Repository를 직접 호출하지 않고 NoticeService만 쓴다.
+ * status는 PUBLISHED/DRAFT/CLOSED 3개만 쓰며, 승인(WAITING) 기능은 폐지됐다.
  */
 @Controller
 @RequestMapping("/notices")
@@ -26,225 +24,146 @@ public class NoticeController {
 
     private final NoticeService noticeService;
 
-    // ============================================================
-    // 공지 목록
-    // ============================================================
-
     /**
-     * 공지 목록 화면.
+     * 공지 목록 화면. 권한별 목록 + 전체/게시중 건수를 담는다.
      *
-     * GET /notices
+     * @param principal 로그인 관리자 정보
+     * @param model     화면 전달용 모델
+     * @return "notice/notice"
      */
     @GetMapping
-    public String list(
-            @AuthenticationPrincipal CustomUserPrincipal principal,
-            Model model
-    ) {
+    public String list(@AuthenticationPrincipal CustomUserPrincipal principal,
+                       Model model) {
         Admin admin = principal.getAdmin();
-
-        model.addAttribute(
-                "notices",
-                noticeService.findNoticesFor(admin)
-        );
-
-        model.addAttribute(
-                "totalCount",
-                noticeService.countAll()
-        );
-
-        model.addAttribute(
-                "publishedCount",
-                noticeService.countByStatus("PUBLISHED")
-        );
+        model.addAttribute("notices", noticeService.findNoticesFor(admin));
+        model.addAttribute("totalCount", noticeService.countAll());
+        model.addAttribute("publishedCount", noticeService.countByStatus("PUBLISHED"));
 
         return "notice/notice";
     }
 
-    // ============================================================
-    // 공지 작성 화면
-    // ============================================================
-
     /**
-     * 새 공지 작성 화면.
+     * 새 공지 작성 화면. 빈 DTO와 학과 목록을 담는다.
      *
-     * GET /notices/new
+     * @param model 화면 전달용 모델
+     * @return "notice/notice-write"
      */
     @GetMapping("/new")
     public String writeForm(Model model) {
-
-        model.addAttribute(
-                "noticeDTO",
-                new NoticeDTO()
-        );
-
-        model.addAttribute(
-                "departments",
-                noticeService.findAllDepartments()
-        );
+        model.addAttribute("noticeDTO", new NoticeDTO());
+        model.addAttribute("departments", noticeService.findAllDepartments());
 
         return "notice/notice-write";
     }
 
-    // ============================================================
-    // 공지 작성 처리
-    // ============================================================
-
     /**
-     * 새 공지 작성.
+     * 새 공지 작성 처리. 검증 실패 시 작성 폼으로 되돌리고,
+     * 성공 시 목록으로 리다이렉트한다(PRG).
      *
-     * POST /notices
+     * @param dto       작성 DTO(@Valid 검증 대상)
+     * @param result    검증 결과
+     * @param principal 로그인 관리자 정보
+     * @param model     검증 실패 시 재구성용 모델
+     * @return 성공 시 "redirect:/notices", 실패 시 "notice/notice-write"
      */
     @PostMapping
-    public String create(
-            @Valid @ModelAttribute("noticeDTO") NoticeDTO dto,
-            BindingResult result,
-            @AuthenticationPrincipal CustomUserPrincipal principal,
-            Model model
-    ) {
-
-        // DTO 검증 실패
+    public String create(@Valid @ModelAttribute("noticeDTO") NoticeDTO dto,
+                         BindingResult result,
+                         @AuthenticationPrincipal CustomUserPrincipal principal,
+                         Model model) {
         if (result.hasErrors()) {
-
-            model.addAttribute(
-                    "departments",
-                    noticeService.findAllDepartments()
-            );
-
+            model.addAttribute("departments", noticeService.findAllDepartments());
             return "notice/notice-write";
         }
-
         Admin admin = principal.getAdmin();
-
         noticeService.createNotice(dto, admin);
 
         return "redirect:/notices";
     }
 
-    // ============================================================
-    // 공지 수정 화면
-    // ============================================================
-
     /**
-     * 공지 수정 화면.
+     * 공지 수정 화면. GET이라 아직 제출된 값이 없으므로, 기존 공지 값으로
+     * noticeDTO를 직접 채워 폼 초기값으로 쓴다. notice는 id/attachmentUrl
+     * 표시용으로 함께 담는다.
      *
-     * GET /notices/{id}/edit
+     * @param id        수정할 공지 PK
+     * @param principal 로그인 관리자 정보
+     * @param model     화면 전달용 모델
+     * @return "notice/notice-edit"
      */
     @GetMapping("/{id}/edit")
-    public String editForm(
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserPrincipal principal,
-            Model model
-    ) {
+    public String editForm(@PathVariable Long id,
+                           @AuthenticationPrincipal CustomUserPrincipal principal,
+                           Model model) {
 
         Admin admin = principal.getAdmin();
+        Notice notice = noticeService.getNoticeForAdmin(id, admin);
 
-        Notice notice =
-                noticeService.getNoticeForAdmin(id, admin);
-
-        model.addAttribute(
-                "notice",
-                notice
+        NoticeDTO dto = new NoticeDTO();
+        dto.setTitle(notice.getTitle());
+        dto.setContent(notice.getContent());
+        dto.setCategory(notice.getCategory());
+        dto.setPriority(notice.getPriority());
+        dto.setDeptId(
+                notice.getDepartment() != null
+                        ? notice.getDepartment().getDeptId()
+                        : null
         );
+        dto.setTargetGrade(notice.getTargetGrade());
+        dto.setStartDate(notice.getStartDate());
+        dto.setEndDate(notice.getEndDate());
+        dto.setStatus(notice.getStatus());
 
-        model.addAttribute(
-                "departments",
-                noticeService.findAllDepartments()
-        );
+        model.addAttribute("notice", notice);
+        model.addAttribute("noticeDTO", dto);
+        model.addAttribute("departments", noticeService.findAllDepartments());
 
         return "notice/notice-edit";
     }
 
-    // ============================================================
-    // 공지 수정 처리
-    // ============================================================
-
     /**
-     * 기존 공지 수정.
+     * 기존 공지 수정 처리. 검증 실패 시 방금 제출한 값(dto)이 Spring에 의해
+     * 이미 "noticeDTO"로 model에 남아있어 다시 채울 필요 없고, notice는
+     * id/attachmentUrl 표시용으로만 다시 조회한다.
      *
-     * POST /notices/{id}/edit
+     * @param id        수정할 공지 PK
+     * @param dto       수정 DTO(@Valid 검증 대상, status로 PUBLISHED/DRAFT/CLOSED 전달)
+     * @param result    검증 결과
+     * @param principal 로그인 관리자 정보
+     * @param model     검증 실패 시 재구성용 모델
+     * @return 성공 시 "redirect:/notices", 실패 시 "notice/notice-edit"
      */
     @PostMapping("/{id}/edit")
-    public String update(
-            @PathVariable Long id,
-            @Valid @ModelAttribute("noticeDTO") NoticeDTO dto,
-            BindingResult result,
-            @AuthenticationPrincipal CustomUserPrincipal principal,
-            Model model
-    ) {
+    public String update(@PathVariable Long id,
+                         @Valid @ModelAttribute("noticeDTO") NoticeDTO dto,
+                         BindingResult result,
+                         @AuthenticationPrincipal CustomUserPrincipal principal,
+                         Model model) {
 
         Admin admin = principal.getAdmin();
-
-        // DTO 검증 실패
         if (result.hasErrors()) {
-
-            model.addAttribute(
-                    "notice",
-                    noticeService.getNoticeForAdmin(id, admin)
-            );
-
-            model.addAttribute(
-                    "departments",
-                    noticeService.findAllDepartments()
-            );
-
+            model.addAttribute("notice", noticeService.getNoticeForAdmin(id, admin));
+            model.addAttribute("departments", noticeService.findAllDepartments());
             return "notice/notice-edit";
         }
-
-        noticeService.updateNotice(
-                id,
-                dto,
-                admin
-        );
+        noticeService.updateNotice(id, dto, admin);
 
         return "redirect:/notices";
     }
 
-    // ============================================================
-    // 공지 승인
-    // ============================================================
-
     /**
-     * WAITING 상태 공지를 승인한다.
+     * 공지를 DB에서 실제로 삭제한다(되돌릴 수 없음). status=CLOSED(게시종료)와는
+     * 별개 기능이며, 확인은 화면의 confirm()에서 이미 처리한다.
      *
-     * POST /notices/{id}/approve
-     */
-    @PostMapping("/{id}/approve")
-    public String approve(
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserPrincipal principal
-    ) {
-
-        Admin admin = principal.getAdmin();
-
-        noticeService.approveNotice(
-                id,
-                admin
-        );
-
-        return "redirect:/dashboard";
-    }
-
-    // ============================================================
-    // 공지 삭제
-    // ============================================================
-
-    /**
-     * 공지를 CLOSED 상태로 변경한다.
-     *
-     * POST /notices/{id}/delete
+     * @param id        삭제할 공지 PK
+     * @param principal 로그인 관리자 정보
+     * @return "redirect:/notices"
      */
     @PostMapping("/{id}/delete")
-    public String delete(
-            @PathVariable Long id,
-            @AuthenticationPrincipal CustomUserPrincipal principal
-    ) {
-
+    public String delete(@PathVariable Long id,
+                         @AuthenticationPrincipal CustomUserPrincipal principal) {
         Admin admin = principal.getAdmin();
-
-        noticeService.deleteNotice(
-                id,
-                admin
-        );
+        noticeService.deleteNotice(id, admin);
 
         return "redirect:/notices";
     }
