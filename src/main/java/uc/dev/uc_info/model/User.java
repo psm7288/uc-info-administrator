@@ -16,6 +16,10 @@ import java.math.BigDecimal;
  * 일부 필드(fcm_token, score, scholarship_info 등)는 관리자 화면이 아닌
  * 학생 앱 연동을 위해 보존한다.</p>
  *
+ * <p>학생 앱 로그인은 회원가입 없이 <b>학과 + 학번({@link #studentNumber}) + 이름</b>을
+ * 입력받아 이미 등록된 학생 정보와 대조하는 폐쇄형 인증이다. 학번은 그 인증의
+ * 핵심 키이므로 유니크하다. (인증 로직 자체는 학생 앱 측에서 구현)</p>
+ *
  * <h3>연관관계</h3>
  * <ul>
  *   <li>{@link Department} : 소속 학과 (N:1, 소유 측, NOT NULL)</li>
@@ -33,6 +37,10 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long userId;
+
+    /** 학번. 학생 앱 로그인 인증 키. */
+    @Column(name = "student_number", nullable = false, unique = true, length = 20)
+    private String studentNumber;
 
     /** 소속 학과 */
     @ManyToOne(fetch = FetchType.LAZY)

@@ -17,7 +17,12 @@
                     <h3>학사 일정과 주요 학교 일정을 관리합니다.</h3>
                     <p>시험 기간, 수강 신청, 방학, 행사 일정을 학생 앱에 정확하게 안내합니다.</p>
                 </div>
-                <button class="white-btn" type="button" data-modal="scheduleModal">일정 추가</button>
+                <button class="primary-btn"
+                        type="button"
+                        data-modal="scheduleModal"
+                        data-schedule-create>
+                    새 일정 추가
+                </button>
             </section>
 
             <section class="schedule-summary-grid">
@@ -36,7 +41,12 @@
             <section class="panel">
                 <div class="panel-head">
                     <div><h3>학사 일정 목록</h3><p>학생 앱 일정 화면에 표시되는 학사 일정입니다.</p></div>
-                    <button class="primary-btn" type="button" data-modal="scheduleModal">새 일정 추가</button>
+                    <button class="primary-btn"
+                            type="button"
+                            data-modal="scheduleModal"
+                            data-schedule-create>
+                        새 일정 추가
+                    </button>
                 </div>
 
                 <div class="schedule-list" th:if="${not #lists.isEmpty(schedules)}">
@@ -54,8 +64,26 @@
                             </p>
                         </div>
                         <div class="table-actions">
-                            <button type="button" data-modal="scheduleModal">수정</button>
-                            <button type="button" data-modal="deleteModal">삭제</button>
+                            <button type="button"
+                                    data-modal="scheduleModal"
+                                    data-schedule-edit
+                                    th:attr="
+                                        data-id=${s.scheduleId},
+                                        data-title=${s.title},
+                                        data-category=${s.category},
+                                        data-dept-id=${s.department != null ? s.department.deptId : ''},
+                                        data-grade=${s.targetGrade},
+                                        data-start-date=${s.startDate},
+                                        data-end-date=${s.endDate},
+                                        data-visible=${s.visible}">
+                                수정
+                            </button>
+                            <button type="button"
+                                    data-modal="deleteModal"
+                                    data-schedule-delete
+                                    th:attr="data-id=${s.scheduleId}">
+                                삭제
+                            </button>
                         </div>
                     </article>
                 </div>
