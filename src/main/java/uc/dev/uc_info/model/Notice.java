@@ -3,6 +3,7 @@ package uc.dev.uc_info.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import uc.dev.uc_info.model.base.BaseUpdatableEntity;
 
 import java.time.LocalDate;
@@ -28,6 +29,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "notice")
 @Getter
+@Setter
 @NoArgsConstructor
 public class Notice extends BaseUpdatableEntity {
 
@@ -67,7 +69,7 @@ public class Notice extends BaseUpdatableEntity {
     @Column(name = "target_grade", length = 10)
     private String targetGrade;
 
-    /** 게시 상태: DRAFT/WAITING/PUBLISHED/CLOSED */
+    /** 게시 상태: DRAFT/PUBLISHED/CLOSED */
     @Column(name = "status", nullable = false, length = 20)
     private String status;
 

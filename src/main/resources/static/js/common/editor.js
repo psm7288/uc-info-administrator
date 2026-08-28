@@ -27,6 +27,17 @@ document.addEventListener("DOMContentLoaded", function () {
                 return;
             }
 
+            if (command === "removeFormat") {
+                const hasContent = editor.textContent.trim().length > 0;
+                if (hasContent && !confirm("작성 중인 내용을 모두 지울까요?")) {
+                    return;
+                }
+                editor.innerHTML = "";
+                hiddenContent.value = "";
+                editor.focus();
+                return;
+            }
+
             document.execCommand(command, false, null);
             editor.focus();
         });

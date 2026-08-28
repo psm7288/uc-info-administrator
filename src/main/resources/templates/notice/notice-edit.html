@@ -14,7 +14,13 @@
 
             <section class="panel notice-write-panel">
                 <div class="panel-head">
-                    <div><h3>공지 수정</h3><p>기존 공지 내용을 수정하고 다시 게시할 수 있습니다.</p></div>
+                    <div>
+                        <h3>공지 수정</h3>
+                        <p>기존 공지 내용을 수정하고 다시 게시할 수 있습니다.</p>
+                    </div>
+                    <span class="pill live" th:if="${notice?.status == 'PUBLISHED'}">현재: 게시중</span>
+                    <span class="pill off" th:if="${notice?.status == 'DRAFT'}">현재: 임시저장</span>
+                    <span class="pill off" th:if="${notice?.status == 'CLOSED'}">현재: 게시종료</span>
                     <a class="line-btn" th:href="@{/notices}">목록으로</a>
                 </div>
 
@@ -28,44 +34,35 @@
                         <div class="field full">
                             <label for="title">공지 제목</label>
                             <input id="title" name="title" type="text"
-                                   th:value="${notice?.title}"
+                                   th:value="${noticeDTO?.title}"
                                    placeholder="공지 제목을 입력하세요" />
                         </div>
                         <div class="field">
                             <label for="category">카테고리</label>
                             <select id="category" name="category">
-                                <option value="DEPARTMENT" th:selected="${notice?.category == 'DEPARTMENT'}">학과 공지</option>
-                                <option value="ACADEMIC"   th:selected="${notice?.category == 'ACADEMIC'}">학사 공지</option>
-                                <option value="SCHOLARSHIP" th:selected="${notice?.category == 'SCHOLARSHIP'}">장학 공지</option>
-                                <option value="EVENT"      th:selected="${notice?.category == 'EVENT'}">행사 공지</option>
-                                <option value="EMPLOYMENT" th:selected="${notice?.category == 'EMPLOYMENT'}">취업 공지</option>
+                                <option value="DEPARTMENT" th:selected="${noticeDTO?.category == 'DEPARTMENT'}">학과 공지</option>
+                                <option value="ACADEMIC"   th:selected="${noticeDTO?.category == 'ACADEMIC'}">학사 공지</option>
+                                <option value="SCHOLARSHIP" th:selected="${noticeDTO?.category == 'SCHOLARSHIP'}">장학 공지</option>
+                                <option value="EVENT"      th:selected="${noticeDTO?.category == 'EVENT'}">행사 공지</option>
+                                <option value="EMPLOYMENT" th:selected="${noticeDTO?.category == 'EMPLOYMENT'}">취업 공지</option>
                             </select>
                         </div>
                         <div class="field">
                             <label for="priority">공지 중요도</label>
                             <select id="priority" name="priority">
-                                <option value="NORMAL"    th:selected="${notice?.priority == 'NORMAL'}">일반 공지</option>
-                                <option value="IMPORTANT" th:selected="${notice?.priority == 'IMPORTANT'}">중요 공지</option>
-                                <option value="URGENT"    th:selected="${notice?.priority == 'URGENT'}">긴급 공지</option>
-                            </select>
-                        </div>
-                        <div class="field">
-                            <label for="status">게시 상태</label>
-                            <select id="status" name="status">
-                                <option value="PUBLISHED" th:selected="${notice?.status == 'PUBLISHED'}">게시중</option>
-                                <option value="DRAFT"     th:selected="${notice?.status == 'DRAFT'}">임시 저장</option>
-                                <option value="WAITING"   th:selected="${notice?.status == 'WAITING'}">검토중</option>
-                                <option value="CLOSED"    th:selected="${notice?.status == 'CLOSED'}">게시 종료</option>
+                                <option value="NORMAL"    th:selected="${noticeDTO?.priority == 'NORMAL'}">일반 공지</option>
+                                <option value="IMPORTANT" th:selected="${noticeDTO?.priority == 'IMPORTANT'}">중요 공지</option>
+                                <option value="URGENT"    th:selected="${noticeDTO?.priority == 'URGENT'}">긴급 공지</option>
                             </select>
                         </div>
 
                         <div class="field">
                             <label for="deptId">대상 학과</label>
                             <select id="deptId" name="deptId">
-                                <option value="" th:selected="${notice?.department == null}">전체 학과</option>
+                                <option value="" th:selected="${noticeDTO?.deptId == null}">전체 학과</option>
                                 <option th:each="dept : ${departments}"
                                         th:value="${dept.deptId}"
-                                        th:selected="${notice?.department != null and notice.department.deptId == dept.deptId}"
+                                        th:selected="${noticeDTO?.deptId != null and noticeDTO.deptId == dept.deptId}"
                                         th:text="${dept.deptName}">학과명</option>
                             </select>
                         </div>
@@ -73,22 +70,22 @@
                         <div class="field">
                             <label for="targetGrade">대상 학년</label>
                             <select id="targetGrade" name="targetGrade">
-                                <option value=""  th:selected="${notice?.targetGrade == null}">전체 학년</option>
-                                <option value="1" th:selected="${notice?.targetGrade == '1'}">1학년</option>
-                                <option value="2" th:selected="${notice?.targetGrade == '2'}">2학년</option>
-                                <option value="3" th:selected="${notice?.targetGrade == '3'}">3학년</option>
+                                <option value=""  th:selected="${noticeDTO?.targetGrade == null}">전체 학년</option>
+                                <option value="1" th:selected="${noticeDTO?.targetGrade == '1'}">1학년</option>
+                                <option value="2" th:selected="${noticeDTO?.targetGrade == '2'}">2학년</option>
+                                <option value="3" th:selected="${noticeDTO?.targetGrade == '3'}">3학년</option>
                             </select>
                         </div>
 
                         <div class="field">
                             <label for="startDate">게시 시작일</label>
                             <input id="startDate" name="startDate" type="date"
-                                   th:value="${notice?.startDate}" />
+                                   th:value="${noticeDTO?.startDate}" />
                         </div>
                         <div class="field">
                             <label for="endDate">게시 종료일</label>
                             <input id="endDate" name="endDate" type="date"
-                                   th:value="${notice?.endDate}" />
+                                   th:value="${noticeDTO?.endDate}" />
                         </div>
                         <div class="field full">
                             <label>공지 내용</label>
@@ -104,7 +101,7 @@
                                 </div>
                                 <div id="noticeEditor" class="notice-editor" contenteditable="true"
                                      data-placeholder="공지 내용을 입력하세요."
-                                     th:utext="${notice?.content}"></div>
+                                     th:utext="${noticeDTO?.content}"></div>
                                 <textarea id="noticeContent" name="content" hidden></textarea>
                             </div>
                         </div>
@@ -118,8 +115,10 @@
 
                     <div class="form-actions notice-actions">
                         <button class="line-btn" type="button" data-modal="previewModal">미리보기</button>
-                        <button class="secondary-btn" type="submit" name="saveType" value="DRAFT">임시 저장</button>
-                        <button class="primary-btn" type="submit" name="saveType" value="PUBLISHED">수정 완료</button>
+                        <button class="secondary-btn" type="submit" name="status" value="DRAFT">임시 저장</button>
+                        <button class="danger-btn" type="submit" name="status" value="CLOSED"
+                                onclick="return confirm('게시를 종료할까요? 학생 앱에서 더 이상 노출되지 않습니다.');">게시종료</button>
+                        <button class="primary-btn" type="submit" name="status" value="PUBLISHED">수정 완료</button>
                     </div>
                 </form>
             </section>

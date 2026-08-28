@@ -29,7 +29,6 @@
                     <select name="status">
                         <option value="">전체 상태</option>
                         <option value="PUBLISHED">게시중</option>
-                        <option value="WAITING">검토중</option>
                         <option value="DRAFT">임시저장</option>
                         <option value="CLOSED">게시종료</option>
                     </select>
@@ -56,10 +55,16 @@
                             <td>
                                 <div class="notice-title-cell">
                                     <strong th:text="${n.title}">제목</strong>
-                                    <p th:text="${n.admin.adminName} + ' · ' + ${n.category}">작성자</p>
+                                    <p>
+                                        <span th:text="${n.admin.adminName}">작성자</span>
+                                        · <span th:text="${n.category}">카테고리</span>
+                                        · <span th:text="${n.targetGrade != null ? n.targetGrade + '학년' : '전체학년'}">학년</span>
+                                    </p>
                                     <div class="notice-meta">
                                         <span th:if="${n.pinned}">상단 고정</span>
                                         <span th:if="${n.pushSent}">푸시 발송</span>
+                                        <span class="pill danger" th:if="${n.priority == 'URGENT'}">긴급</span>
+                                        <span class="pill warn" th:if="${n.priority == 'IMPORTANT'}">중요</span>
                                     </div>
                                 </div>
                             </td>
@@ -71,7 +76,6 @@
                             </td>
                             <td>
                                 <span class="pill live" th:if="${n.status == 'PUBLISHED'}">게시중</span>
-                                <span class="pill wait" th:if="${n.status == 'WAITING'}">검토중</span>
                                 <span class="pill off" th:if="${n.status == 'DRAFT'}">임시저장</span>
                                 <span class="pill off" th:if="${n.status == 'CLOSED'}">게시종료</span>
                             </td>
@@ -79,7 +83,14 @@
                                 <a th:href="@{'/notices/' + ${n.noticeId} + '/edit'}">수정</a>
                                 <button type="button" data-modal="previewModal">미리보기</button>
                                 <button type="button" data-modal="resendModal">재발송</button>
-                                <button type="button" data-modal="deleteModal">삭제</button>
+                                <form th:action="@{'/notices/' + ${n.noticeId} + '/delete'}"
+                                      method="post"
+                                      style="display:inline"
+                                      onsubmit="return confirm('정말 삭제하시겠습니까? 게시종료 상태로 변경됩니다.');">
+                                    <input th:if="${_csrf != null}" type="hidden"
+                                           th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                    <button type="submit">삭제</button>
+                                </form>
                             </td>
                         </tr>
                         </tbody>
