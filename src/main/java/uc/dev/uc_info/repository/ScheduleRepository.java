@@ -1,41 +1,3 @@
-//package uc.dev.uc_info.repository;
-//
-//import org.springframework.data.jpa.repository.JpaRepository;
-//import uc.dev.uc_info.model.Schedule;
-//
-///**
-// * 학사 일정(Schedule) 영속성 접근 인터페이스.
-// *
-// * <p>JpaRepository 상속으로 기본 CRUD 자동 제공. 아래 주석은 화면·서비스에서
-// * 필요한 조회 메서드 목록이다. 직접 선언하면 된다(이름 규칙으로 자동 생성, 복잡하면 @Query).</p>
-// *
-// * <p>일정은 공지처럼 상태머신이 없고, visible(노출 여부) 토글만 있다.
-// * category: ACADEMIC/EXAM/REGISTRATION/VACATION/EVENT/ETC</p>
-// *
-// * <h3>필요한 조회 메서드 (직접 구현)</h3>
-// * <ul>
-// *   <li>findAllByOrderByStartDateAsc
-// *       — 전체 일정 시작일순. 관리자 목록(SUPER_ADMIN).</li>
-// *   <li>countByVisibleTrue (또는 count)
-// *       — 노출 일정 개수 / 전체 개수. 화면 상단 통계(totalCount).</li>
-// *   <li>findByDepartmentOrAll(deptId)  [@Query 필요]
-// *       — DEPT_ADMIN 목록용. 본인 학과(department.deptId=deptId) + 전체 대상(department IS NULL).
-// *         정렬 startDate ASC.</li>
-// *   <li>findVisibleForStudent(deptId)  [@Query 필요]
-// *       — 학생 앱용. visible=true AND (department.deptId=deptId OR department IS NULL).
-// *         정렬 startDate ASC.</li>
-// * </ul>
-// */
-//public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-//    // TODO(담당): 위 주석의 조회 메서드들을 직접 선언.
-//    //   - 단순 조건은 이름 규칙으로(findAllByOrderByStartDateAsc, countByVisibleTrue 등).
-//    //   - department OR 전체(null) 같은 OR/NULL 조건은 @Query(JPQL)로:
-//    //     SELECT s FROM Schedule s
-//    //     WHERE s.department IS NULL OR s.department.deptId = :deptId
-//    //     ORDER BY s.startDate ASC
-//    //   - 참고: JPQL은 엔티티명으로 조회합니다.
-//}
-
 package uc.dev.uc_info.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -45,16 +7,46 @@ import uc.dev.uc_info.model.Schedule;
 
 import java.util.List;
 
+/**
+ * 학사 일정(Schedule) 영속성 접근 인터페이스.
+ *
+ * <p>JpaRepository 상속으로 기본 CRUD(findById/save/delete/count 등)는 자동 제공된다.
+ * 아래 4개는 화면·서비스 요구사항에 맞춰 직접 선언한 조회 메서드다.</p>
+ *
+ * <p>일정(Schedule)은 공지(Notice)와 달리 게시 상태머신(DRAFT/WAITING/PUBLISHED)이 없고,
+ * {@code visible}(노출 여부) 토글만 가진다. {@code category} 는 ACADEMIC/EXAM/
+ * REGISTRATION/VACATION/EVENT/ETC 중 하나이며 문자열 컬럼이다(DB enum 아님).</p>
+ */
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
 
-    // 전체 일정 시작일 오름차순
+    /**
+     * 전체 일정을 시작일 오름차순으로 조회한다. (SUPER_ADMIN 의 일정 관리 목록용)<br>
+     * 숨김(visible=false) 여부와 무관하게 전부 반환한다.<br>
+     * 관리자 화면에서는 숨긴 일정도 확인·수정할 수 있어야 하기 때문이다.
+     *
+     * @return 시작일순 전체 일정 목록(숨김 포함)
+     */
     List<Schedule> findAllByOrderByStartDateAsc();
 
-    // 학생에게 노출되는 일정 개수
+    /**
+     * 학생 앱에 노출 중(visible=true)인 일정 개수. (지금 사용 x)
+     *
+     * @return 노출 중인 일정 건수
+     */
     long countByVisibleTrue();
 
-    // 학과 관리자용
-    // 본인 학과 일정 + 전체 학과 대상 일정
+    /**
+     * 학과 관리자(DEPT_ADMIN)용 일정 목록 조회.
+     *
+     * <p>본인 학과(department.deptId = deptId) 또는 전체 대상(department IS NULL)
+     * 일정을 시작일 오름차순으로 반환한다.<br>
+     * 숨김(visible=false) 여부와 무관하게 전부 반환한다 <br>
+     * {@link #findAllByOrderByStartDateAsc()} 와 동일하게
+     * "관리자는 숨긴 일정도 봐야 한다"는 원칙을 따른다.</p>
+     *
+     * @param deptId 조회 기준 학과 PK(로그인 admin 의 소속 학과)
+     * @return 본인 학과 + 전체 대상 일정 목록(시작일순, 숨김 포함)
+     */
     @Query("""
         SELECT s
         FROM Schedule s
@@ -64,8 +56,17 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
     """)
     List<Schedule> findByDepartmentOrAll(@Param("deptId") Long deptId);
 
-    // 학생 앱용
-    // 노출 상태이면서 본인 학과 또는 전체 대상 일정
+    /**
+     * 학생 앱 노출용 일정 목록 조회.
+     *
+     * <p>visible=true 이면서 본인 학과 또는 전체 대상(department IS NULL) 일정을
+     * 시작일 오름차순으로 반환한다.<br>
+     * Phase 2 에서 학생 앱(Flutter) REST API 연동 시 사용될 예정이며,
+     * 현재는 호출부(컨트롤러)가 아직 없다.</p>
+     *
+     * @param deptId 조회할 학생의 소속 학과 PK
+     * @return 노출 대상 일정 목록(시작일순)
+     */
     @Query("""
         SELECT s
         FROM Schedule s
