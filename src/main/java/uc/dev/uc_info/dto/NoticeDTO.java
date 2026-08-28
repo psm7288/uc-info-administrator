@@ -15,8 +15,8 @@ import java.time.LocalDate;
  * {@code @Valid @ModelAttribute NoticeDTO dto} 로 바인딩 + 검증하며, 폼의 name
  * 속성과 아래 필드명이 같아야 값이 자동으로 들어온다.</p>
  *
- * <p>작성 폼은 버튼 name="status", 수정 폼은 name="saveType" 로 다르다.
- * 두 필드를 모두 두고 작성 때는 status / 수정 때는 saveType 을 본다.</p>
+ * <p>작성/수정 화면 모두 저장 버튼의 name="status" 값 하나로 통일한다
+ * ("DRAFT"=임시저장 / "PUBLISHED"=게시).</p>
  *
  * <p>검증 실패 시 컨트롤러의 BindingResult 로 잡아 폼으로 되돌린다(메시지 표시).
  * 첨부파일은 MultipartFile 로 컨트롤러에서 별도로 받는다.</p>
@@ -61,12 +61,8 @@ public class NoticeDTO {
     private LocalDate endDate;
 
     /**
-     * 작성 화면 버튼 값. "DRAFT"(임시저장) / "PUBLISHED"(게시하기). (name="status")
+     * 저장 버튼 값. "DRAFT"(임시저장) / "PUBLISHED"(게시). 작성/수정 화면
+     * 공통으로 이 필드 하나만 쓴다. (name="status")
      */
     private String status;
-
-    /**
-     * 수정 화면 버튼 값. "DRAFT" / "PUBLISHED". (name="saveType")
-     */
-    private String saveType;
 }
