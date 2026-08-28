@@ -1,13 +1,111 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const scheduleButtons = document.querySelectorAll("[data-schedule-toast]");
+    const scheduleModal = document.getElementById("scheduleModal");
+    const scheduleForm = document.getElementById("scheduleForm");
+    const scheduleModalTitle = document.getElementById("scheduleModalTitle");
 
-    scheduleButtons.forEach(function (button) {
+    const titleInput = document.getElementById("scheduleTitle");
+    const categoryInput = document.getElementById("scheduleCategory");
+    const departmentInput = document.getElementById("scheduleDepartment");
+    const gradeInput = document.getElementById("scheduleGrade");
+    const startDateInput = document.getElementById("scheduleStart");
+    const endDateInput = document.getElementById("scheduleEnd");
+    const visibleInput = document.getElementById("scheduleVisible");
+
+    const deleteModal = document.getElementById("deleteModal");
+
+    if (!scheduleModal || !scheduleForm) {
+        return;
+    }
+
+    // ============================================================
+    // 신규 일정 등록
+    // ============================================================
+
+    const createButtons = document.querySelectorAll("[data-schedule-create]");
+
+    createButtons.forEach(function (button) {
         button.addEventListener("click", function () {
-            const message = button.dataset.scheduleToast || "학사 일정 작업이 처리되었습니다.";
+            resetScheduleForm();
 
-            if (typeof showToast === "function") {
-                showToast(message);
-            }
+            scheduleModalTitle.textContent = "학사 일정 추가";
+            scheduleForm.action = "/schedules";
         });
     });
+
+
+    // ============================================================
+    // 기존 일정 수정
+    // ============================================================
+
+    const editButtons = document.querySelectorAll("[data-schedule-edit]");
+
+    editButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+            const id = button.dataset.id;
+
+            scheduleModalTitle.textContent = "학사 일정 수정";
+            scheduleForm.action = "/schedules/" + id + "/edit";
+
+            titleInput.value = button.dataset.title || "";
+            categoryInput.value = button.dataset.category || "";
+            departmentInput.value = button.dataset.deptId || "";
+            gradeInput.value = button.dataset.grade || "";
+            startDateInput.value = button.dataset.startDate || "";
+            endDateInput.value = button.dataset.endDate || "";
+
+            visibleInput.checked =
+                button.dataset.visible === "true";
+        });
+    });
+
+
+    // ============================================================
+    // 일정 삭제
+    // ============================================================
+
+    const deleteButtons = document.querySelectorAll("[data-schedule-delete]");
+
+    deleteButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+            const id = button.dataset.id;
+
+            if (!deleteModal) {
+                return;
+            }
+
+            const confirmButton = deleteModal.querySelector(".danger-btn");
+
+            if (!confirmButton) {
+                return;
+            }
+
+            confirmButton.onclick = function () {
+                const form = document.createElement("form");
+
+                form.method = "post";
+                form.action = "/schedules/" + id + "/delete";
+
+                document.body.appendChild(form);
+                form.submit();
+            };
+        });
+    });
+
+
+    // ============================================================
+    // 폼 초기화
+    // ============================================================
+
+    function resetScheduleForm() {
+        scheduleForm.reset();
+
+        titleInput.value = "";
+        categoryInput.value = "";
+        departmentInput.value = "";
+        gradeInput.value = "";
+        startDateInput.value = "";
+        endDateInput.value = "";
+
+        visibleInput.checked = true;
+    }
 });

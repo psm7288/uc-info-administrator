@@ -32,7 +32,7 @@ public class CustomUserDetailService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Admin admin = adminRepository.findByUsername(username)
+        Admin admin = adminRepository.findByUsernameWithDepartment(username)
                 .orElseThrow(() -> new UsernameNotFoundException("존재하지 않는 관리자 계정입니다."));
 
         return new CustomUserPrincipal(admin);
