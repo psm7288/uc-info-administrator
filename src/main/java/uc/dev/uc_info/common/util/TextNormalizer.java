@@ -4,7 +4,7 @@ package uc.dev.uc_info.common.util;
  * 여러 도메인에서 반복되는 간단한 문자열 정규화 유틸리티. 상태 없는 순수
  * 함수만 모아둔다 — Spring 빈으로 등록하지 않는다.
  */
-public class TextNormalizer {
+public final class TextNormalizer {
 
     private TextNormalizer(){}
 
