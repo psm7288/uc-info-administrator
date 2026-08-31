@@ -9,41 +9,18 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import uc.dev.uc_info.dto.ScheduleDTO;
 import uc.dev.uc_info.model.Admin;
+import uc.dev.uc_info.model.Schedule;
 import uc.dev.uc_info.security.core.CustomUserPrincipal;
 import uc.dev.uc_info.service.DepartmentService;
 import uc.dev.uc_info.service.ScheduleService;
 
+import java.util.List;
+
 /**
- * 학사 일정 관리 컨트롤러.
- *
- * <p>화면 ↔ 핸들러</p>
- * <ul>
- *   <li>GET  /schedules             : 목록(+등록/수정 모달용 데이터) → schedule/schedule</li>
- *   <li>POST /schedules             : 등록 처리 → redirect:/schedules</li>
- *   <li>POST /schedules/{id}/edit   : 수정 처리 → redirect:/schedules</li>
- *   <li>POST /schedules/{id}/delete : 삭제 처리 → redirect:/schedules</li>
- * </ul>
- *
- * <p>일정 등록/수정은 별도 폼 페이지가 아니라 목록 화면의 모달(scheduleModal)로 처리한다.
- * 그래서 작성/수정 '폼 GET' 핸들러는 없고, 목록(GET)과 처리(POST)만 있다. 모달의 대상
- * 학과 select 에 쓸 학과 목록(departments)은 목록 화면 model 에 항상 함께 담는다.</p>
- *
- * <p>컨트롤러는 {@link ScheduleService} 와 {@link DepartmentService} 만 호출한다
- * (Repository 직접 호출 금지). 로그인 admin 은
- * {@code @AuthenticationPrincipal CustomUserPrincipal principal} → {@code principal.getAdmin()}
- * 으로 꺼낸다.</p>
- *
- * <h3>검증/예외 처리 방식 — 실패 지점이 둘로 나뉜다</h3>
- * <ul>
- *   <li><b>폼 형식 검증 실패({@code @Valid})</b>: {@link ScheduleDTO} 의 Bean Validation
- *       ({@code @NotBlank} 등)에 걸리면 BindingResult.hasErrors() 가 true 가 되고,
- *       리다이렉트 없이 이 자리에서 목록 화면(schedule/schedule)을 다시 반환하면서
- *       모달을 재오픈한다(openScheduleModal=true, edit 인 경우 editingScheduleId 도 함께).</li>
- *   <li><b>비즈니스 규칙 위반(Service 예외)</b>: 날짜 역전, 존재하지 않는 학과,
- *       권한 위반 등은 {@link ScheduleService} 가 예외를 던지고, 이 컨트롤러는
- *       따로 잡지 않는다 — {@code GlobalExceptionAdvice}(전역)가 잡아서 에러 메시지를
- *       flash 로 담아 리다이렉트하고, 공통 errorModal 이 자동으로 열린다.</li>
- * </ul>
+ * 학사 일정 관리 컨트롤러. 등록/수정은 별도 폼 페이지가 아니라 목록 화면의
+ * 모달(scheduleModal)로 처리한다. 목록 화면은 엔티티를 직접 노출하지 않고
+ * {@link ScheduleDTO}(목록 표시 겸용 필드 포함)로 변환해서 넘긴다 —
+ * department는 지연로딩이라 뷰에서 바로 쓰면 안 된다.
  */
 @Controller
 @RequestMapping("/schedules")
@@ -54,19 +31,9 @@ public class ScheduleController {
     private final DepartmentService departmentService;
 
     /**
-     * 학사 일정 목록 화면.
-     *
-     * <p>처리: 로그인 admin 권한에 맞는 일정 목록 + 통계 + 등록/수정 모달용 데이터를
-     * model 에 담는다.</p>
-     *
-     * <p>model</p>
-     * <ul>
-     *   <li>schedules   : 권한 범위의 일정 목록(숨김 포함, 시작일순)</li>
-     *   <li>totalCount  : 전체 건수</li>
-     *   <li>departments : 모달의 대상 학과 select 용 학과 목록</li>
-     *   <li>scheduleDTO : 모달 바인딩용 빈 DTO. 이미 model 에 있으면(예: 검증 실패 후
-     *       되돌아온 경우) 새로 만들지 않는다.</li>
-     * </ul>
+     * 학사 일정 목록 화면. 권한별 일정 목록 + 통계 + 등록/수정 모달용 데이터를
+     * model에 담는다. scheduleDTO는 이미 model에 있으면(검증 실패 후 복귀)
+     * 새로 만들지 않는다.
      *
      * @param model     화면 전달용 모델
      * @param principal 로그인 관리자 정보
@@ -76,7 +43,8 @@ public class ScheduleController {
     public String list(Model model,
                        @AuthenticationPrincipal CustomUserPrincipal principal) {
         Admin admin = principal.getAdmin();
-        model.addAttribute("schedules", scheduleService.findSchedulesFor(admin));
+
+        model.addAttribute("schedules", toListItems(admin));
         model.addAttribute("totalCount", scheduleService.countAll());
         model.addAttribute("departments", departmentService.findAll());
 
@@ -87,19 +55,11 @@ public class ScheduleController {
     }
 
     /**
-     * 일정 등록 처리. — 등록 모달 제출(POST /schedules).
+     * 일정 등록 처리. 검증 통과 시 저장 후 목록으로 리다이렉트(PRG), 실패 시
+     * 목록 model을 다시 채우고 openScheduleModal=true로 등록 모달을 재오픈한다.
+     * Service가 던지는 예외는 여기서 안 잡고 전역 예외 처리로 넘긴다.
      *
-     * <p>처리: BindingResult 에 검증 실패가 없으면 로그인 admin 으로
-     * {@link ScheduleService#createSchedule} 을 호출한 뒤 목록으로 리다이렉트한다(PRG 패턴).</p>
-     *
-     * <p>검증 실패 시(hasErrors): 목록 화면에 필요한 model(schedules/totalCount/departments)을
-     * 다시 채우고, openScheduleModal=true 로 등록 모달을 다시 열어 에러를 보여준다
-     * (리다이렉트하지 않고 바로 뷰를 반환).</p>
-     * <p>Service 에서 던지는 EntityNotFoundException/AccessDeniedException/
-     * IllegalArgumentException 등은 여기서 처리하지 않고 전역 예외 처리
-     * ({@code GlobalExceptionAdvice})로 넘긴다.</p>
-     *
-     * @param dto           등록·검증 DTO({@code @Valid @ModelAttribute("scheduleDTO")})
+     * @param dto           등록·검증 DTO
      * @param bindingResult {@code @Valid} 검증 결과
      * @param model         검증 실패 시 목록 화면 재구성용 모델
      * @param principal     로그인 관리자 정보
@@ -112,7 +72,7 @@ public class ScheduleController {
                          @AuthenticationPrincipal CustomUserPrincipal principal) {
         Admin admin = principal.getAdmin();
         if (bindingResult.hasErrors()) {
-            model.addAttribute("schedules", scheduleService.findSchedulesFor(admin));
+            model.addAttribute("schedules", toListItems(admin));
             model.addAttribute("totalCount", scheduleService.countAll());
             model.addAttribute("departments", departmentService.findAll());
             model.addAttribute("openScheduleModal",true);
@@ -125,19 +85,12 @@ public class ScheduleController {
     }
 
     /**
-     * 일정 수정 처리. — 수정 모달 제출(POST /schedules/{id}/edit).
-     *
-     * <p>처리: BindingResult 에 검증 실패가 없으면 로그인 admin 으로
-     * {@link ScheduleService#updateSchedule} 을 호출한 뒤 목록으로 리다이렉트한다.</p>
-     *
-     * <p>검증 실패 시(hasErrors): create 와 동일하게 목록 model 을 다시 채우고,
-     * openScheduleModal=true 와 editingScheduleId(=id)를 함께 넘겨서 "수정 모달이
-     * 해당 일정을 편집 중인 상태"로 다시 열리도록 한다.</p>
-     * <p>Service 예외(EntityNotFoundException/AccessDeniedException 등)는
-     * 전역 예외 처리({@code GlobalExceptionAdvice})로 넘긴다.</p>
+     * 일정 수정 처리. create와 동일하게 검증 실패 시 목록 model을 다시
+     * 채우되, editingScheduleId도 함께 넘겨 "수정 모달이 이 일정을 편집
+     * 중"인 상태로 다시 열리게 한다.
      *
      * @param id            수정할 일정 PK
-     * @param dto           수정·검증 DTO({@code @Valid @ModelAttribute("scheduleDTO")})
+     * @param dto           수정·검증 DTO
      * @param bindingResult {@code @Valid} 검증 결과
      * @param model         검증 실패 시 목록 화면 재구성용 모델
      * @param principal     로그인 관리자 정보
@@ -151,7 +104,7 @@ public class ScheduleController {
                          @AuthenticationPrincipal CustomUserPrincipal principal) {
         Admin admin = principal.getAdmin();
         if (bindingResult.hasErrors()) {
-            model.addAttribute("schedules", scheduleService.findSchedulesFor(admin));
+            model.addAttribute("schedules", toListItems(admin));
             model.addAttribute("totalCount", scheduleService.countAll());
             model.addAttribute("departments", departmentService.findAll());
             model.addAttribute("openScheduleModal",true);
@@ -165,13 +118,9 @@ public class ScheduleController {
     }
 
     /**
-     * 일정 삭제 처리. — 삭제 버튼(POST /schedules/{id}/delete).
-     *
-     * <p>처리: 로그인 admin 으로 {@link ScheduleService#deleteSchedule} 을 호출한 뒤
-     * 목록으로 리다이렉트한다. 별도 확인 화면 없이 바로 삭제한다(화면에서 삭제 확인
-     * 모달로 한 번 확인시킨 뒤 이 핸들러를 호출하는 구조).</p>
-     * <p>없는 id → EntityNotFoundException, 권한 위반 → AccessDeniedException.
-     * 둘 다 전역 예외 처리({@code GlobalExceptionAdvice})로 넘긴다.</p>
+     * 일정 삭제 처리. 별도 확인 화면 없이 바로 삭제한다(화면의 삭제 확인
+     * 모달에서 이미 확인시킨 뒤 호출되는 구조). 없는 id/권한 위반 예외는
+     * 전역 예외 처리로 넘긴다.
      *
      * @param id        삭제할 일정 PK
      * @param principal 로그인 관리자 정보
@@ -185,5 +134,46 @@ public class ScheduleController {
         scheduleService.deleteSchedule(id, admin);
 
         return "redirect:/schedules";
+    }
+
+    /**
+     * 로그인 admin 권한 범위의 일정 목록을 DTO로 변환해 조회한다. create/update
+     * 검증 실패 시 목록 화면 재구성에 중복 없이 재사용한다.
+     *
+     * @param admin 로그인 관리자
+     * @return 목록 표시용 ScheduleDTO 리스트
+     */
+    private List<ScheduleDTO> toListItems(Admin admin) {
+        return scheduleService.findSchedulesFor(admin)
+                .stream()
+                .map(this::toListItem)
+                .toList();
+    }
+
+    /**
+     * Schedule 엔티티를 목록 표시/모달 프리필용 ScheduleDTO로 변환한다.
+     * department는 지연로딩이라 여기서 deptId로 평탄화하고, 이후 템플릿은
+     * entity를 전혀 건드리지 않는다.
+     *
+     * @param schedule 변환할 일정 엔티티
+     * @return 목록 표시용 ScheduleDTO
+     */
+    private ScheduleDTO toListItem(Schedule schedule) {
+        ScheduleDTO dto = new ScheduleDTO();
+
+        dto.setScheduleId(schedule.getScheduleId());
+        dto.setTitle(schedule.getTitle());
+        dto.setCategory(schedule.getCategory());
+        dto.setTargetGrade(schedule.getTargetGrade());
+        dto.setDeptId(
+                schedule.getDepartment() != null
+                        ? schedule.getDepartment().getDeptId()
+                        : null
+        );
+        dto.setStartDate(schedule.getStartDate());
+        dto.setEndDate(schedule.getEndDate());
+        dto.setVisible(Boolean.TRUE.equals(schedule.getVisible()));
+
+        return dto;
     }
 }
