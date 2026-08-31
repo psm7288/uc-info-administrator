@@ -13,9 +13,13 @@ import uc.dev.uc_info.model.Notice;
 import uc.dev.uc_info.security.core.CustomUserPrincipal;
 import uc.dev.uc_info.service.NoticeService;
 
+import java.util.List;
+
 /**
  * 공지 관리 컨트롤러. Repository를 직접 호출하지 않고 NoticeService만 쓴다.
  * status는 PUBLISHED/DRAFT/CLOSED 3개만 쓰며, 승인(WAITING) 기능은 폐지됐다.
+ * 목록 화면은 엔티티를 직접 노출하지 않고 {@link NoticeDTO}(목록 표시 겸용
+ * 필드 포함)로 변환해서 넘긴다 — admin은 지연로딩이라 뷰에서 바로 쓰면 안 된다.
  */
 @Controller
 @RequestMapping("/notices")
@@ -35,7 +39,13 @@ public class NoticeController {
     public String list(@AuthenticationPrincipal CustomUserPrincipal principal,
                        Model model) {
         Admin admin = principal.getAdmin();
-        model.addAttribute("notices", noticeService.findNoticesFor(admin));
+
+        List<NoticeDTO> notices = noticeService.findNoticesFor(admin)
+                .stream()
+                .map(this::toListItem)
+                .toList();
+
+        model.addAttribute("notices", notices);
         model.addAttribute("totalCount", noticeService.countAll());
         model.addAttribute("publishedCount", noticeService.countByStatus("PUBLISHED"));
 
@@ -166,5 +176,32 @@ public class NoticeController {
         noticeService.deleteNotice(id, admin);
 
         return "redirect:/notices";
+    }
+
+    /**
+     * Notice 엔티티를 목록 표시용 NoticeDTO로 변환한다. admin은 지연로딩이라
+     * 여기서 한 번만 adminName으로 평탄화하고, 이후 템플릿은 entity를
+     * 전혀 건드리지 않는다. 검증 대상 필드(title 등)도 같이 채우지만
+     * 목록 화면에서는 표시 용도로만 쓰인다.
+     *
+     * @param notice 변환할 공지 엔티티
+     * @return 목록 표시용 NoticeDTO
+     */
+    private NoticeDTO toListItem(Notice notice) {
+        NoticeDTO dto = new NoticeDTO();
+
+        dto.setNoticeId(notice.getNoticeId());
+        dto.setTitle(notice.getTitle());
+        dto.setAdminName(notice.getAdmin().getAdminName());
+        dto.setCategory(notice.getCategory());
+        dto.setPriority(notice.getPriority());
+        dto.setTargetGrade(notice.getTargetGrade());
+        dto.setStatus(notice.getStatus());
+        dto.setStartDate(notice.getStartDate());
+        dto.setEndDate(notice.getEndDate());
+        dto.setPinned(Boolean.TRUE.equals(notice.getPinned()));
+        dto.setPushSent(Boolean.TRUE.equals(notice.getPushSent()));
+
+        return dto;
     }
 }
