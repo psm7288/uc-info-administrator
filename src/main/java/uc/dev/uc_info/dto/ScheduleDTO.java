@@ -10,23 +10,23 @@ import lombok.Setter;
 import java.time.LocalDate;
 
 /**
- * 학사 일정 등록/수정 폼 요청 DTO.
+ * 학사 일정 등록/수정 폼 요청 + 목록 화면 표시 겸용 DTO.
  *
- * <p>schedule.html 의 일정 등록/수정 모달(scheduleModal) 입력값을 받는다. 컨트롤러에서
- * {@code @Valid @ModelAttribute ScheduleDTO dto} 로 바인딩 + 검증한다.</p>
- *
- * <p>NOTE(담당): 현재 schedule 모달(fragments/modals.html)은 아직 정적이다(폼 name 미지정,
- * 일정명/시작일/종료일만 있고 카테고리·대상 학과/학년·노출 입력이 없음). 이 DTO 필드명에
- * 맞춰 모달 input/select 의 name 을 붙이고, 대상 학과 select 는 권한별 학과 목록을
- * th:each 로 렌더하도록 화면도 손봐야 한다.</p>
+ * <p>schedule.html 의 일정 등록/수정 모달(scheduleModal) 입력값을 받는다.
+ * 컨트롤러에서 {@code @Valid @ModelAttribute("scheduleDTO") ScheduleDTO dto}
+ * 로 바인딩 + 검증한다.</p>
  *
  * <p>공지(Notice)와 마찬가지로 대상 학과(deptId)가 비면 전체 대상, targetGrade 가 비면
- * 전체 학년이다. 권한 판단(DEPT_ADMIN 은 본인 학과/전체만)은 Service 에서 한다.</p>
+ * 전체 학년이다. 권한 판단(DEPT_ADMIN 은 본인 학과/전체만 지정 가능)은
+ * {@link uc.dev.uc_info.service.ScheduleService} 에서 한다.</p>
  */
 @Getter
 @Setter
 @NoArgsConstructor
 public class ScheduleDTO {
+
+    /** 일정 PK. 목록 표시/수정 모달 프리필 전용(등록 폼에는 없음). */
+    private Long scheduleId;
 
     /** 일정 제목. 필수. (모달 input name="title") */
     @NotBlank(message = "일정 제목은 필수입니다.")
@@ -57,7 +57,7 @@ public class ScheduleDTO {
 
     /**
      * 노출 여부. 체크박스 등으로 받는다. (name="visible")
-     * 미전송 시 기본 노출(true)로 둘지는 컨트롤러/서비스에서 처리.
+     * 미전송 시 기본 노출(true)로 처리한다(ScheduleService 참고).
      */
     private Boolean visible;
 }
