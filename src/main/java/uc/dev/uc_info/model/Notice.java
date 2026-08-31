@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import uc.dev.uc_info.common.validation.DepartmentScoped;
 import uc.dev.uc_info.model.base.BaseUpdatableEntity;
 
 import java.time.LocalDate;
@@ -31,7 +32,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Notice extends BaseUpdatableEntity {
+public class Notice extends BaseUpdatableEntity implements DepartmentScoped {
 
     /** PK. 공지 식별자 */
     @Id

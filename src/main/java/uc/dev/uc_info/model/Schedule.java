@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import uc.dev.uc_info.common.validation.DepartmentScoped;
 import uc.dev.uc_info.model.base.BaseTimeEntity;
 
 import java.time.LocalDate;
@@ -27,7 +28,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Schedule extends BaseTimeEntity {
+public class Schedule extends BaseTimeEntity implements DepartmentScoped {
 
     /** PK. 학사일정 식별자 */
     @Id
