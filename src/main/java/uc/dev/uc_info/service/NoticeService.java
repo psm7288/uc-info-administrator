@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uc.dev.uc_info.common.util.HtmlSanitizer;
 import uc.dev.uc_info.common.util.TextNormalizer;
 import uc.dev.uc_info.common.validation.AdminScopeValidator;
 import uc.dev.uc_info.common.validation.DepartmentResolver;
@@ -22,8 +23,7 @@ import java.util.List;
  * 상태는 PUBLISHED/DRAFT/CLOSED 3개만 쓰고, CLOSED(게시종료)와 실제 DB
  * 삭제({@link #deleteNotice})는 서로 다른 별개 기능이다. 권한 판단/학과
  * 변환은 Schedule과 공유하는 {@link AdminScopeValidator}/{@link DepartmentResolver}에
- * 위임한다 — 로그인 여부는 SecurityConfig가 보장하고, title/content 공백은
- * {@link NoticeDTO}의 Bean Validation이 이미 걸러내므로 여기서 재검사하지 않는다.
+ * 위임한다. content는 저장 전 {@link HtmlSanitizer}로 정제해 저장형 XSS를 막는다.
  */
 @Service
 @RequiredArgsConstructor
@@ -124,6 +124,7 @@ public class NoticeService {
 
     /**
      * 새 공지를 작성한다. status가 "PUBLISHED"가 아니면 DRAFT로 저장한다.
+     * content는 {@link HtmlSanitizer}로 정제 후 저장한다.
      *
      * @param dto   작성 DTO(Controller에서 @Valid 검증 통과)
      * @param admin 작성자(로그인 관리자)
@@ -143,7 +144,7 @@ public class NoticeService {
         notice.setAdmin(admin);
         notice.setDepartment(department);
         notice.setTitle(dto.getTitle());
-        notice.setContent(dto.getContent());
+        notice.setContent(HtmlSanitizer.sanitize(dto.getContent()));
         notice.setCategory(dto.getCategory());
         notice.setPriority(dto.getPriority());
         notice.setTargetGrade(TextNormalizer.emptyToNull(dto.getTargetGrade()));
@@ -156,7 +157,8 @@ public class NoticeService {
 
     /**
      * 공지사항 수정. status 하나로 PUBLISHED/DRAFT/CLOSED(게시종료) 전부
-     * 처리한다 — 셋 중 하나가 아니면 DRAFT로 취급.
+     * 처리한다 — 셋 중 하나가 아니면 DRAFT로 취급. content는 저장 전
+     * {@link HtmlSanitizer}로 다시 정제한다.
      *
      * @param id    수정할 공지 PK
      * @param dto   수정 DTO(Controller에서 @Valid 검증 통과)
@@ -176,7 +178,7 @@ public class NoticeService {
         notice.setStatus(normalizeStatus(dto.getStatus()));
         notice.setDepartment(department);
         notice.setTitle(dto.getTitle());
-        notice.setContent(dto.getContent());
+        notice.setContent(HtmlSanitizer.sanitize(dto.getContent()));
         notice.setCategory(dto.getCategory());
         notice.setPriority(dto.getPriority());
         notice.setTargetGrade(TextNormalizer.emptyToNull(dto.getTargetGrade()));
