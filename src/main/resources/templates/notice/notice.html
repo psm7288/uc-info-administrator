@@ -56,7 +56,7 @@
                                 <div class="notice-title-cell">
                                     <strong th:text="${n.title}">제목</strong>
                                     <p>
-                                        <span th:text="${n.admin.adminName}">작성자</span>
+                                        <span th:text="${n.adminName}">작성자</span>
                                         · <span th:text="${n.category}">카테고리</span>
                                         · <span th:text="${n.targetGrade != null ? n.targetGrade + '학년' : '전체학년'}">학년</span>
                                     </p>
@@ -69,7 +69,7 @@
                                 </div>
                             </td>
                             <td th:text="${n.category}">카테고리</td>
-                            <td th:text="${n.admin.adminName}">관리자</td>
+                            <td th:text="${n.adminName}">관리자</td>
                             <td>
                                 <span th:if="${n.startDate != null}" th:text="${#temporals.format(n.startDate,'MM.dd')}"></span>
                                 <span th:if="${n.endDate != null}"> ~ <span th:text="${#temporals.format(n.endDate,'MM.dd')}"></span></span>
