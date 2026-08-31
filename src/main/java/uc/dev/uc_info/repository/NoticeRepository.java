@@ -24,6 +24,11 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
      *
      * @return 최신순으로 정렬된 전체 Notice 목록
      */
+    @Query("""
+            SELECT n FROM Notice n
+            JOIN FETCH n.admin
+            ORDER BY n.createdAt DESC
+            """)
     List<Notice> findAllByOrderByCreatedAtDesc();
 
     /**
@@ -55,8 +60,9 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
     @Query("""
             SELECT n
             FROM Notice n
+            JOIN FETCH n.admin
             WHERE n.department IS NULL
-               OR n.department.deptId = :deptId
+                OR n.department.deptId = :deptId
             ORDER BY n.createdAt DESC
             """)
     List<Notice> findByDepartmentOrAll(@Param("deptId") Long deptId);
