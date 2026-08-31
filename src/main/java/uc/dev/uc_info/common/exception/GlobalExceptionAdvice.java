@@ -3,49 +3,35 @@ package uc.dev.uc_info.common.exception;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
- * 관리자 화면 컨트롤러({@code @Controller})에서 발생하는 도메인 예외를
- * 한 곳에서 공통으로 처리하는 전역 예외 처리기.
- *
- * <p>{@code uc.dev.uc_info.controller.GlobalModelAdvice} 와 동일한 스코프
- * ({@code @Controller} 애노테이션이 붙은 컨트롤러만 대상)로 잡아서, 추후 만들
- * REST API 용 {@code @RestController} 에는 이 처리가 적용되지 않는다 — REST
- * 쪽은 JSON 에러 응답이 필요하므로 별도로 처리해야 한다(여기서 다루지 않음).</p>
- *
- * <p><b>처리 방식</b>: 각 Service 도메인 예외를 잡아서 메시지를 flash 속성
- * ({@code errorMessage})에 담고, 요청이 들어온 화면으로 다시 리다이렉트한다.
- * 그 화면이 다시 렌더링될 때 {@code fragments/modals.html} 의 공통
- * {@code errorModal} 이 {@code errorMessage} 존재 여부를 보고 자동으로 열린다.
- * X 버튼이나 배경 클릭으로 닫을 수 있다(js/common/modal.js 의
- * {@code openModal}/{@code closeAllModals} 를 그대로 재사용).</p>
- *
- * <p><b>리다이렉트 대상 결정({@link #safeRedirectPath})</b>: Referer 헤더 값을
- * scheme/host 까지 포함해서 그대로 신뢰하면, 클라이언트가 Referer 를 조작해
- * 외부 사이트로 리다이렉트시키는 <b>오픈 리다이렉트(open redirect)</b> 취약점이
- * 생긴다. 그래서 host/scheme 은 버리고 경로(+쿼리)만 취해서, 항상 우리 서버
- * 안에서만 리다이렉트되도록 한다. Referer 가 없거나 파싱에 실패하면
- * 대시보드로 보낸다.</p>
+ * 관리자 화면 컨트롤러에서 발생하는 예외를 한 곳에서 잡아 flash
+ * 메시지로 담고 리다이렉트한다<br> 화면이 다시 그려질 때 공통 errorModal이
+ * 자동으로 열린다.<br> Service는 도메인 예외 4종만 던지고, 나머지 인프라
+ * 예외/캐치올은 여기서 함께 처리한다. <br> REST API(@RestController)는 대상 아님.
  */
 @Slf4j
 @ControllerAdvice(annotations = Controller.class)
 public class GlobalExceptionAdvice {
 
     /**
-     * id 로 조회했는데 대상이 없을 때(없는 일정/학과 등). — 404 성격.
+     * id로 조회했는데 대상이 없을 때(없는 일정/학과 등) 처리한다. — 404 성격.
      *
      * @param ex                 발생한 예외(메시지를 그대로 화면에 노출)
      * @param request            리다이렉트 대상 경로 계산용
      * @param redirectAttributes flash 메시지 전달용
-     * @return 원래 화면(경로)으로 리다이렉트, 없으면 대시보드
+     * @return "redirect:"로 시작하는 뷰 이름
      */
     @ExceptionHandler(EntityNotFoundException.class)
     public String handleNotFound(
@@ -57,8 +43,12 @@ public class GlobalExceptionAdvice {
     }
 
     /**
-     * 입력값이 비즈니스 규칙에 어긋날 때(날짜 역전 등 — Bean Validation 으로
-     * 못 잡는 필드 간 비교/DB 의존 검증). — 400 성격.
+     * 입력값이 비즈니스 규칙에 어긋날 때(날짜 역전 등) 처리한다. — 400 성격.
+     *
+     * @param ex                 발생한 예외(메시지를 그대로 화면에 노출)
+     * @param request            리다이렉트 대상 경로 계산용
+     * @param redirectAttributes flash 메시지 전달용
+     * @return "redirect:"로 시작하는 뷰 이름
      */
     @ExceptionHandler(IllegalArgumentException.class)
     public String handleIllegalArgument(
@@ -70,12 +60,14 @@ public class GlobalExceptionAdvice {
     }
 
     /**
-     * 권한 위반(다른 학과 항목 접근/등록 시도 등). — 403 성격.
+     * 권한 위반(다른 학과 항목 접근/등록 시도 등)을 처리한다. — 403 성격.
+     * Service 계층에서 던진 것은 Security 기본 403 처리로 안 넘어가고 항상
+     * 이 경로로 온다.
      *
-     * <p>Spring Security 의 {@link AccessDeniedException} 과 동일한 클래스다.
-     * 이 핸들러가 Spring MVC 단계에서 먼저 잡기 때문에, Service 계층에서 던진
-     * 권한 예외는 Security 의 기본 403 처리(AccessDeniedHandler)로 넘어가지
-     * 않고 항상 이 경로로 온다.</p>
+     * @param ex                 발생한 예외(메시지를 그대로 화면에 노출)
+     * @param request            리다이렉트 대상 경로 계산용
+     * @param redirectAttributes flash 메시지 전달용
+     * @return "redirect:"로 시작하는 뷰 이름
      */
     @ExceptionHandler(AccessDeniedException.class)
     public String handleAccessDenied(
@@ -87,9 +79,13 @@ public class GlobalExceptionAdvice {
     }
 
     /**
-     * 서버 데이터 이상(DEPT_ADMIN 인데 소속 학과가 없는 등 정상적으로는
-     * 발생하면 안 되는 상황). 사용자 잘못이 아니므로 서버 로그에 warn 으로
-     * 남기고, 화면에는 원본 메시지 대신 일반적인 안내만 보여준다.
+     * 서버 데이터 이상(DEPT_ADMIN인데 소속 학과가 없는 등)을 처리한다. 사용자
+     * 잘못이 아니므로 원인은 로그에만 남기고, 화면에는 일반적인 안내만 보여준다.
+     *
+     * @param ex                 발생한 예외(원인은 서버 로그에만 남김)
+     * @param request            리다이렉트 대상 경로 계산용
+     * @param redirectAttributes flash 메시지 전달용
+     * @return "redirect:"로 시작하는 뷰 이름
      */
     @ExceptionHandler(IllegalStateException.class)
     public String handleIllegalState(
@@ -107,19 +103,103 @@ public class GlobalExceptionAdvice {
     }
 
     /**
+     * DB 제약조건 위반(유니크/외래키 등)을 처리한다. Bean Validation을
+     * 통과했더라도 동시 요청 등으로 DB 레벨에서만 걸릴 수 있다. — 409 성격.
+     *
+     * @param ex                 발생한 예외(원인은 서버 로그에만 남김)
+     * @param request            리다이렉트 대상 경로 계산용
+     * @param redirectAttributes flash 메시지 전달용
+     * @return "redirect:"로 시작하는 뷰 이름
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public String handleDataIntegrityViolation(
+            DataIntegrityViolationException ex,
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes
+    ) {
+        log.warn("DB 제약조건 위반: {}", ex.getMessage());
+
+        return redirectWithError(
+                "이미 사용 중인 값이거나 처리할 수 없는 요청입니다.",
+                request,
+                redirectAttributes
+        );
+    }
+
+    /**
+     * URL 경로/쿼리 파라미터 타입이 안 맞을 때(예: /notices/abc/edit) 처리한다.
+     * Controller 진입 전에 Spring이 직접 던져서 Service는 요청을 못 받아본다.
+     * — 400 성격.
+     *
+     * @param ex                 발생한 예외
+     * @param request            리다이렉트 대상 경로 계산용
+     * @param redirectAttributes flash 메시지 전달용
+     * @return "redirect:"로 시작하는 뷰 이름
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public String handleTypeMismatch(
+            MethodArgumentTypeMismatchException ex,
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes
+    ) {
+        return redirectWithError("잘못된 요청입니다.", request, redirectAttributes);
+    }
+
+    /**
+     * 첨부파일이 설정된 최대 용량을 넘었을 때 처리한다. Controller 진입
+     * 전에 발생한다. — 413 성격.
+     *
+     * @param ex                 발생한 예외
+     * @param request            리다이렉트 대상 경로 계산용
+     * @param redirectAttributes flash 메시지 전달용
+     * @return "redirect:"로 시작하는 뷰 이름
+     */
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public String handleMaxUploadSizeExceeded(
+            MaxUploadSizeExceededException ex,
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes
+    ) {
+        return redirectWithError("첨부파일 용량이 너무 큽니다.", request, redirectAttributes);
+    }
+
+    /**
+     * 위 어디에도 안 걸리는 예외(코드 버그 등)를 위한 마지막 안전망. 사용자
+     * 에게는 원인을 숨기고, 서버 로그에는 스택트레이스까지 남긴다.
+     *
+     * @param ex                 발생한 예외(스택트레이스까지 서버 로그에 기록)
+     * @param request            리다이렉트 대상 경로 계산용
+     * @param redirectAttributes flash 메시지 전달용
+     * @return "redirect:"로 시작하는 뷰 이름
+     */
+    @ExceptionHandler(Exception.class)
+    public String handleUnknown(
+            Exception ex,
+            HttpServletRequest request,
+            RedirectAttributes redirectAttributes
+    ) {
+        log.error("처리되지 않은 예외 발생", ex);
+
+        return redirectWithError(
+                "일시적인 오류가 발생했습니다. 문제가 반복되면 관리자에게 문의해 주세요.",
+                request,
+                redirectAttributes
+        );
+    }
+
+    /**
      * flash 속성에 에러 메시지를 담고, 안전하게 계산한 경로로 되돌린다.
      *
      * @param message            화면에 보여줄 에러 메시지
      * @param request            리다이렉트 대상 경로 계산용
      * @param redirectAttributes flash 메시지 전달용
-     * @return "redirect:" 로 시작하는 뷰 이름
+     * @return "redirect:"로 시작하는 뷰 이름
      */
     private String redirectWithError(
             String message,
             HttpServletRequest request,
             RedirectAttributes redirectAttributes
     ) {
-
         redirectAttributes.addFlashAttribute("errorMessage", message);
 
         return "redirect:" + safeRedirectPath(request);
@@ -127,12 +207,7 @@ public class GlobalExceptionAdvice {
 
     /**
      * Referer 헤더에서 "경로(path)+쿼리"만 추출해서 리다이렉트 대상으로 쓴다.
-     *
-     * <p>Referer 값을 scheme/host 까지 포함해서 그대로 리다이렉트에 쓰면,
-     * 클라이언트가 이 헤더를 조작해 외부 사이트로 리다이렉트시키는 오픈
-     * 리다이렉트 취약점이 생긴다. host/scheme 은 버리고 경로만 취하면,
-     * Referer 에 어떤 값이 오더라도 항상 우리 서버 안의 상대 경로로만
-     * 리다이렉트되므로 이 위험이 원천적으로 없어진다.</p>
+     * host/scheme은 버려서, Referer 조작으로 인한 오픈 리다이렉트를 막는다.
      *
      * @param request Referer 확인용
      * @return 안전하게 추출한 상대 경로(+쿼리). 없거나 파싱 실패 시 "/dashboard"
@@ -151,7 +226,6 @@ public class GlobalExceptionAdvice {
                 return "/dashboard";
             }
             String query = uri.getRawQuery();
-
             return query != null ? path + "?" + query : path;
         } catch (URISyntaxException e) {
             return "/dashboard";
