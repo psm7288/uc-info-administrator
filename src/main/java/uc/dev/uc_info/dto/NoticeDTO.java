@@ -9,7 +9,7 @@ import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 
 /**
- * 공지 작성/수정 폼 요청 DTO
+ * 공지 작성/수정 폼 요청 + 목록 화면 표시 겸용 DTO.
  *
  * <p>notice-write.html / notice-edit.html 의 입력값을 받는다. 컨트롤러에서
  * {@code @Valid @ModelAttribute NoticeDTO dto} 로 바인딩 + 검증하며, 폼의 name
@@ -17,14 +17,17 @@ import java.time.LocalDate;
  *
  * <p>작성/수정 화면 모두 저장 버튼의 name="status" 값 하나로 통일한다
  * ("DRAFT"=임시저장 / "PUBLISHED"=게시).</p>
- *
- * <p>검증 실패 시 컨트롤러의 BindingResult 로 잡아 폼으로 되돌린다(메시지 표시).
- * 첨부파일은 MultipartFile 로 컨트롤러에서 별도로 받는다.</p>
  */
 @Getter
 @Setter
 @NoArgsConstructor
 public class NoticeDTO {
+
+    /** 공지 PK. 목록 표시 전용(폼에는 없음, 수정 링크/삭제 폼에 사용). */
+    private Long noticeId;
+
+    /** 작성자 이름. 목록 표시 전용(Notice.admin.adminName 을 미리 평탄화한 값). */
+    private String adminName;
 
     /** 공지 제목. 필수. (폼 name="title") */
     @NotBlank(message = "공지 제목은 필수입니다.")
@@ -45,9 +48,7 @@ public class NoticeDTO {
     @Size(max = 20)
     private String priority;
 
-    /**
-     * 대상 학과 PK(deptId). 전체 대상이면 빈 값(null)으로 들어온다. (name="deptId")
-     */
+    /** 대상 학과 PK(deptId). 전체 대상이면 빈 값(null)으로 들어온다. (name="deptId") */
     private Long deptId;
 
     /** 대상 학년. 전체면 빈 값(null). "1"/"2"/"3" (name="targetGrade") */
@@ -65,4 +66,10 @@ public class NoticeDTO {
      * 공통으로 이 필드 하나만 쓴다. (name="status")
      */
     private String status;
+
+    /** 상단 고정 여부. 목록 표시 전용. */
+    private boolean pinned;
+
+    /** 푸시 발송 여부. 목록 표시 전용. */
+    private boolean pushSent;
 }
