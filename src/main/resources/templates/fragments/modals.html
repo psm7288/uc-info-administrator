@@ -101,30 +101,90 @@
     </div>
 
     <!-- 배너 등록/수정 -->
-    <div id="bannerModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="bannerModalTitle">
-        <div class="modal-head">
-            <h3 id="bannerModalTitle">배너 등록</h3>
-            <button class="modal-close" type="button" aria-label="닫기">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="modal-form">
-                <label for="bannerTitle">배너 제목</label>
-                <input id="bannerTitle" type="text" placeholder="배너에 표시할 제목" />
+    <div id="bannerModal"
+         class="modal hidden"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="bannerModalTitle">
 
-                <label for="bannerPeriod">노출 기간</label>
-                <input id="bannerPeriod" type="text" placeholder="예) 05.11 ~ 06.07" />
+        <form id="bannerForm"
+              method="post"
+              th:action="@{/banners}">
 
-                <label for="bannerLink">연결 공지</label>
-                <select id="bannerLink">
-                    <option>연결 안 함</option>
-                    <option>2026학년도 컴퓨터공학과 졸업작품 신청 안내</option>
-                </select>
+            <input th:if="${_csrf != null}"
+                   type="hidden"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}" />
+
+            <div class="modal-head">
+                <h3 id="bannerModalTitle">배너 등록</h3>
+                <button class="modal-close" type="button" aria-label="닫기">×</button>
             </div>
-        </div>
-        <div class="modal-actions">
-            <button class="line-btn" type="button" data-modal-close>취소</button>
-            <button class="primary-btn" type="button" data-save="배너가 저장되었습니다.">저장</button>
-        </div>
+
+            <div class="modal-body">
+                <div class="modal-form">
+
+                    <!-- 배너 제목 -->
+                    <label for="bannerTitle">배너 제목</label>
+                    <input id="bannerTitle"
+                           name="title"
+                           type="text"
+                           th:value="${bannerDTO != null ? bannerDTO.title : ''}"
+                           placeholder="배너에 표시할 제목"
+                           required />
+
+                    <!-- 부제 -->
+                    <label for="bannerSubtitle">부제</label>
+                    <input id="bannerSubtitle"
+                           name="subtitle"
+                           type="text"
+                           th:value="${bannerDTO != null ? bannerDTO.subtitle : ''}"
+                           placeholder="선택 입력" />
+
+                    <!-- 상태 -->
+                    <label for="bannerStatus">노출 상태</label>
+                    <select id="bannerStatus" name="status" required>
+                        <option value="">상태를 선택하세요</option>
+                        <option value="ACTIVE" th:selected="${bannerDTO != null and bannerDTO.status == 'ACTIVE'}">활성</option>
+                        <option value="SCHEDULED" th:selected="${bannerDTO != null and bannerDTO.status == 'SCHEDULED'}">예약</option>
+                        <option value="INACTIVE" th:selected="${bannerDTO != null and bannerDTO.status == 'INACTIVE'}">비활성</option>
+                    </select>
+
+                    <!-- 시작일 -->
+                    <label for="bannerStartDate">노출 시작일</label>
+                    <input id="bannerStartDate"
+                           name="startDate"
+                           type="date"
+                           th:value="${bannerDTO != null ? bannerDTO.startDate : ''}" />
+
+                    <!-- 종료일 -->
+                    <label for="bannerEndDate">노출 종료일</label>
+                    <input id="bannerEndDate"
+                           name="endDate"
+                           type="date"
+                           th:value="${bannerDTO != null ? bannerDTO.endDate : ''}" />
+
+                    <!-- 연결 공지 -->
+                    <label for="bannerNotice">연결 공지</label>
+                    <select id="bannerNotice" name="noticeId">
+                        <option value="" th:selected="${bannerDTO == null or bannerDTO.noticeId == null}">
+                            연결 안 함
+                        </option>
+                        <option th:each="n : ${linkableNotices}"
+                                th:value="${n.noticeId}"
+                                th:text="${n.title}"
+                                th:selected="${bannerDTO != null and bannerDTO.noticeId == n.noticeId}">공지
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="line-btn" type="button" data-modal-close>취소</button>
+                <button class="primary-btn" type="submit">저장</button>
+            </div>
+
+        </form>
     </div>
 
     <!-- 장학금 등록/수정 -->

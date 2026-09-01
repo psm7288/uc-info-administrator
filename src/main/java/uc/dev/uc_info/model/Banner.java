@@ -3,6 +3,7 @@ package uc.dev.uc_info.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import uc.dev.uc_info.model.base.BaseTimeEntity;
 
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "banner")
 @Getter
+@Setter
 @NoArgsConstructor
 public class Banner extends BaseTimeEntity {
 

@@ -17,7 +17,7 @@
                     <h3>학생 앱 메인 화면에 노출되는 주요 배너를 관리합니다.</h3>
                     <p>학과 공지, 장학금, 행사, 공모전 등 중요한 정보를 카드뉴스형 배너로 노출할 수 있습니다.</p>
                 </div>
-                <button class="white-btn" type="button" data-modal="bannerModal">배너 등록</button>
+                <button class="primary-btn" type="button" data-modal="bannerModal" data-banner-create> 새 배너 등록 </button>
             </section>
 
             <section class="banner-summary-grid">
@@ -36,12 +36,14 @@
             <section class="panel">
                 <div class="panel-head">
                     <div><h3>배너 목록</h3><p>학생 앱 메인에 표시되는 배너입니다.</p></div>
-                    <button class="primary-btn" type="button" data-modal="bannerModal">새 배너 등록</button>
+                    <button class="primary-btn" type="button" data-modal="bannerModal" data-banner-create> 새 배너 등록 </button>
                 </div>
 
                 <div class="banner-card-list" th:if="${not #lists.isEmpty(banners)}">
                     <article class="banner-manage-card" th:each="b : ${banners}">
                         <div class="banner-preview blue">
+                        <!-- TODO: 배너의 학과 표시는 admin.department가 아닌 연결된 Notice.department 기준으로 처리 필요
+                        N+1 방지를 위해 BannerDTO에 linkedDeptName 추가 여부 또는 학과 표시 제거 여부 팀 협의 후 수정 -->
                             <span th:text="${b.admin.department != null} ? ${b.admin.department.deptName} : '전체 관리자'">학과</span>
                             <strong th:text="${b.title}">배너 제목</strong>
                             <p th:if="${b.startDate != null}"
@@ -56,8 +58,30 @@
                                 <p th:text="(${b.admin.department != null} ? ${b.admin.department.deptName} : '전체 관리자') + ' · 메인 배너'">설명</p>
                             </div>
                             <div class="table-actions">
-                                <button type="button" data-modal="bannerModal">수정</button>
-                                <button type="button" data-modal="deleteModal">삭제</button>
+                                <button type="button"
+                                        data-modal="bannerModal"
+                                        data-banner-edit
+                                        th:attr="
+                                            data-id=${b.bannerId},
+                                            data-title=${b.title},
+                                            data-subtitle=${b.subtitle},
+                                            data-status=${b.status},
+                                            data-start-date=${b.startDate},
+                                            data-end-date=${b.endDate},
+                                            data-notice-id=${b.notice != null ? b.notice.noticeId : ''}">
+                                    수정
+                                </button>
+                                <form th:action="@{/banners/{id}/delete(id=${b.bannerId})}"
+                                      method="post"
+                                      onsubmit="return confirm('정말 이 배너를 삭제하시겠습니까?');">
+
+                                    <input th:if="${_csrf != null}"
+                                           type="hidden"
+                                           th:name="${_csrf.parameterName}"
+                                           th:value="${_csrf.token}" />
+
+                                    <button type="submit">삭제</button>
+                                </form>
                             </div>
                         </div>
                     </article>
@@ -103,6 +127,13 @@
             </article>
         </div>
     </aside>
+
+    <!-- 배너 폼 검증 실패 시 모달 재오픈용 상태값 -->
+    <div id="bannerModalState"
+         hidden
+         th:data-open="${openBannerModal}"
+         th:data-editing-id="${editingBannerId}">
+    </div>
 
     <div th:replace="~{fragments/modals :: modals}"></div>
     <div th:replace="~{fragments/toast :: toast}"></div>

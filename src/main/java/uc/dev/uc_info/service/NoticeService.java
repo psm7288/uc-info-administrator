@@ -228,4 +228,17 @@ public class NoticeService {
         }
         return "DRAFT";
     }
+
+    /**
+     * 배너 등록/수정 시 연결 가능한 공지 목록을 조회한다.
+     *
+     * <p>배너 모달의 연결 공지 선택 항목에 사용할 전체 공지를
+     * 최신 등록순으로 반환한다.</p>
+     *
+     * @return 연결 가능한 공지 목록
+     */
+    @Transactional(readOnly = true)
+    public List<Notice> findAllForLink() {
+        return noticeRepository.findAllByOrderByCreatedAtDesc();
+    }
 }
