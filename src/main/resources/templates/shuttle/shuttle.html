@@ -17,7 +17,7 @@
                     <h3>학생 편의 정보를 위한 셔틀버스 노선과 운행 상태를 관리합니다.</h3>
                     <p>노선, 출발지, 운행 시간, 운행 상태를 관리하여 학생들이 빠르게 이동 정보를 확인할 수 있게 합니다.</p>
                 </div>
-                <button class="white-btn" type="button" data-toast="노선 추가 기능은 준비 중입니다.">노선 추가</button>
+                <button class="white-btn" type="button" data-modal="shuttleModal" data-shuttle-create>노선 추가</button>
             </section>
 
             <section class="shuttle-summary-grid">
@@ -28,7 +28,7 @@
                 </article>
                 <article class="metric-card">
                     <span>전체 노선</span>
-                    <strong th:text="${#lists.size(shuttles)}">0</strong>
+                    <strong th:text="${totalCount}">0</strong>
                     <p>등록된 노선</p>
                 </article>
             </section>
@@ -36,7 +36,7 @@
             <section class="panel">
                 <div class="panel-head">
                     <div><h3>셔틀버스 노선 목록</h3><p>학생 앱 편의 정보 영역에 표시되는 셔틀버스 정보입니다.</p></div>
-                    <button class="primary-btn" type="button" data-toast="노선 추가 기능은 준비 중입니다.">새 노선 추가</button>
+                    <button class="primary-btn" type="button" data-modal="shuttleModal" data-shuttle-create>새 노선 추가</button>
                 </div>
 
                 <div class="table-wrap" th:if="${not #lists.isEmpty(shuttles)}">
@@ -59,8 +59,26 @@
                                 <span class="pill wait" th:if="${s.status == 'DELAYED'}">지연</span>
                             </td>
                             <td class="table-actions">
-                                <button type="button" data-toast="수정 기능은 준비 중입니다.">수정</button>
-                                <button type="button" data-modal="deleteModal">운행 중단</button>
+                                <button type="button"
+                                        data-modal="shuttleModal"
+                                        data-shuttle-edit
+                                        th:attr="data-id=${s.shuttleId}, data-route-name=${s.routeName}, data-departure=${s.departure}, data-destination=${s.destination}, data-waypoints=${s.waypoints}, data-first-departure=${s.firstDeparture}, data-last-departure=${s.lastDeparture}, data-status=${s.status}">
+                                    수정
+                                </button>
+                                <button type="button"
+                                        data-modal="shuttleModal"
+                                        data-shuttle-suspend
+                                        th:attr="data-id=${s.shuttleId}, data-route-name=${s.routeName}, data-departure=${s.departure}, data-destination=${s.destination}, data-waypoints=${s.waypoints}, data-first-departure=${s.firstDeparture}, data-last-departure=${s.lastDeparture}">
+                                    운행 중단
+                                </button>
+                                <form th:action="@{'/shuttles/' + ${s.shuttleId} + '/delete'}"
+                                      method="post"
+                                      style="display:inline"
+                                      onsubmit="return confirm('정말 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+                                    <input th:if="${_csrf != null}" type="hidden"
+                                           th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                    <button type="submit">삭제</button>
+                                </form>
                             </td>
                         </tr>
                         </tbody>
@@ -126,5 +144,18 @@
     <script defer th:src="@{/js/common/sidebar.js}"></script>
     <script defer th:src="@{/js/common/common.js}"></script>
     <script defer th:src="@{/js/pages/shuttle.js}"></script>
+    <script th:if="${openShuttleModal}" th:inline="javascript">
+        document.addEventListener("DOMContentLoaded", function () {
+            const shuttleForm = document.getElementById("shuttleForm");
+            const shuttleModalTitle = document.getElementById("shuttleModalTitle");
+
+            if ([[${editingShuttleId != null}]]) {
+                shuttleModalTitle.textContent = "셔틀버스 노선 수정";
+                shuttleForm.action = "/shuttles/[[${editingShuttleId}]]/edit";
+            }
+
+            openModal("shuttleModal");
+        });
+    </script>
 </body>
 </html>

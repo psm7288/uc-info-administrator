@@ -1,8 +1,15 @@
 package uc.dev.uc_info.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import uc.dev.uc_info.dto.ShuttleDTO;
+import uc.dev.uc_info.model.Admin;
+import uc.dev.uc_info.security.core.CustomUserPrincipal;
 import uc.dev.uc_info.service.ShuttleService;
 
 /**
@@ -59,4 +66,82 @@ import uc.dev.uc_info.service.ShuttleService;
 public class ShuttleController {
 
     private final ShuttleService shuttleService;
+
+    @GetMapping
+    public String list(
+            Model model,
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        Admin admin = principal.getAdmin();
+
+        model.addAttribute("shuttles", shuttleService.findAll());
+        model.addAttribute("totalCount", shuttleService.countAll());
+        model.addAttribute("activeCount", shuttleService.countActive());
+
+        if (!model.containsAttribute("shuttleDTO")) {
+            model.addAttribute("shuttleDTO", new ShuttleDTO());
+        }
+
+        return "shuttle/shuttle";
+    }
+
+    @PostMapping
+    public String create(
+            @Valid @ModelAttribute("shuttleDTO") ShuttleDTO dto,
+            BindingResult bindingResult,
+            Model model,
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        Admin admin = principal.getAdmin();
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("shuttles", shuttleService.findAll());
+            model.addAttribute("totalCount", shuttleService.countAll());
+            model.addAttribute("activeCount", shuttleService.countActive());
+            model.addAttribute("openShuttleModal", true);
+
+            return "shuttle/shuttle";
+        }
+
+        shuttleService.createShuttle(dto, admin);
+
+        return "redirect:/shuttles";
+    }
+
+    @PostMapping("/{id}/edit")
+    public String update(
+            @PathVariable Long id,
+            @Valid @ModelAttribute("shuttleDTO") ShuttleDTO dto,
+            BindingResult bindingResult,
+            Model model,
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        Admin admin = principal.getAdmin();
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("shuttles", shuttleService.findAll());
+            model.addAttribute("totalCount", shuttleService.countAll());
+            model.addAttribute("activeCount", shuttleService.countActive());
+            model.addAttribute("openShuttleModal", true);
+            model.addAttribute("editingShuttleId", id);
+
+            return "shuttle/shuttle";
+        }
+
+        shuttleService.updateShuttle(id, dto, admin);
+
+        return "redirect:/shuttles";
+    }
+
+    @PostMapping("/{id}/delete")
+    public String delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+        Admin admin = principal.getAdmin();
+
+        shuttleService.deleteShuttle(id, admin);
+
+        return "redirect:/shuttles";
+    }
 }

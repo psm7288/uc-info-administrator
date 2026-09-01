@@ -1,5 +1,7 @@
 package uc.dev.uc_info.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -38,4 +40,26 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class ShuttleDTO {
+
+    @NotBlank
+    private String routeName;
+
+    @NotBlank
+    private String departure;
+
+    @NotBlank
+    private String destination;
+
+    private String waypoints;
+
+    @Size(max = 10)
+    private String firstDeparture;
+
+    @Size(max = 10)
+    private String lastDeparture;
+
+    @NotBlank
+    private String status;
+
+    private Long shuttleId;
 }

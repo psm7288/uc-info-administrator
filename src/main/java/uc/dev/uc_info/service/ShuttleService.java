@@ -1,8 +1,15 @@
 package uc.dev.uc_info.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import uc.dev.uc_info.dto.ShuttleDTO;
+import uc.dev.uc_info.model.Admin;
+import uc.dev.uc_info.model.Shuttle;
 import uc.dev.uc_info.repository.ShuttleRepository;
+
+import java.util.List;
 
 /**
  * 셔틀버스 노선(Shuttle) 비즈니스 로직 서비스.
@@ -67,4 +74,67 @@ import uc.dev.uc_info.repository.ShuttleRepository;
 public class ShuttleService {
 
     private final ShuttleRepository shuttleRepository;
+
+    @Transactional(readOnly = true)
+    public List<Shuttle> findAll() {
+        return shuttleRepository.findAllByOrderByCreatedAtDesc();
+    }
+
+    @Transactional(readOnly = true)
+    public Shuttle getShuttle(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("셔틀 노선 ID는 null일 수 없습니다.");
+        }
+
+        return shuttleRepository.findById(id)
+                .orElseThrow(() ->
+                        new EntityNotFoundException("셔틀 노선을 찾을 수 없습니다."));
+    }
+
+    @Transactional(readOnly = true)
+    public long countAll() {
+        return shuttleRepository.count();
+    }
+
+    @Transactional(readOnly = true)
+    public long countActive() {
+        return shuttleRepository.countByStatus("ACTIVE");
+    }
+
+    @Transactional
+    public Shuttle createShuttle(ShuttleDTO dto, Admin admin) {
+        Shuttle shuttle = new Shuttle();
+
+        shuttle.setAdmin(admin);
+        shuttle.setRouteName(dto.getRouteName());
+        shuttle.setDeparture(dto.getDeparture());
+        shuttle.setDestination(dto.getDestination());
+        shuttle.setWaypoints(dto.getWaypoints());
+        shuttle.setFirstDeparture(dto.getFirstDeparture());
+        shuttle.setLastDeparture(dto.getLastDeparture());
+        shuttle.setStatus(dto.getStatus());
+
+        return shuttleRepository.save(shuttle);
+    }
+
+    @Transactional
+    public Shuttle updateShuttle(Long id, ShuttleDTO dto, Admin admin) {
+        Shuttle shuttle = getShuttle(id);
+
+        shuttle.setRouteName(dto.getRouteName());
+        shuttle.setDeparture(dto.getDeparture());
+        shuttle.setDestination(dto.getDestination());
+        shuttle.setWaypoints(dto.getWaypoints());
+        shuttle.setFirstDeparture(dto.getFirstDeparture());
+        shuttle.setLastDeparture(dto.getLastDeparture());
+        shuttle.setStatus(dto.getStatus());
+
+        return shuttleRepository.save(shuttle);
+    }
+
+    @Transactional
+    public void deleteShuttle(Long id, Admin admin) {
+        Shuttle shuttle = getShuttle(id);
+        shuttleRepository.delete(shuttle);
+    }
 }

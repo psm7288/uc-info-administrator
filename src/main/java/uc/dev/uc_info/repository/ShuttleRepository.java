@@ -3,6 +3,8 @@ package uc.dev.uc_info.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import uc.dev.uc_info.model.Shuttle;
 
+import java.util.List;
+
 /**
  * 셔틀버스 노선(Shuttle) 영속성 접근 인터페이스.
  *
@@ -25,4 +27,8 @@ import uc.dev.uc_info.model.Shuttle;
  * 메서드가 하나도 없다.</p>
  */
 public interface ShuttleRepository extends JpaRepository<Shuttle, Long> {
+
+    List<Shuttle> findAllByOrderByCreatedAtDesc();
+
+    long countByStatus(String status);
 }
