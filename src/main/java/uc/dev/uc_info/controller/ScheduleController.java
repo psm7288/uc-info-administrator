@@ -45,7 +45,7 @@ public class ScheduleController {
         Admin admin = principal.getAdmin();
 
         model.addAttribute("schedules", toListItems(admin));
-        model.addAttribute("totalCount", scheduleService.countAll());
+        model.addAttribute("totalCount", scheduleService.countAll(admin));
         model.addAttribute("departments", departmentService.findAll());
 
         if (!model.containsAttribute("scheduleDTO")) {
@@ -73,7 +73,7 @@ public class ScheduleController {
         Admin admin = principal.getAdmin();
         if (bindingResult.hasErrors()) {
             model.addAttribute("schedules", toListItems(admin));
-            model.addAttribute("totalCount", scheduleService.countAll());
+            model.addAttribute("totalCount", scheduleService.countAll(admin));
             model.addAttribute("departments", departmentService.findAll());
             model.addAttribute("openScheduleModal",true);
 
@@ -105,7 +105,7 @@ public class ScheduleController {
         Admin admin = principal.getAdmin();
         if (bindingResult.hasErrors()) {
             model.addAttribute("schedules", toListItems(admin));
-            model.addAttribute("totalCount", scheduleService.countAll());
+            model.addAttribute("totalCount", scheduleService.countAll(admin));
             model.addAttribute("departments", departmentService.findAll());
             model.addAttribute("openScheduleModal",true);
             model.addAttribute("editingScheduleId", id);
