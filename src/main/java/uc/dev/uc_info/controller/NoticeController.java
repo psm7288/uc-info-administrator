@@ -46,8 +46,8 @@ public class NoticeController {
                 .toList();
 
         model.addAttribute("notices", notices);
-        model.addAttribute("totalCount", noticeService.countAll());
-        model.addAttribute("publishedCount", noticeService.countByStatus("PUBLISHED"));
+        model.addAttribute("totalCount", noticeService.countAll(admin));
+        model.addAttribute("publishedCount", noticeService.countByStatus("PUBLISHED", admin));
 
         return "notice/notice";
     }
