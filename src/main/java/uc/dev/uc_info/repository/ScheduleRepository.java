@@ -78,4 +78,20 @@ public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
         ORDER BY s.startDate ASC
     """)
     List<Schedule> findVisibleForStudent(@Param("deptId") Long deptId);
+
+    /**
+     * DEPT_ADMIN 권한 범위(본인 학과+전체 대상) 일정 개수.
+     * {@link #findByDepartmentOrAll}과 동일한 범위로 세야 화면 숫자와
+     * 목록이 일치한다.
+     *
+     * @param deptId 조회할 학과 ID
+     * @return 해당 범위의 일정 개수
+     */
+    @Query("""
+        SELECT COUNT(s)
+        FROM Schedule s
+        WHERE s.department IS NULL
+           OR s.department.deptId = :deptId
+        """)
+    long countByDepartmentOrAll(@Param("deptId") Long deptId);
 }
