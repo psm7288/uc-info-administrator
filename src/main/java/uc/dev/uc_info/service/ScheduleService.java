@@ -71,13 +71,26 @@ public class ScheduleService {
     }
 
     /**
-     * 전체 일정 개수(숨김 포함).
+     * 권한 범위 내 전체 일정 개수(숨김 포함).
      *
-     * @return 전체 일정 건수
+     * @param admin 로그인 관리자(권한 범위 판단용)
+     * @return 권한 범위 내 전체 일정 건수
+     * @throws IllegalStateException DEPT_ADMIN인데 소속 학과가 없는 경우
+     * @throws AccessDeniedException 조회 권한이 없는 role인 경우
      */
     @Transactional(readOnly = true)
-    public long countAll() {
-        return scheduleRepository.count();
+    public long countAll(Admin admin) {
+        if (adminScopeValidator.isSuperAdmin(admin)) {
+            return scheduleRepository.count();
+        }
+
+        if (adminScopeValidator.isDeptAdmin(admin)) {
+            if (admin.getDepartment() == null) {
+                throw new IllegalStateException("학과 관리자의 소속 학과 정보가 없습니다.");
+            }
+            return scheduleRepository.countByDepartmentOrAll(admin.getDepartment().getDeptId());
+        }
+        throw new AccessDeniedException("학사 일정 통계를 조회할 권한이 없습니다.");
     }
 
     /**

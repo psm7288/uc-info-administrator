@@ -11,7 +11,7 @@ import java.util.List;
  * 공지(Notice) 영속성 접근 인터페이스.
  *
  * <p>JpaRepository 상속으로 save/findById/findAll/delete/count 등 기본 CRUD 기능은 자동 제공된다.
- * 아래 5개의 메서드는 화면 및 서비스 요구사항에 맞춰 직접 선언한 조회 메서드다.</p>
+ * 아래 조회 메서드는 화면 및 서비스 요구사항에 맞춰 직접 선언한 것이다.</p>
  *
  * <p>공지 상태({@code status})는 DRAFT(임시저장), PUBLISHED(게시중), CLOSED(게시종료)
  * 상수를 가지며, 학과 정보({@code department})가 null인 경우 전체 대상 공지로 간주한다.</p>
@@ -41,9 +41,10 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
     List<Notice> findByStatusOrderByCreatedAtDesc(String status);
 
     /**
-     * 특정 상태(status)의 공지 개수를 조회합니다.
-     * <p>대시보드 및 목록 통계 집계용으로 사용됩니다.</p>
-
+     * 특정 상태(status)의 공지 개수를 조회합니다. 학과 필터 없이 시스템
+     * 전체 기준이다 — SUPER_ADMIN 통계용. DEPT_ADMIN용은
+     * {@link #countByStatusAndDepartmentOrAll} 을 쓴다.
+     *
      * @param status 카운트할 공지 상태 (DRAFT, PUBLISHED, CLOSED)
      * @return 해당 상태의 Notice 개수
      */
@@ -62,10 +63,41 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
             FROM Notice n
             JOIN FETCH n.admin
             WHERE n.department IS NULL
-                OR n.department.deptId = :deptId
+               OR n.department.deptId = :deptId
             ORDER BY n.createdAt DESC
             """)
     List<Notice> findByDepartmentOrAll(@Param("deptId") Long deptId);
+
+    /**
+     * DEPT_ADMIN 권한 범위(본인 학과+전체 대상) 공지 개수.
+     * 상태 무관 전체 개수용
+     *
+     * @param deptId 조회할 학과 ID
+     * @return 해당 범위의 공지 개수
+     */
+    @Query("""
+            SELECT COUNT(n)
+            FROM Notice n
+            WHERE n.department IS NULL
+               OR n.department.deptId = :deptId
+            """)
+    long countByDepartmentOrAll(@Param("deptId") Long deptId);
+
+    /**
+     * DEPT_ADMIN 권한 범위(본인 학과+전체 대상)이면서 특정 상태인 공지
+     * 개수. {@link #countByStatus} 의 DEPT_ADMIN용 버전이다.
+     *
+     * @param status 카운트할 공지 상태
+     * @param deptId 조회할 학과 ID
+     * @return 해당 범위·상태의 공지 개수
+     */
+    @Query("""
+            SELECT COUNT(n)
+            FROM Notice n
+            WHERE n.status = :status
+              AND (n.department IS NULL OR n.department.deptId = :deptId)
+            """)
+    long countByStatusAndDepartmentOrAll(@Param("status") String status, @Param("deptId") Long deptId);
 
     /**
      * 학생 앱용 노출 공지 목록을 조회합니다.
