@@ -1,46 +1,3 @@
-/**
- * 배너 관리 컨트롤러.
- *
- * <p>이 클래스 안에 아래 4개의 요청 핸들러를 직접 작성하세요. Schedule/
- * Shuttle과 동일하게 등록/수정은 별도 폼 페이지가 아니라 목록 화면의
- * 모달({@code bannerModal})로 처리한다.</p>
- *
- * <p>컨트롤러는 {@code BannerService}만 호출한다(Repository/NoticeService
- * 직접 호출 금지 — 연결 공지 목록도 반드시 {@code bannerService.
- * findLinkableNotices()}를 통해서 가져온다). 로그인 admin은
- * {@code @AuthenticationPrincipal CustomUserPrincipal principal} 파라미터로
- * 받아 {@code principal.getAdmin()}으로 꺼낸다.</p>
- *
- * <h3>만들어야 할 핸들러</h3>
- * <ol>
- *   <li>{@code @GetMapping list(Model model, @AuthenticationPrincipal
- *       CustomUserPrincipal principal)} → {@code "banner/banner"} 반환.
- *       model에 담을 것: {@code banners}({@code bannerService.findAllFor
- *       (admin)}), {@code activeCount}({@code countByStatus("ACTIVE")}),
- *       {@code scheduledCount}({@code countByStatus("SCHEDULED")}),
- *       {@code linkableNotices}({@code findLinkableNotices()} — 연결 공지
- *       select용), {@code bannerDTO}(모달 바인딩용, 이미 model에 있으면
- *       새로 만들지 않음).</li>
- *   <li>{@code @PostMapping create(@Valid @ModelAttribute("bannerDTO")
- *       BannerDTO dto, BindingResult bindingResult, Model model,
- *       @AuthenticationPrincipal CustomUserPrincipal principal)} —
- *       Schedule의 create()와 동일 패턴(BindingResult 검증 실패 시 목록
- *       model 재구성 + {@code openBannerModal=true}로 재오픈, 성공 시
- *       {@code createBanner} 호출 후 {@code "redirect:/banners"}).</li>
- *   <li>{@code @PostMapping("/{id}/edit") update(@PathVariable Long id,
- *       @Valid @ModelAttribute("bannerDTO") BannerDTO dto, BindingResult
- *       bindingResult, Model model, @AuthenticationPrincipal
- *       CustomUserPrincipal principal)} — Schedule의 update()와 동일 패턴
- *       (검증 실패 시 {@code editingBannerId}도 함께 model에 추가).</li>
- *   <li>{@code @PostMapping("/{id}/delete") delete(@PathVariable Long id,
- *       @AuthenticationPrincipal CustomUserPrincipal principal)} —
- *       Schedule의 delete()와 동일 패턴({@code deleteBanner} 호출 후
- *       {@code "redirect:/banners"}).</li>
- * </ol>
- *
- * <p>Service가 던지는 예외는 여기서 잡지 않는다 — 전역
- * {@code GlobalExceptionAdvice}가 flash+에러모달로 처리한다.</p>
- */
 package uc.dev.uc_info.controller;
 
 import jakarta.validation.Valid;
@@ -52,17 +9,19 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import uc.dev.uc_info.dto.BannerDTO;
 import uc.dev.uc_info.model.Admin;
+import uc.dev.uc_info.model.Banner;
+import uc.dev.uc_info.model.Department;
+import uc.dev.uc_info.model.Notice;
 import uc.dev.uc_info.security.core.CustomUserPrincipal;
 import uc.dev.uc_info.service.BannerService;
 
+import java.util.List;
+
 /**
- * 배너 관리 컨트롤러.
- *
- * <p>배너 목록 조회와 등록, 수정, 삭제 요청을 처리한다.
- * 등록/수정은 별도 페이지가 아닌 bannerModal을 사용한다.</p>
- *
- * <p>Service에서 발생한 도메인 예외는 직접 처리하지 않고
- * GlobalExceptionAdvice에 위임한다.</p>
+ * 배너 관리 컨트롤러. Schedule과 동일하게 등록/수정은 별도 폼 페이지가
+ * 아니라 목록 화면의 모달({@code bannerModal})로 처리한다. 목록 화면은
+ * 엔티티를 직접 노출하지 않고 {@link BannerDTO}로 변환해서 넘긴다 —
+ * admin/notice/notice.department가 전부 지연로딩이라 뷰에서 바로 쓰면 안 된다.
  */
 @Controller
 @RequestMapping("/banners")
@@ -72,11 +31,13 @@ public class BannerController {
     private final BannerService bannerService;
 
     /**
-     * 배너 관리 목록 화면을 조회한다.
+     * 배너 목록 화면. 권한별 목록 + 통계 + 등록/수정 모달용 데이터를
+     * model에 담는다. bannerDTO는 이미 model에 있으면(검증 실패 후 복귀)
+     * 새로 만들지 않는다.
      *
-     * @param model 화면에 전달할 데이터
+     * @param model     화면 전달용 모델
      * @param principal 로그인 관리자 정보
-     * @return 배너 관리 화면
+     * @return "banner/banner"
      */
     @GetMapping
     public String list(Model model, @AuthenticationPrincipal CustomUserPrincipal principal) {
@@ -91,7 +52,15 @@ public class BannerController {
     }
 
     /**
-     * 새 배너를 등록한다.
+     * 배너 등록 처리. 검증 통과 시 저장 후 목록으로 리다이렉트(PRG), 실패 시
+     * 목록 model을 다시 채우고 openBannerModal=true로 등록 모달을 재오픈한다.
+     * Service가 던지는 예외는 여기서 안 잡고 전역 예외 처리로 넘긴다.
+     *
+     * @param dto           등록·검증 DTO
+     * @param bindingResult {@code @Valid} 검증 결과
+     * @param model         검증 실패 시 목록 화면 재구성용 모델
+     * @param principal     로그인 관리자 정보
+     * @return 정상 시 "redirect:/banners", 검증 실패 시 "banner/banner"
      */
     @PostMapping
     public String create(
@@ -113,7 +82,16 @@ public class BannerController {
     }
 
     /**
-     * 기존 배너를 수정한다.
+     * 배너 수정 처리. create와 동일하게 검증 실패 시 목록 model을 다시
+     * 채우되, editingBannerId도 함께 넘겨 "수정 모달이 이 배너를 편집
+     * 중"인 상태로 다시 열리게 한다.
+     *
+     * @param id            수정할 배너 PK
+     * @param dto           수정·검증 DTO
+     * @param bindingResult {@code @Valid} 검증 결과
+     * @param model         검증 실패 시 목록 화면 재구성용 모델
+     * @param principal     로그인 관리자 정보
+     * @return 정상 시 "redirect:/banners", 검증 실패 시 "banner/banner"
      */
     @PostMapping("/{id}/edit")
     public String update(
@@ -137,7 +115,13 @@ public class BannerController {
     }
 
     /**
-     * 배너를 삭제한다.
+     * 배너 삭제 처리. 별도 확인 화면 없이 바로 삭제한다(화면의 삭제 확인
+     * 모달에서 이미 확인시킨 뒤 호출되는 구조). Service 예외는 전역 예외
+     * 처리로 넘긴다.
+     *
+     * @param id        삭제할 배너 PK
+     * @param principal 로그인 관리자 정보
+     * @return "redirect:/banners"
      */
     @PostMapping("/{id}/delete")
     public String delete(
@@ -149,15 +133,70 @@ public class BannerController {
     }
 
     /**
-     * 목록 화면에 공통으로 필요한 데이터를 채운다.
+     * 목록 화면에 공통으로 필요한 데이터를 채운다. 등록/수정 검증 실패
+     * 시에도 동일한 화면을 다시 렌더링해야 하므로 중복 없이 재사용한다.
+     * 통계(activeCount/scheduledCount)도 admin 권한 범위로 스코프해서
+     * 아래 목록과 숫자가 항상 일치하게 한다.
      *
-     * <p>등록/수정 검증 실패 시에도 동일한 화면을 다시 렌더링해야 하므로
-     * 중복 코드를 별도 메서드로 분리한다.</p>
+     * @param model 채울 모델
+     * @param admin 로그인 관리자(권한 범위 판단용)
      */
     private void setListModel(Model model, Admin admin) {
-        model.addAttribute("banners", bannerService.findAllFor(admin));
-        model.addAttribute("activeCount", bannerService.countByStatus("ACTIVE"));
-        model.addAttribute("scheduledCount", bannerService.countByStatus("SCHEDULED"));
-        model.addAttribute("linkableNotices", bannerService.findLinkableNotices());
+        model.addAttribute("banners", toListItems(admin));
+        model.addAttribute("activeCount", bannerService.countByStatus("ACTIVE", admin));
+        model.addAttribute("scheduledCount", bannerService.countByStatus("SCHEDULED", admin));
+        model.addAttribute("linkableNotices", bannerService.findLinkableNotices(admin));
+    }
+
+    /**
+     * 로그인 admin 권한 범위의 배너 목록을 DTO로 변환해 조회한다.
+     *
+     * @param admin 로그인 관리자
+     * @return 목록 표시용 BannerDTO 리스트
+     */
+    private List<BannerDTO> toListItems(Admin admin) {
+        return bannerService.findAllFor(admin)
+                .stream()
+                .map(this::toListItem)
+                .toList();
+    }
+
+    /**
+     * Banner 엔티티를 목록 표시/모달 프리필용 BannerDTO로 변환한다. admin/
+     * notice/notice.department는 전부 지연로딩이라 여기서 한 번만 값을
+     * 꺼내고, 이후 템플릿은 entity를 전혀 건드리지 않는다.
+     *
+     * @param banner 변환할 배너 엔티티
+     * @return 목록 표시용 BannerDTO
+     */
+    private BannerDTO toListItem(Banner banner) {
+        BannerDTO dto = new BannerDTO();
+
+        dto.setBannerId(banner.getBannerId());
+        dto.setTitle(banner.getTitle());
+        dto.setSubtitle(banner.getSubtitle());
+        dto.setStatus(banner.getStatus());
+        dto.setStartDate(banner.getStartDate());
+        dto.setEndDate(banner.getEndDate());
+
+        Notice notice = banner.getNotice();
+        dto.setNoticeId(notice != null ? notice.getNoticeId() : null);
+        dto.setLinkedDeptName(resolveLinkedDeptName(notice));
+
+        return dto;
+    }
+
+    /**
+     * 연결된 공지를 기준으로 표시용 학과명을 계산한다.
+     *
+     * @param notice 배너에 연결된 공지(없으면 null)
+     * @return "공지 미연결" / "전체 학과" / 실제 학과명
+     */
+    private String resolveLinkedDeptName(Notice notice) {
+        if (notice == null) {
+            return "공지 미연결";
+        }
+        Department department = notice.getDepartment();
+        return department != null ? department.getDeptName() : "전체 학과";
     }
 }
