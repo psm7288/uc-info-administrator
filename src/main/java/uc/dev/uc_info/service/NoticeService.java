@@ -22,7 +22,7 @@ import java.util.List;
  * 공지(Notice) 비즈니스 로직 서비스. Controller는 이 서비스만 호출한다.
  * 상태는 PUBLISHED/DRAFT/CLOSED 3개만 쓰고, CLOSED(게시종료)와 실제 DB
  * 삭제({@link #deleteNotice})는 서로 다른 별개 기능이다. 권한 판단/학과
- * 변환은 Schedule과 공유하는 {@link AdminScopeValidator}/{@link DepartmentResolver}에
+ * 변환은 Schedule/Banner와 공유하는 {@link AdminScopeValidator}/ {@link DepartmentResolver}에
  * 위임한다. content는 저장 전 {@link HtmlSanitizer}로 정제해 저장형 XSS를 막는다.
  */
 @Service
@@ -39,6 +39,8 @@ public class NoticeService {
      *
      * @param admin 로그인 관리자
      * @return 권한 범위의 공지 목록(최신순, admin fetch join 포함)
+     * @throws IllegalStateException DEPT_ADMIN인데 소속 학과가 없는 경우
+     * @throws AccessDeniedException 조회 권한이 없는 role인 경우
      */
     @Transactional(readOnly = true)
     public List<Notice> findNoticesFor(Admin admin) {
@@ -89,27 +91,58 @@ public class NoticeService {
     }
 
     /**
-     * 상태별 공지 개수. — 목록/대시보드 통계용.
+     * 권한 범위 내 상태별 공지 개수. — 목록 상단 통계용. 화면에 보이는
+     * 목록(findNoticesFor)과 항상 같은 범위로 세야 숫자가 안 맞는 일이
+     * 없다.
      *
      * @param status 조회할 상태(PUBLISHED/DRAFT/CLOSED)
-     * @return 해당 상태 공지 건수
+     * @param admin  로그인 관리자(권한 범위 판단용)
+     * @return 권한 범위 내 해당 상태 공지 건수
+     * @throws IllegalArgumentException status가 비어있는 경우
+     * @throws IllegalStateException    DEPT_ADMIN인데 소속 학과가 없는 경우
+     * @throws AccessDeniedException    조회 권한이 없는 role인 경우
      */
     @Transactional(readOnly = true)
-    public long countByStatus(String status) {
+    public long countByStatus(String status, Admin admin) {
         if (status == null || status.isBlank()) {
             throw new IllegalArgumentException("공지 상태는 필수입니다.");
         }
-        return noticeRepository.countByStatus(status);
+
+        if (adminScopeValidator.isSuperAdmin(admin)) {
+            return noticeRepository.countByStatus(status);
+        }
+
+        if (adminScopeValidator.isDeptAdmin(admin)) {
+            if (admin.getDepartment() == null) {
+                throw new IllegalStateException("DEPT_ADMIN 관리자에게 소속 학과가 없습니다.");
+            }
+            return noticeRepository.countByStatusAndDepartmentOrAll(status, admin.getDepartment().getDeptId());
+        }
+        throw new AccessDeniedException("공지 통계를 조회할 권한이 없습니다.");
     }
 
     /**
-     * 전체 공지 개수. — 목록 상단 totalCount.
+     * 권한 범위 내 전체 공지 개수. — 목록 상단 totalCount. findNoticesFor와
+     * 항상 같은 범위로 센다.
      *
-     * @return 전체 건수
+     * @param admin 로그인 관리자(권한 범위 판단용)
+     * @return 권한 범위 내 전체 건수
+     * @throws IllegalStateException DEPT_ADMIN인데 소속 학과가 없는 경우
+     * @throws AccessDeniedException 조회 권한이 없는 role인 경우
      */
     @Transactional(readOnly = true)
-    public long countAll() {
-        return noticeRepository.count();
+    public long countAll(Admin admin) {
+        if (adminScopeValidator.isSuperAdmin(admin)) {
+            return noticeRepository.count();
+        }
+
+        if (adminScopeValidator.isDeptAdmin(admin)) {
+            if (admin.getDepartment() == null) {
+                throw new IllegalStateException("DEPT_ADMIN 관리자에게 소속 학과가 없습니다.");
+            }
+            return noticeRepository.countByDepartmentOrAll(admin.getDepartment().getDeptId());
+        }
+        throw new AccessDeniedException("공지 통계를 조회할 권한이 없습니다.");
     }
 
     /**
@@ -203,6 +236,23 @@ public class NoticeService {
     }
 
     /**
+     * 배너 등록/수정 시 연결 가능한 공지 목록을 조회한다. 학과 권한 범위는
+     * {@link #findNoticesFor(Admin)}와 동일하고, 추가로 <b>PUBLISHED
+     * 상태만</b> 남긴다 — 아직 게시 안 된(DRAFT) 공지를 배너로 미리 연결해
+     * 두면 클릭했을 때 실제로는 노출도 안 된 내용으로 연결되는 문제가
+     * 있어서다.
+     *
+     * @param admin 로그인 관리자(권한 판단용)
+     * @return 권한 범위 내 게시중(PUBLISHED) 공지 목록(최신순)
+     */
+    @Transactional(readOnly = true)
+    public List<Notice> findAllForLink(Admin admin) {
+        return findNoticesFor(admin).stream()
+                .filter(n -> "PUBLISHED".equals(n.getStatus()))
+                .toList();
+    }
+
+    /**
      * 게시 종료일이 시작일보다 빠르면 안 된다(둘 다 있을 때만 비교).
      *
      * @param dto 검사할 DTO
@@ -227,18 +277,5 @@ public class NoticeService {
             return status;
         }
         return "DRAFT";
-    }
-
-    /**
-     * 배너 등록/수정 시 연결 가능한 공지 목록을 조회한다.
-     *
-     * <p>배너 모달의 연결 공지 선택 항목에 사용할 전체 공지를
-     * 최신 등록순으로 반환한다.</p>
-     *
-     * @return 연결 가능한 공지 목록
-     */
-    @Transactional(readOnly = true)
-    public List<Notice> findAllForLink() {
-        return noticeRepository.findAllByOrderByCreatedAtDesc();
     }
 }
