@@ -330,6 +330,116 @@
         </form>
     </div>
 
+    <!-- 셔틀버스 노선 등록/수정 -->
+    <div id="shuttleModal"
+         class="modal hidden"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="shuttleModalTitle">
+        <form id="shuttleForm"
+              method="post"
+              th:action="@{/shuttles}">
+            <div class="modal-head">
+                <h3 id="shuttleModalTitle">셔틀버스 노선 추가</h3>
+                <button class="modal-close"
+                        type="button"
+                        aria-label="닫기">
+                    ×
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-form">
+
+                    <p th:if="${formError != null}" class="form-error-message" th:text="${formError}"></p>
+
+                    <label for="shuttleRouteName">노선명</label>
+                    <input id="shuttleRouteName"
+                           name="routeName"
+                           type="text"
+                           placeholder="예) 울산과학대학교 ↔ 울산대"
+                           th:value="${shuttleDTO != null ? shuttleDTO.routeName : ''}"
+                           required />
+
+                    <label for="shuttleDeparture">출발지</label>
+                    <input id="shuttleDeparture"
+                           name="departure"
+                           type="text"
+                           placeholder="출발지를 입력하세요"
+                           th:value="${shuttleDTO != null ? shuttleDTO.departure : ''}"
+                           required />
+
+                    <label for="shuttleDestination">도착지</label>
+                    <input id="shuttleDestination"
+                           name="destination"
+                           type="text"
+                           placeholder="도착지를 입력하세요"
+                           th:value="${shuttleDTO != null ? shuttleDTO.destination : ''}"
+                           required />
+
+                    <label for="shuttleWaypoints">경유지</label>
+                    <input id="shuttleWaypoints"
+                           name="waypoints"
+                           type="text"
+                           placeholder="예) 남구청, 울산대학교"
+                           th:value="${shuttleDTO != null ? shuttleDTO.waypoints : ''}" />
+
+                    <label for="shuttleFirstDeparture">첫차</label>
+                    <input id="shuttleFirstDeparture"
+                           name="firstDeparture"
+                           type="text"
+                           placeholder="예) 08:00"
+                           th:value="${shuttleDTO != null ? shuttleDTO.firstDeparture : ''}" />
+
+                    <label for="shuttleLastDeparture">막차</label>
+                    <input id="shuttleLastDeparture"
+                           name="lastDeparture"
+                           type="text"
+                           placeholder="예) 18:00"
+                           th:value="${shuttleDTO != null ? shuttleDTO.lastDeparture : ''}" />
+
+                    <label for="shuttleStatus">운행 상태</label>
+                    <select id="shuttleStatus"
+                            name="status"
+                            required>
+                        <option value="">상태를 선택하세요</option>
+
+                        <option value="ACTIVE"
+                                th:selected="${shuttleDTO != null && shuttleDTO.status == 'ACTIVE'}">
+                            정상 운행
+                        </option>
+
+                        <option value="SUSPENDED"
+                                th:selected="${shuttleDTO != null && shuttleDTO.status == 'SUSPENDED'}">
+                            운행 중단
+                        </option>
+
+                        <option value="DELAYED"
+                                th:selected="${shuttleDTO != null && shuttleDTO.status == 'DELAYED'}">
+                            지연
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="line-btn"
+                        type="button"
+                        data-modal-close>
+                    취소
+                </button>
+                <button class="primary-btn"
+                        type="submit">
+                    저장
+                </button>
+            </div>
+
+            <input th:if="${_csrf != null}"
+                   type="hidden"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}" />
+        </form>
+    </div>
+
     <!-- 관리자 정보 수정 -->
     <div id="accountModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
         <div class="modal-head">

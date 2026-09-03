@@ -3,6 +3,7 @@ package uc.dev.uc_info.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import uc.dev.uc_info.model.base.BaseUpdatableEntity;
 
 /**
@@ -20,6 +21,7 @@ import uc.dev.uc_info.model.base.BaseUpdatableEntity;
 @Entity
 @Table(name = "shuttle")
 @Getter
+@Setter
 @NoArgsConstructor
 public class Shuttle extends BaseUpdatableEntity {
 
