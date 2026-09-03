@@ -56,4 +56,21 @@ document.addEventListener("DOMContentLoaded", function () {
         lastDepartureInput.value = "";
         statusInput.value = "ACTIVE";
     }
+    const modalState = document.getElementById("shuttleModalState");
+
+    if (modalState && modalState.dataset.open === "true") {
+        const editingId = modalState.dataset.editingId;
+
+        if (editingId) {
+            shuttleModalTitle.textContent = "셔틀버스 노선 수정";
+            shuttleForm.action = "/shuttles/" + editingId + "/edit";
+        } else {
+            shuttleModalTitle.textContent = "셔틀버스 노선 추가";
+            shuttleForm.action = "/shuttles";
+        }
+
+        if (typeof openModal === "function") {
+            openModal("shuttleModal");
+        }
+    }
 });

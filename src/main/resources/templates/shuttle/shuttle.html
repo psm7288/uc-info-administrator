@@ -136,6 +136,13 @@
         </div>
     </aside>
 
+    <!-- 셔틀 폼 검증 실패 시 모달 재오픈용 상태값 (Banner/Schedule과 동일 패턴) -->
+    <div id="shuttleModalState"
+         hidden
+         th:data-open="${openShuttleModal}"
+         th:data-editing-id="${editingShuttleId}">
+    </div>
+
     <div th:replace="~{fragments/modals :: modals}"></div>
     <div th:replace="~{fragments/toast :: toast}"></div>
 
@@ -144,18 +151,5 @@
     <script defer th:src="@{/js/common/sidebar.js}"></script>
     <script defer th:src="@{/js/common/common.js}"></script>
     <script defer th:src="@{/js/pages/shuttle.js}"></script>
-    <script th:if="${openShuttleModal}" th:inline="javascript">
-        document.addEventListener("DOMContentLoaded", function () {
-            const shuttleForm = document.getElementById("shuttleForm");
-            const shuttleModalTitle = document.getElementById("shuttleModalTitle");
-
-            if ([[${editingShuttleId != null}]]) {
-                shuttleModalTitle.textContent = "셔틀버스 노선 수정";
-                shuttleForm.action = "/shuttles/[[${editingShuttleId}]]/edit";
-            }
-
-            openModal("shuttleModal");
-        });
-    </script>
 </body>
 </html>
