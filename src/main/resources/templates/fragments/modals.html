@@ -229,6 +229,11 @@
               method="post"
               th:action="@{/schedules}">
 
+            <input th:if="${_csrf != null}"
+                   type="hidden"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}" />
+
             <div class="modal-head">
                 <h3 id="scheduleModalTitle">학사 일정 추가</h3>
 
@@ -388,14 +393,16 @@
                            name="firstDeparture"
                            type="text"
                            placeholder="예) 08:00"
-                           th:value="${shuttleDTO != null ? shuttleDTO.firstDeparture : ''}" />
+                           th:value="${shuttleDTO != null ? shuttleDTO.firstDeparture : ''}"
+                           required />
 
                     <label for="shuttleLastDeparture">막차</label>
                     <input id="shuttleLastDeparture"
                            name="lastDeparture"
                            type="text"
                            placeholder="예) 18:00"
-                           th:value="${shuttleDTO != null ? shuttleDTO.lastDeparture : ''}" />
+                           th:value="${shuttleDTO != null ? shuttleDTO.lastDeparture : ''}"
+                           required />
 
                     <label for="shuttleStatus">운행 상태</label>
                     <select id="shuttleStatus"
