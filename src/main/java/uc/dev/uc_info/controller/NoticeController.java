@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import uc.dev.uc_info.common.util.ValidationMessages;
 import uc.dev.uc_info.dto.NoticeDTO;
 import uc.dev.uc_info.model.Admin;
 import uc.dev.uc_info.model.Notice;
@@ -29,7 +30,9 @@ public class NoticeController {
     private final NoticeService noticeService;
 
     /**
-     * 공지 목록 화면. 권한별 목록 + 전체/게시중 건수를 담는다.
+     * 공지 목록 화면. 권한별 목록 + 전체/게시중 건수를 담는다. 건수도
+     * 목록과 같은 권한 범위로 세서(admin 전달) 화면 상단 숫자와 아래 목록이
+     * 항상 일치한다.
      *
      * @param principal 로그인 관리자 정보
      * @param model     화면 전달용 모델
@@ -67,8 +70,8 @@ public class NoticeController {
     }
 
     /**
-     * 새 공지 작성 처리. 검증 실패 시 작성 폼으로 되돌리고,
-     * 성공 시 목록으로 리다이렉트한다(PRG).
+     * 새 공지 작성 처리. 검증 실패 시 작성 폼으로 되돌리며 formError에
+     * 첫 번째 검증 메시지를 담고, 성공 시 목록으로 리다이렉트한다(PRG).
      *
      * @param dto       작성 DTO(@Valid 검증 대상)
      * @param result    검증 결과
@@ -83,6 +86,7 @@ public class NoticeController {
                          Model model) {
         if (result.hasErrors()) {
             model.addAttribute("departments", noticeService.findAllDepartments());
+            model.addAttribute("formError", ValidationMessages.firstError(result));
             return "notice/notice-write";
         }
         Admin admin = principal.getAdmin();
@@ -134,7 +138,8 @@ public class NoticeController {
     /**
      * 기존 공지 수정 처리. 검증 실패 시 방금 제출한 값(dto)이 Spring에 의해
      * 이미 "noticeDTO"로 model에 남아있어 다시 채울 필요 없고, notice는
-     * id/attachmentUrl 표시용으로만 다시 조회한다.
+     * id/attachmentUrl 표시용으로만 다시 조회한다. formError에 첫 번째
+     * 검증 메시지를 담는다.
      *
      * @param id        수정할 공지 PK
      * @param dto       수정 DTO(@Valid 검증 대상, status로 PUBLISHED/DRAFT/CLOSED 전달)
@@ -154,6 +159,7 @@ public class NoticeController {
         if (result.hasErrors()) {
             model.addAttribute("notice", noticeService.getNoticeForAdmin(id, admin));
             model.addAttribute("departments", noticeService.findAllDepartments());
+            model.addAttribute("formError", ValidationMessages.firstError(result));
             return "notice/notice-edit";
         }
         noticeService.updateNotice(id, dto, admin);
