@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // 배너 등록/수정 모달 요소
     const bannerForm = document.getElementById("bannerForm");
     const bannerModalTitle = document.getElementById("bannerModalTitle");
 
@@ -15,14 +14,12 @@ document.addEventListener("DOMContentLoaded", function () {
     const createButtons = document.querySelectorAll("[data-banner-create]");
     const editButtons = document.querySelectorAll("[data-banner-edit]");
 
-    // 신규 등록 시 폼 초기화
     createButtons.forEach(function (button) {
         button.addEventListener("click", function () {
             resetBannerForm();
         });
     });
 
-    // 수정 시 기존 배너 데이터 세팅
     editButtons.forEach(function (button) {
         button.addEventListener("click", function () {
             const id = button.dataset.id;
@@ -39,7 +36,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // 신규 등록 폼 상태로 초기화
     function resetBannerForm() {
         bannerModalTitle.textContent = "배너 등록";
         bannerForm.action = "/banners";
@@ -52,7 +48,6 @@ document.addEventListener("DOMContentLoaded", function () {
         noticeInput.value = "";
     }
 
-    // 검증 실패 시 기존 입력값을 유지한 채 모달 다시 열기
     if (modalState && modalState.dataset.open === "true") {
         const editingId = modalState.dataset.editingId;
 
