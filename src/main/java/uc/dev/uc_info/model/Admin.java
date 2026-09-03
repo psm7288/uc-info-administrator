@@ -3,6 +3,7 @@ package uc.dev.uc_info.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * 관리자(부서/전체 계정) 엔티티.
@@ -26,6 +27,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "admin")
 @Getter
+@Setter
 @NoArgsConstructor
 public class Admin {
 
