@@ -30,6 +30,8 @@
                     <input th:if="${_csrf != null}" type="hidden"
                            th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
+                    <p th:if="${formError != null}" class="form-error-message" th:text="${formError}"></p>
+
                     <div class="notice-form-grid">
                         <div class="field full">
                             <label for="title">공지 제목</label>

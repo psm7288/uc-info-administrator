@@ -68,14 +68,14 @@
                                     data-modal="scheduleModal"
                                     data-schedule-edit
                                     th:attr="
-                                        data-id=${s.scheduleId},
-                                        data-title=${s.title},
-                                        data-category=${s.category},
-                                        data-dept-id=${s.deptId != null ? s.deptId : ''},
-                                        data-grade=${s.targetGrade},
-                                        data-start-date=${s.startDate},
-                                        data-end-date=${s.endDate},
-                                        data-visible=${s.visible}">
+                                            data-id=${s.scheduleId},
+                                            data-title=${s.title},
+                                            data-category=${s.category},
+                                            data-dept-id=${s.deptId != null ? s.deptId : ''},
+                                            data-grade=${s.targetGrade},
+                                            data-start-date=${s.startDate},
+                                            data-end-date=${s.endDate},
+                                            data-visible=${s.visible}">
                                 수정
                             </button>
                             <button type="button"
@@ -124,6 +124,13 @@
             </article>
         </div>
     </aside>
+
+    <!-- 학사일정 폼 검증 실패 시 모달 재오픈용 상태값 -->
+    <div id="scheduleModalState"
+         hidden
+         th:data-open="${openScheduleModal}"
+         th:data-editing-id="${editingScheduleId}">
+    </div>
 
     <div th:replace="~{fragments/modals :: modals}"></div>
     <div th:replace="~{fragments/toast :: toast}"></div>

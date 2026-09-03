@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import uc.dev.uc_info.common.util.ValidationMessages;
 import uc.dev.uc_info.dto.ScheduleDTO;
 import uc.dev.uc_info.model.Admin;
 import uc.dev.uc_info.model.Schedule;
@@ -56,8 +57,9 @@ public class ScheduleController {
 
     /**
      * 일정 등록 처리. 검증 통과 시 저장 후 목록으로 리다이렉트(PRG), 실패 시
-     * 목록 model을 다시 채우고 openScheduleModal=true로 등록 모달을 재오픈한다.
-     * Service가 던지는 예외는 여기서 안 잡고 전역 예외 처리로 넘긴다.
+     * 목록 model을 다시 채우고 openScheduleModal=true로 등록 모달을
+     * 재오픈하며 formError에 첫 번째 검증 메시지를 담는다. Service가
+     * 던지는 예외는 여기서 안 잡고 전역 예외 처리로 넘긴다.
      *
      * @param dto           등록·검증 DTO
      * @param bindingResult {@code @Valid} 검증 결과
@@ -76,6 +78,7 @@ public class ScheduleController {
             model.addAttribute("totalCount", scheduleService.countAll(admin));
             model.addAttribute("departments", departmentService.findAll());
             model.addAttribute("openScheduleModal",true);
+            model.addAttribute("formError", ValidationMessages.firstError(bindingResult));
 
             return "schedule/schedule";
         }
@@ -87,7 +90,7 @@ public class ScheduleController {
     /**
      * 일정 수정 처리. create와 동일하게 검증 실패 시 목록 model을 다시
      * 채우되, editingScheduleId도 함께 넘겨 "수정 모달이 이 일정을 편집
-     * 중"인 상태로 다시 열리게 한다.
+     * 중"인 상태로 다시 열리게 하고, formError에 첫 번째 검증 메시지를 담는다.
      *
      * @param id            수정할 일정 PK
      * @param dto           수정·검증 DTO
@@ -109,6 +112,7 @@ public class ScheduleController {
             model.addAttribute("departments", departmentService.findAll());
             model.addAttribute("openScheduleModal",true);
             model.addAttribute("editingScheduleId", id);
+            model.addAttribute("formError", ValidationMessages.firstError(bindingResult));
 
             return "schedule/schedule";
         }

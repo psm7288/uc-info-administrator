@@ -17,10 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
     }
 
-    // ============================================================
-    // 신규 일정 등록
-    // ============================================================
-
     const createButtons = document.querySelectorAll("[data-schedule-create]");
 
     createButtons.forEach(function (button) {
@@ -31,11 +27,6 @@ document.addEventListener("DOMContentLoaded", function () {
             scheduleForm.action = "/schedules";
         });
     });
-
-
-    // ============================================================
-    // 기존 일정 수정
-    // ============================================================
 
     const editButtons = document.querySelectorAll("[data-schedule-edit]");
 
@@ -59,20 +50,14 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 
-    // ============================================================
-    // 일정 삭제
-    // ============================================================
-
     const deleteButtons = document.querySelectorAll("[data-schedule-delete]");
 
     deleteButtons.forEach(function (button) {
         button.addEventListener("click", function () {
             const id = button.dataset.id;
-
             if (!deleteModal) {
                 return;
             }
-
             const confirmButton = deleteModal.querySelector(".danger-btn");
 
             if (!confirmButton) {
@@ -81,20 +66,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
             confirmButton.onclick = function () {
                 const form = document.createElement("form");
-
                 form.method = "post";
                 form.action = "/schedules/" + id + "/delete";
-
                 document.body.appendChild(form);
                 form.submit();
             };
         });
     });
-
-
-    // ============================================================
-    // 폼 초기화
-    // ============================================================
 
     function resetScheduleForm() {
         scheduleForm.reset();
@@ -107,5 +85,22 @@ document.addEventListener("DOMContentLoaded", function () {
         endDateInput.value = "";
 
         visibleInput.checked = true;
+    }
+
+    const modalState = document.getElementById("scheduleModalState");
+
+    if (modalState && modalState.dataset.open === "true") {
+        const editingId = modalState.dataset.editingId;
+        if (editingId) {
+            scheduleModalTitle.textContent = "학사 일정 수정";
+            scheduleForm.action = "/schedules/" + editingId + "/edit";
+        } else {
+            scheduleModalTitle.textContent = "학사 일정 추가";
+            scheduleForm.action = "/schedules";
+        }
+
+        if (typeof openModal === "function") {
+            openModal("scheduleModal");
+        }
     }
 });
