@@ -294,11 +294,9 @@
          role="dialog"
          aria-modal="true"
          aria-labelledby="shuttleModalTitle">
-
         <form id="shuttleForm"
               method="post"
               th:action="@{/shuttles}">
-
             <div class="modal-head">
                 <h3 id="shuttleModalTitle">셔틀버스 노선 추가</h3>
                 <button class="modal-close"
@@ -307,9 +305,10 @@
                     ×
                 </button>
             </div>
-
             <div class="modal-body">
                 <div class="modal-form">
+
+                    <p th:if="${formError != null}" class="form-error-message" th:text="${formError}"></p>
 
                     <label for="shuttleRouteName">노선명</label>
                     <input id="shuttleRouteName"
@@ -360,7 +359,6 @@
                     <select id="shuttleStatus"
                             name="status"
                             required>
-
                         <option value="">상태를 선택하세요</option>
 
                         <option value="ACTIVE"
@@ -377,32 +375,26 @@
                                 th:selected="${shuttleDTO != null && shuttleDTO.status == 'DELAYED'}">
                             지연
                         </option>
-
                     </select>
-
                 </div>
             </div>
 
             <div class="modal-actions">
-
                 <button class="line-btn"
                         type="button"
                         data-modal-close>
                     취소
                 </button>
-
                 <button class="primary-btn"
                         type="submit">
                     저장
                 </button>
-
             </div>
 
             <input th:if="${_csrf != null}"
                    type="hidden"
                    th:name="${_csrf.parameterName}"
                    th:value="${_csrf.token}" />
-
         </form>
     </div>
 
