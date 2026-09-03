@@ -124,6 +124,8 @@
             <div class="modal-body">
                 <div class="modal-form">
 
+                    <p th:if="${formError != null}" class="form-error-message" th:text="${formError}"></p>
+
                     <!-- 배너 제목 -->
                     <label for="bannerTitle">배너 제목</label>
                     <input id="bannerTitle"
@@ -238,8 +240,8 @@
             </div>
 
             <div class="modal-body">
-
                 <div class="modal-form">
+                    <p th:if="${formError != null}" class="form-error-message" th:text="${formError}"></p>
 
                     <!-- 일정명 -->
                     <label for="scheduleTitle">일정명</label>
@@ -254,7 +256,6 @@
                     <select id="scheduleCategory"
                             name="category"
                             required>
-
                         <option value="">카테고리를 선택하세요</option>
                         <option value="ACADEMIC">학사</option>
                         <option value="EXAM">시험</option>
@@ -262,34 +263,28 @@
                         <option value="VACATION">방학</option>
                         <option value="EVENT">행사</option>
                         <option value="ETC">기타</option>
-
                     </select>
 
                     <!-- 대상 학과 -->
                     <label for="scheduleDepartment">대상 학과</label>
                     <select id="scheduleDepartment"
                             name="deptId">
-
                         <option value="">전체 학과</option>
-
                         <option th:each="department : ${departments}"
                                 th:value="${department.deptId}"
                                 th:text="${department.deptName}">
                             학과
                         </option>
-
                     </select>
 
                     <!-- 대상 학년 -->
                     <label for="scheduleGrade">대상 학년</label>
                     <select id="scheduleGrade"
                             name="targetGrade">
-
                         <option value="">전체 학년</option>
                         <option value="1">1학년</option>
                         <option value="2">2학년</option>
                         <option value="3">3학년</option>
-
                     </select>
 
                     <!-- 시작일 -->
@@ -305,46 +300,33 @@
                            name="endDate"
                            type="date" />
 
-                    <!--
-                        체크박스를 해제하면 HTML에서는 값 자체가 전송되지 않으므로
-                        hidden false 값을 먼저 전송한다.
-                        체크 상태이면 뒤의 true 값이 함께 전송된다.
-                    -->
                     <input type="hidden"
                            name="_visible"
                            value="on" />
 
                     <label class="checkbox-row"
                            for="scheduleVisible">
-
                         <input id="scheduleVisible"
                                name="visible"
                                type="checkbox"
                                value="true"
                                checked />
-
                         <span>학생 앱에 노출</span>
-
                     </label>
-
                 </div>
             </div>
 
             <div class="modal-actions">
-
                 <button class="line-btn"
                         type="button"
                         data-modal-close>
                     취소
                 </button>
-
                 <button class="primary-btn"
                         type="submit">
                     저장
                 </button>
-
             </div>
-
         </form>
     </div>
 
