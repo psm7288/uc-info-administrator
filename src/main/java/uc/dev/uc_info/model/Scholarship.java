@@ -3,32 +3,37 @@ package uc.dev.uc_info.model;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import uc.dev.uc_info.common.validation.DepartmentScoped;
 import uc.dev.uc_info.model.base.BaseTimeEntity;
 
 import java.time.LocalDate;
 
 /**
- * 장학금(Scholarship) 엔티티. (모델만 — Repository/Service/Controller·화면연동 보류)
+ * 장학금(Scholarship) 엔티티.
  *
- * <p>교내·외 장학금 정보를 통합 관리하기 위한 엔티티다. 현재는 엔티티(스키마)만
- * 정의하고, 조회/등록 등 애플리케이션 로직과 화면 연동은 후속 작업으로 보류한다.</p>
- *
- * <p>대상 학과({@link #department})가 null 이면 전체 대상, {@link #targetGrade}
- * 가 null 이면 전체 학년 대상이다. {@link #deadline} 은 화면에서 D-Day 배지
- * 계산에 사용한다. 생성 시각은 {@link BaseTimeEntity} 에서 상속.</p>
+ * <p>교내·외 장학금 정보를 통합 관리한다. 대상 학과({@link #department})가
+ * null 이면 전체 대상, {@link #targetGrade} 가 null 이면 전체 학년 대상이다.
+ * {@link #deadline} 은 화면에서 D-Day 배지 계산에 사용한다. 생성 시각은
+ * {@link BaseTimeEntity} 에서 상속. Notice/Schedule과 동일하게
+ * {@link DepartmentScoped} 를 구현해 {@code AdminScopeValidator} 를 그대로
+ * 재사용한다.</p>
  *
  * <h3>연관관계</h3>
  * <ul>
  *   <li>{@link Admin} : 등록 관리자 (N:1, 소유 측, NOT NULL)</li>
  *   <li>{@link Department} : 대상 학과 (N:1, 소유 측, nullable=전체)</li>
- *   <li>{@link Notice} : 연결 공지 (N:1, 소유 측, optional — '공지 연결' 기능)</li>
+ *   <li>{@link Notice} : 연결 공지 (N:1, 소유 측, optional — 참고용 링크,
+ *       권한 판단 기준은 아니다. Banner와 달리 Scholarship 자체에 department가
+ *       있어서 권한은 이 필드가 아니라 {@link #department} 로 정해진다.)</li>
  * </ul>
  */
 @Entity
 @Table(name = "scholarship")
 @Getter
+@Setter
 @NoArgsConstructor
-public class Scholarship extends BaseTimeEntity {
+public class Scholarship extends BaseTimeEntity implements DepartmentScoped {
 
     /** PK. 장학금 식별자 */
     @Id
@@ -46,7 +51,7 @@ public class Scholarship extends BaseTimeEntity {
     @JoinColumn(name = "dept_id")
     private Department department;
 
-    /** 연결 공지. 없으면 null */
+    /** 연결 공지. 없으면 null(참고용, 권한 판단 기준 아님) */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "notice_id")
     private Notice notice;
