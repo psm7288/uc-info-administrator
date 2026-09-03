@@ -30,14 +30,16 @@ public class ShuttleDTO {
     @NotBlank(message = "도착지는 필수입니다.")
     private String destination;
 
-    /** 경유지 설명. 선택. */
+    /** 경유지 설명. 선택(직행 노선은 없을 수 있음). */
     private String waypoints;
 
-    /** 첫차 시간. "08:00" 같은 문자열. */
+    /** 첫차 시간. "08:00" 같은 문자열. 필수 */
+    @NotBlank(message = "첫차 시간은 필수입니다.")
     @Size(max = 10, message = "첫차 시간이 너무 깁니다.")
     private String firstDeparture;
 
-    /** 막차 시간. 동일 형식. */
+    /** 막차 시간. 동일 이유로 필수. */
+    @NotBlank(message = "막차 시간은 필수입니다.")
     @Size(max = 10, message = "막차 시간이 너무 깁니다.")
     private String lastDeparture;
 
