@@ -1,58 +1,27 @@
 package uc.dev.uc_info.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import uc.dev.uc_info.common.util.TextNormalizer;
 import uc.dev.uc_info.common.validation.AdminScopeValidator;
 import uc.dev.uc_info.common.validation.DepartmentResolver;
+import uc.dev.uc_info.dto.ScholarshipDTO;
+import uc.dev.uc_info.model.Admin;
+import uc.dev.uc_info.model.Department;
+import uc.dev.uc_info.model.Notice;
+import uc.dev.uc_info.model.Scholarship;
 import uc.dev.uc_info.repository.ScholarshipRepository;
 
+import java.util.List;
+
 /**
- * 장학금(Scholarship) 비즈니스 로직 서비스. Notice/Schedule과 완전히 같은
- * 패턴 — 자체 department 필드가 있어서 {@link AdminScopeValidator}/
- * {@link DepartmentResolver}를 그대로 재사용한다(Banner처럼 연결 공지를
- * 거칠 필요 없음).
+ * 장학금(Scholarship) 비즈니스 로직 서비스.
  *
- * <p>이 클래스 안에 아래 6개의 public 메서드를 직접 작성하세요.</p>
- *
- * <h3>만들어야 할 메서드</h3>
- * <ol>
- *   <li>{@code List<Scholarship> findScholarshipsFor(Admin admin)}
- *       — SUPER면 {@code findAllByOrderByCreatedAtDesc()}, DEPT면
- *       {@code admin.getDepartment()==null}일 때 {@code IllegalStateException},
- *       아니면 {@code findByDepartmentOrAll(deptId)}. 둘 다 아니면
- *       {@code AccessDeniedException}. (Schedule의 findSchedulesFor와
- *       동일 패턴.)</li>
- *   <li>{@code Scholarship getScholarship(Long id)}
- *       — id null이면 {@code IllegalArgumentException}. 없으면
- *       {@code EntityNotFoundException}.</li>
- *   <li>{@code long countAll(Admin admin)}
- *       — findScholarshipsFor와 같은 권한 범위로 개수 반환(SUPER는
- *       {@code count()}, DEPT는 {@code countByDepartmentOrAll(deptId)}).</li>
- *   <li>{@code Scholarship createScholarship(ScholarshipDTO dto, Admin admin)}
- *       — {@code deptId}를 {@code departmentResolver.resolve(...)}로 변환 →
- *       {@code adminScopeValidator.validateAssignable(admin, department)} →
- *       새 Scholarship 생성, admin/department/name/type/targetGrade
- *       ({@code TextNormalizer.emptyToNull} 적용)/residenceCondition/
- *       deadline/visible(null이면 true) 채우고 save. {@code noticeId}가
- *       있으면 {@code noticeService.getNotice(noticeId)}로 조회해서
- *       연결(없으면 그냥 null로 둠 — 권한 검증 없음, Banner와 다른 점).</li>
- *   <li>{@code Scholarship updateScholarship(Long id, ScholarshipDTO dto, Admin admin)}
- *       — 조회 → {@code adminScopeValidator.validateAccess(admin, scholarship)} →
- *       나머지는 createScholarship과 동일한 필드 갱신 로직.</li>
- *   <li>{@code void deleteScholarship(Long id, Admin admin)}
- *       — 조회 → validateAccess → 물리 삭제.</li>
- * </ol>
- *
- * <p>연결 공지(noticeId) 조회를 위해 {@link NoticeService}도 주입이
- * 필요하다(생성자에 필드 추가).</p>
- *
- * <h3>이 서비스가 던지는 예외</h3>
- * <ul>
- *   <li>{@code EntityNotFoundException} — 없는 장학금/공지 id.</li>
- *   <li>{@code IllegalArgumentException} — id가 null인 경우 등.</li>
- *   <li>{@code IllegalStateException} — DEPT_ADMIN인데 소속 학과 없음.</li>
- *   <li>{@code AccessDeniedException} — 다른 학과 항목 접근/등록 시도, 권한 없는 role.</li>
- * </ul>
+ * <p>장학금 자체의 department를 기준으로 관리자 권한을 판단하며,
+ * 학과 변환과 권한 검증은 공통 컴포넌트를 재사용한다.</p>
  */
 @Service
 @RequiredArgsConstructor
@@ -61,4 +30,157 @@ public class ScholarshipService {
     private final ScholarshipRepository scholarshipRepository;
     private final AdminScopeValidator adminScopeValidator;
     private final DepartmentResolver departmentResolver;
+    private final NoticeService noticeService;
+
+    /**
+     * 관리자 권한 범위에 맞는 장학금 목록을 조회한다.
+     *
+     * @param admin 로그인 관리자
+     * @return 권한 범위 내 장학금 목록
+     */
+    @Transactional(readOnly = true)
+    public List<Scholarship> findScholarshipsFor(Admin admin) {
+        if (adminScopeValidator.isSuperAdmin(admin)) {
+            return scholarshipRepository.findAllByOrderByCreatedAtDesc();
+        }
+
+        if (adminScopeValidator.isDeptAdmin(admin)) {
+            if (admin.getDepartment() == null) {
+                throw new IllegalStateException("DEPT_ADMIN 관리자에게 소속 학과가 없습니다.");
+            }
+
+            return scholarshipRepository.findByDepartmentOrAll(
+                    admin.getDepartment().getDeptId()
+            );
+        }
+
+        throw new AccessDeniedException("장학금 조회 권한이 없는 관리자입니다.");
+    }
+
+    /**
+     * 장학금을 PK로 조회한다.
+     *
+     * @param id 장학금 PK
+     * @return 조회된 장학금
+     */
+    @Transactional(readOnly = true)
+    public Scholarship getScholarship(Long id) {
+        if (id == null) {
+            throw new IllegalArgumentException("장학금 ID는 필수입니다.");
+        }
+
+        return scholarshipRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("장학금 정보를 찾을 수 없습니다."));
+    }
+
+    /**
+     * 관리자 권한 범위 내 전체 장학금 개수를 조회한다.
+     *
+     * @param admin 로그인 관리자
+     * @return 권한 범위 내 장학금 개수
+     */
+    @Transactional(readOnly = true)
+    public long countAll(Admin admin) {
+        if (adminScopeValidator.isSuperAdmin(admin)) {
+            return scholarshipRepository.count();
+        }
+
+        if (adminScopeValidator.isDeptAdmin(admin)) {
+            if (admin.getDepartment() == null) {
+                throw new IllegalStateException("DEPT_ADMIN 관리자에게 소속 학과가 없습니다.");
+            }
+
+            return scholarshipRepository.countByDepartmentOrAll(
+                    admin.getDepartment().getDeptId()
+            );
+        }
+
+        throw new AccessDeniedException("장학금 통계를 조회할 권한이 없습니다.");
+    }
+
+    /**
+     * 새 장학금을 등록한다.
+     *
+     * @param dto 장학금 등록 DTO
+     * @param admin 등록 관리자
+     * @return 저장된 장학금
+     */
+    @Transactional
+    public Scholarship createScholarship(ScholarshipDTO dto, Admin admin) {
+        Department department = departmentResolver.resolve(dto.getDeptId());
+        adminScopeValidator.validateAssignable(admin, department);
+
+        Notice notice = resolveNotice(dto.getNoticeId());
+
+        Scholarship scholarship = new Scholarship();
+        scholarship.setAdmin(admin);
+        scholarship.setDepartment(department);
+        scholarship.setNotice(notice);
+        scholarship.setName(dto.getName());
+        scholarship.setType(dto.getType());
+        scholarship.setTargetGrade(TextNormalizer.emptyToNull(dto.getTargetGrade()));
+        scholarship.setResidenceCondition(dto.getResidenceCondition());
+        scholarship.setDeadline(dto.getDeadline());
+        scholarship.setVisible(dto.getVisible() == null || dto.getVisible());
+
+        return scholarshipRepository.save(scholarship);
+    }
+
+    /**
+     * 기존 장학금을 수정한다.
+     *
+     * @param id 장학금 PK
+     * @param dto 수정 DTO
+     * @param admin 수정 관리자
+     * @return 수정된 장학금
+     */
+    @Transactional
+    public Scholarship updateScholarship(Long id, ScholarshipDTO dto, Admin admin) {
+        Scholarship scholarship = getScholarship(id);
+        adminScopeValidator.validateAccess(admin, scholarship);
+
+        Department department = departmentResolver.resolve(dto.getDeptId());
+        adminScopeValidator.validateAssignable(admin, department);
+
+        Notice notice = resolveNotice(dto.getNoticeId());
+
+        scholarship.setDepartment(department);
+        scholarship.setNotice(notice);
+        scholarship.setName(dto.getName());
+        scholarship.setType(dto.getType());
+        scholarship.setTargetGrade(TextNormalizer.emptyToNull(dto.getTargetGrade()));
+        scholarship.setResidenceCondition(dto.getResidenceCondition());
+        scholarship.setDeadline(dto.getDeadline());
+        scholarship.setVisible(dto.getVisible() == null || dto.getVisible());
+
+        return scholarshipRepository.save(scholarship);
+    }
+
+    /**
+     * 장학금을 DB에서 삭제한다.
+     *
+     * @param id 장학금 PK
+     * @param admin 삭제 관리자
+     */
+    @Transactional
+    public void deleteScholarship(Long id, Admin admin) {
+        Scholarship scholarship = getScholarship(id);
+        adminScopeValidator.validateAccess(admin, scholarship);
+
+        scholarshipRepository.delete(scholarship);
+    }
+
+    /**
+     * noticeId를 Notice 엔티티로 변환한다.
+     *
+     * @param noticeId 연결 공지 PK
+     * @return 연결 공지 또는 null
+     */
+    private Notice resolveNotice(Long noticeId) {
+        if (noticeId == null) {
+            return null;
+        }
+
+        return noticeService.getNotice(noticeId);
+    }
 }

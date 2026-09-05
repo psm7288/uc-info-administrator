@@ -190,32 +190,169 @@
     </div>
 
     <!-- 장학금 등록/수정 -->
-    <div id="scholarshipModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="scholarshipModalTitle">
-        <div class="modal-head">
-            <h3 id="scholarshipModalTitle">장학금 등록</h3>
-            <button class="modal-close" type="button" aria-label="닫기">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="modal-form">
-                <label for="scholarshipName">장학금명</label>
-                <input id="scholarshipName" type="text" placeholder="예) 울산 지역 인재 장학금" />
+    <div id="scholarshipModal"
+         class="modal hidden"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="scholarshipModalTitle">
 
-                <label for="scholarshipType">유형</label>
-                <select id="scholarshipType">
-                    <option>지역 장학</option>
-                    <option>성적 장학</option>
-                    <option>교내 장학</option>
-                    <option>외부 장학</option>
-                </select>
+        <form id="scholarshipForm"
+              method="post"
+              th:action="@{/scholarships}">
 
-                <label for="scholarshipDeadline">마감일</label>
-                <input id="scholarshipDeadline" type="date" />
+            <input th:if="${_csrf != null}"
+                   type="hidden"
+                   th:name="${_csrf.parameterName}"
+                   th:value="${_csrf.token}" />
+
+            <div class="modal-head">
+                <h3 id="scholarshipModalTitle">장학금 등록</h3>
+                <button class="modal-close"
+                        type="button"
+                        aria-label="닫기">
+                    ×
+                </button>
             </div>
-        </div>
-        <div class="modal-actions">
-            <button class="line-btn" type="button" data-modal-close>취소</button>
-            <button class="primary-btn" type="button" data-save="장학금이 저장되었습니다.">저장</button>
-        </div>
+
+            <div class="modal-body">
+                <div class="modal-form">
+
+                    <p th:if="${formError != null}"
+                       class="form-error-message"
+                       th:text="${formError}">
+                    </p>
+
+                    <!-- 장학금명 -->
+                    <label for="scholarshipName">장학금명</label>
+                    <input id="scholarshipName"
+                           name="name"
+                           type="text"
+                           th:value="${scholarshipDTO != null ? scholarshipDTO.name : ''}"
+                           placeholder="예) 울산 지역 인재 장학금"
+                           required />
+
+                    <!-- 유형 -->
+                    <label for="scholarshipType">유형</label>
+                    <select id="scholarshipType"
+                            name="type"
+                            required>
+                        <option value="">유형을 선택하세요</option>
+                        <option value="REGIONAL"
+                                th:selected="${scholarshipDTO != null and scholarshipDTO.type == 'REGIONAL'}">
+                            지역 장학
+                        </option>
+                        <option value="GRADE"
+                                th:selected="${scholarshipDTO != null and scholarshipDTO.type == 'GRADE'}">
+                            성적 장학
+                        </option>
+                        <option value="INTERNAL"
+                                th:selected="${scholarshipDTO != null and scholarshipDTO.type == 'INTERNAL'}">
+                            교내 장학
+                        </option>
+                        <option value="EXTERNAL"
+                                th:selected="${scholarshipDTO != null and scholarshipDTO.type == 'EXTERNAL'}">
+                            외부 장학
+                        </option>
+                    </select>
+
+                    <!-- 대상 학과 -->
+                    <label for="scholarshipDepartment">대상 학과</label>
+                    <select id="scholarshipDepartment"
+                            name="deptId">
+                        <option value=""
+                                th:selected="${scholarshipDTO == null or scholarshipDTO.deptId == null}">
+                            전체 학과
+                        </option>
+                        <option th:each="department : ${departments}"
+                                th:value="${department.deptId}"
+                                th:text="${department.deptName}"
+                                th:selected="${scholarshipDTO != null and scholarshipDTO.deptId == department.deptId}">
+                            학과
+                        </option>
+                    </select>
+
+                    <!-- 대상 학년 -->
+                    <label for="scholarshipGrade">대상 학년</label>
+                    <select id="scholarshipGrade"
+                            name="targetGrade">
+                        <option value=""
+                                th:selected="${scholarshipDTO == null or scholarshipDTO.targetGrade == null}">
+                            전체 학년
+                        </option>
+                        <option value="1"
+                                th:selected="${scholarshipDTO != null and scholarshipDTO.targetGrade == '1'}">
+                            1학년
+                        </option>
+                        <option value="2"
+                                th:selected="${scholarshipDTO != null and scholarshipDTO.targetGrade == '2'}">
+                            2학년
+                        </option>
+                        <option value="3"
+                                th:selected="${scholarshipDTO != null and scholarshipDTO.targetGrade == '3'}">
+                            3학년
+                        </option>
+                    </select>
+
+                    <!-- 거주 조건 -->
+                    <label for="scholarshipResidence">거주 조건</label>
+                    <input id="scholarshipResidence"
+                           name="residenceCondition"
+                           type="text"
+                           th:value="${scholarshipDTO != null ? scholarshipDTO.residenceCondition : ''}"
+                           placeholder="예) 울산광역시 거주자" />
+
+                    <!-- 마감일 -->
+                    <label for="scholarshipDeadline">마감일</label>
+                    <input id="scholarshipDeadline"
+                           name="deadline"
+                           type="date"
+                           th:value="${scholarshipDTO != null ? scholarshipDTO.deadline : ''}" />
+
+                    <!-- 연결 공지 -->
+                    <label for="scholarshipNotice">연결 공지</label>
+                    <select id="scholarshipNotice"
+                            name="noticeId">
+                        <option value=""
+                                th:selected="${scholarshipDTO == null or scholarshipDTO.noticeId == null}">
+                            연결 안 함
+                        </option>
+                        <option th:each="notice : ${linkableNotices}"
+                                th:value="${notice.noticeId}"
+                                th:text="${notice.title}"
+                                th:selected="${scholarshipDTO != null and scholarshipDTO.noticeId == notice.noticeId}">
+                            공지
+                        </option>
+                    </select>
+
+                    <!-- 노출 여부 -->
+                    <input type="hidden"
+                           name="_visible"
+                           value="on" />
+
+                    <label class="checkbox-row"
+                           for="scholarshipVisible">
+                        <input id="scholarshipVisible"
+                               name="visible"
+                               type="checkbox"
+                               value="true"
+                               th:checked="${scholarshipDTO == null or scholarshipDTO.visible == null or scholarshipDTO.visible}" />
+                        <span>학생 앱에 노출</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="modal-actions">
+                <button class="line-btn"
+                        type="button"
+                        data-modal-close>
+                    취소
+                </button>
+                <button class="primary-btn"
+                        type="submit">
+                    저장
+                </button>
+            </div>
+        </form>
     </div>
 
     <!-- 학사 일정 등록/수정 -->

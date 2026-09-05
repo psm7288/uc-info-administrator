@@ -1,45 +1,28 @@
 package uc.dev.uc_info.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.*;
+import uc.dev.uc_info.common.util.ValidationMessages;
+import uc.dev.uc_info.dto.ScholarshipDTO;
+import uc.dev.uc_info.model.Admin;
+import uc.dev.uc_info.model.Scholarship;
+import uc.dev.uc_info.security.core.CustomUserPrincipal;
 import uc.dev.uc_info.service.DepartmentService;
 import uc.dev.uc_info.service.NoticeService;
 import uc.dev.uc_info.service.ScholarshipService;
 
+import java.util.List;
+
 /**
- * 장학금 관리 컨트롤러. Schedule/Banner/Shuttle과 동일하게 등록/수정은
- * 별도 폼 페이지가 아니라 목록 화면의 모달({@code scholarshipModal})로
- * 처리한다. 목록 화면은 엔티티를 직접 노출하지 않고 {@code ScholarshipDTO}로
- * 변환해서 넘긴다.
+ * 장학금 관리 컨트롤러.
  *
- * <p>이 클래스 안에 아래 4개의 요청 핸들러를 직접 작성하세요. 검증 실패 시
- * {@code formError}({@code ValidationMessages.firstError}) 담는 것도
- * 처음부터 포함해서 만들 것(Notice/Schedule/Banner/Shuttle 다 나중에
- * 따로 추가했던 것 — 이번엔 처음부터 넣는다).</p>
- *
- * <h3>만들어야 할 핸들러</h3>
- * <ol>
- *   <li>{@code @GetMapping list(Model model, @AuthenticationPrincipal
- *       CustomUserPrincipal principal)} → {@code "scholarship/scholarship"}
- *       반환. model에 담을 것: {@code scholarships}(DTO 변환된 목록),
- *       {@code totalCount}, {@code departments}(대상 학과 select용,
- *       {@code DepartmentService.findAll()}), {@code linkableNotices}
- *       (연결 공지 select용, {@code noticeService.findAllForLink(admin)}
- *       재사용 — Banner가 이미 만들어둔 것 그대로 씀), {@code scholarshipDTO}
- *       (이미 model에 있으면 새로 안 만듦).</li>
- *   <li>{@code @PostMapping create(...)} — Schedule의 create()와 동일 패턴
- *       (BindingResult 검증, 실패 시 목록 재구성 + openScholarshipModal=true
- *       + formError, 성공 시 createScholarship 호출 후 redirect).</li>
- *   <li>{@code @PostMapping("/{id}/edit") update(...)} — 동일 패턴
- *       (editingScholarshipId 포함).</li>
- *   <li>{@code @PostMapping("/{id}/delete") delete(...)} — 동일 패턴.</li>
- * </ol>
- *
- * <p>목록 DTO 매핑(private {@code toListItems}/{@code toListItem})도
- * Banner/Schedule과 동일한 방식으로 직접 작성할 것 — scholarship의
- * department는 지연로딩이라 deptId만 평탄화하면 되고(연관관계 자체를
- * 안 보여줌), 연결된 notice가 있으면 noticeId만 평탄화한다.</p>
+ * <p>장학금 목록 조회와 등록, 수정, 삭제 요청을 처리한다.
+ * 등록/수정은 별도 페이지가 아닌 scholarshipModal을 사용한다.</p>
  */
 @Controller
 @RequestMapping("/scholarships")
@@ -49,4 +32,146 @@ public class ScholarshipController {
     private final ScholarshipService scholarshipService;
     private final NoticeService noticeService;
     private final DepartmentService departmentService;
+
+    /**
+     * 장학금 관리 목록 화면을 조회한다.
+     *
+     * @param model 화면에 전달할 데이터
+     * @param principal 로그인 관리자 정보
+     * @return 장학금 관리 화면
+     */
+    @GetMapping
+    public String list(Model model, @AuthenticationPrincipal CustomUserPrincipal principal) {
+        Admin admin = principal.getAdmin();
+        setListModel(model, admin);
+
+        if (!model.containsAttribute("scholarshipDTO")) {
+            model.addAttribute("scholarshipDTO", new ScholarshipDTO());
+        }
+
+        return "scholarship/scholarship";
+    }
+
+    /**
+     * 새 장학금을 등록한다.
+     *
+     * @param dto 장학금 등록 정보
+     * @param bindingResult 검증 결과
+     * @param model 화면에 전달할 데이터
+     * @param principal 로그인 관리자 정보
+     * @return 장학금 목록 화면 또는 리다이렉트
+     */
+    @PostMapping
+    public String create(
+            @Valid @ModelAttribute("scholarshipDTO") ScholarshipDTO dto,
+            BindingResult bindingResult,
+            Model model,
+            @AuthenticationPrincipal CustomUserPrincipal principal) {
+
+        Admin admin = principal.getAdmin();
+
+        if (bindingResult.hasErrors()) {
+            setListModel(model, admin);
+            model.addAttribute("openScholarshipModal", true);
+            model.addAttribute("formError", ValidationMessages.firstError(bindingResult));
+            return "scholarship/scholarship";
+        }
+
+        scholarshipService.createScholarship(dto, admin);
+        return "redirect:/scholarships";
+    }
+
+    /**
+     * 기존 장학금을 수정한다.
+     *
+     * @param id 장학금 PK
+     * @param dto 장학금 수정 정보
+     * @param bindingResult 검증 결과
+     * @param model 화면에 전달할 데이터
+     * @param principal 로그인 관리자 정보
+     * @return 장학금 목록 화면 또는 리다이렉트
+     */
+    @PostMapping("/{id}/edit")
+    public String update(
+            @PathVariable Long id,
+            @Valid @ModelAttribute("scholarshipDTO") ScholarshipDTO dto,
+            BindingResult bindingResult,
+            Model model,
+            @AuthenticationPrincipal CustomUserPrincipal principal) {
+
+        Admin admin = principal.getAdmin();
+
+        if (bindingResult.hasErrors()) {
+            setListModel(model, admin);
+            model.addAttribute("openScholarshipModal", true);
+            model.addAttribute("editingScholarshipId", id);
+            model.addAttribute("formError", ValidationMessages.firstError(bindingResult));
+            return "scholarship/scholarship";
+        }
+
+        scholarshipService.updateScholarship(id, dto, admin);
+        return "redirect:/scholarships";
+    }
+
+    /**
+     * 장학금을 삭제한다.
+     *
+     * @param id 장학금 PK
+     * @param principal 로그인 관리자 정보
+     * @return 장학금 목록 화면으로 리다이렉트
+     */
+    @PostMapping("/{id}/delete")
+    public String delete(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserPrincipal principal) {
+
+        scholarshipService.deleteScholarship(id, principal.getAdmin());
+        return "redirect:/scholarships";
+    }
+
+    /**
+     * 장학금 목록 화면에 필요한 공통 데이터를 구성한다.
+     */
+    private void setListModel(Model model, Admin admin) {
+        model.addAttribute("scholarships", toListItems(scholarshipService.findScholarshipsFor(admin)));
+        model.addAttribute("totalCount", scholarshipService.countAll(admin));
+        model.addAttribute("departments", departmentService.findAll());
+        model.addAttribute("linkableNotices", noticeService.findAllForLink(admin));
+    }
+
+    /**
+     * Scholarship 엔티티 목록을 화면 표시용 DTO 목록으로 변환한다.
+     */
+    private List<ScholarshipDTO> toListItems(List<Scholarship> scholarships) {
+        return scholarships.stream()
+                .map(this::toListItem)
+                .toList();
+    }
+
+    /**
+     * Scholarship 엔티티를 화면 표시용 DTO로 변환한다.
+     */
+    private ScholarshipDTO toListItem(Scholarship scholarship) {
+        ScholarshipDTO dto = new ScholarshipDTO();
+
+        dto.setScholarshipId(scholarship.getScholarshipId());
+        dto.setName(scholarship.getName());
+        dto.setType(scholarship.getType());
+        dto.setDeptId(
+                scholarship.getDepartment() != null
+                        ? scholarship.getDepartment().getDeptId()
+                        : null
+        );
+        dto.setTargetGrade(scholarship.getTargetGrade());
+        dto.setResidenceCondition(scholarship.getResidenceCondition());
+        dto.setDeadline(scholarship.getDeadline());
+        dto.setVisible(scholarship.getVisible());
+        dto.setNoticeId(
+                scholarship.getNotice() != null
+                        ? scholarship.getNotice().getNoticeId()
+                        : null
+        );
+
+        return dto;
+    }
 }
