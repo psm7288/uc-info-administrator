@@ -278,4 +278,24 @@ public class NoticeService {
         }
         return "DRAFT";
     }
+
+    /**
+     * 공지 재발송 처리를 위해 pushSent 상태를 true로 변경한다.
+     *
+     * @param id 공지 PK
+     * @param admin 로그인 관리자
+     * @return 재발송 처리된 공지
+     */
+    @Transactional
+    public Notice markPushSent(Long id, Admin admin) {
+        Notice notice = getNotice(id);
+        adminScopeValidator.validateAccess(admin, notice);
+
+        if (!"PUBLISHED".equals(notice.getStatus())) {
+            throw new IllegalStateException("게시중인 공지만 재발송할 수 있습니다.");
+        }
+
+        notice.setPushSent(true);
+        return noticeRepository.save(notice);
+    }
 }

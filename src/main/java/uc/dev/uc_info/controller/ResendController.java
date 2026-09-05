@@ -1,30 +1,19 @@
 package uc.dev.uc_info.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import uc.dev.uc_info.model.Admin;
+import uc.dev.uc_info.security.core.CustomUserPrincipal;
 import uc.dev.uc_info.service.ResendService;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 /**
- * 공지 재발송 컨트롤러. 폼/모달이 없다 — 목록에서 버튼 하나 누르면 바로
- * POST되는 단순 구조다.
+ * 공지 재발송 컨트롤러.
  *
- * <p>이 클래스 안에 아래 2개의 요청 핸들러를 직접 작성하세요.</p>
- *
- * <h3>만들어야 할 핸들러</h3>
- * <ol>
- *   <li>{@code @GetMapping list(Model model, @AuthenticationPrincipal
- *       CustomUserPrincipal principal)} → {@code "resend/resend"} 반환.
- *       model에 담을 것: {@code notices}({@code resendService
- *       .findResendCandidates(admin)} — 별도 DTO 변환 없이 그대로 써도
- *       됨, admin fetch join이 이미 Repository 단에서 되어 있어서 화면에
- *       작성자 이름을 보여줘도 N+1 안 남).</li>
- *   <li>{@code @PostMapping("/{id}") resend(@PathVariable Long id,
- *       @AuthenticationPrincipal CustomUserPrincipal principal)}.
- *       {@code resendService.resend(id, admin)} 호출 후
- *       {@code "redirect:/resend"}. Service 예외는 여기서 안 잡고 전역
- *       예외 처리로 넘긴다.</li>
- * </ol>
+ * <p>재발송 대상 목록 조회와 개별 공지 재발송 요청을 처리한다.</p>
  */
 @Controller
 @RequestMapping("/resend")
@@ -32,4 +21,39 @@ import uc.dev.uc_info.service.ResendService;
 public class ResendController {
 
     private final ResendService resendService;
+
+    /**
+     * 재발송 대상 공지 목록을 조회한다.
+     *
+     * @param model 화면에 전달할 데이터
+     * @param principal 로그인 관리자 정보
+     * @return 재발송 관리 화면
+     */
+    @GetMapping
+    public String list(Model model, @AuthenticationPrincipal CustomUserPrincipal principal) {
+        Admin admin = principal.getAdmin();
+        model.addAttribute("notices", resendService.findResendCandidates(admin));
+
+        return "resend/resend";
+    }
+
+    /**
+     * 선택한 공지를 재발송 처리한다.
+     *
+     * @param id 공지 PK
+     * @param principal 로그인 관리자 정보
+     * @param redirectAttributes 재발송 완료 메시지 전달용
+     * @return 재발송 목록 화면으로 리다이렉트
+     */
+    @PostMapping("/{id}")
+    public String resend(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserPrincipal principal,
+            RedirectAttributes redirectAttributes) {
+
+        resendService.resend(id, principal.getAdmin());
+        redirectAttributes.addFlashAttribute("resendMessage", "재발송이 완료되었습니다.");
+
+        return "redirect:/resend";
+    }
 }
