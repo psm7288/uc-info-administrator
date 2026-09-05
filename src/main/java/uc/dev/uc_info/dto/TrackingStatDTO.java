@@ -27,4 +27,14 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class TrackingStatDTO {
+
+    private Long noticeId;
+    private String title;
+
+    private long targetCount;
+    private long readCount;
+    private long unreadCount;
+
+    private double readRate;
+
 }

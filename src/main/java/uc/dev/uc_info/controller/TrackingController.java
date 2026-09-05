@@ -1,9 +1,17 @@
 package uc.dev.uc_info.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import uc.dev.uc_info.dto.TrackingStatDTO;
+import uc.dev.uc_info.model.Admin;
+import uc.dev.uc_info.security.core.CustomUserPrincipal;
 import uc.dev.uc_info.service.TrackingService;
+
+import java.util.List;
 
 /**
  * 공지 열람 현황 컨트롤러. 폼/모달이 없다 — 계산 결과를 보여주기만 하는
@@ -27,4 +35,22 @@ import uc.dev.uc_info.service.TrackingService;
 public class TrackingController {
 
     private final TrackingService trackingService;
+
+    @GetMapping
+    public String list(
+            Model model,
+            @AuthenticationPrincipal CustomUserPrincipal principal
+    ) {
+
+        Admin admin = principal.getAdmin();
+
+        List<TrackingStatDTO> stats =
+                trackingService.findTrackingStats(admin);
+
+        model.addAttribute("stats", stats);
+        model.addAttribute("totalCount", stats.size());
+
+        return "tracking/tracking";
+    }
+
 }

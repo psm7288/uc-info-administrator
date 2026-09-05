@@ -64,4 +64,58 @@ public class TrackingService {
     private final NoticeService noticeService;
     private final NoticeReadLogRepository noticeReadLogRepository;
     private final UserRepository userRepository;
+
+    @Transactional(readOnly = true)
+    public List<TrackingStatDTO> findTrackingStats(Admin admin) {
+
+        List<Notice> notices = noticeService.findAllForLink(admin);
+
+        return notices.stream()
+                .map(notice -> {
+
+                    Long deptId = null;
+
+                    if (notice.getDepartment() != null) {
+                        deptId = notice.getDepartment().getDeptId();
+                    }
+
+                    Integer grade = null;
+
+                    if (notice.getTargetGrade() != null) {
+                        try {
+                            grade = Integer.parseInt(notice.getTargetGrade());
+                        } catch (NumberFormatException e) {
+                            grade = null;
+                        }
+                    }
+
+                    long targetCount =
+                            userRepository.countTargetStudents(deptId, grade);
+
+                    long readCount =
+                            noticeReadLogRepository.countByNotice_NoticeId(
+                                    notice.getNoticeId()
+                            );
+
+                    long unreadCount =
+                            Math.max(0, targetCount - readCount);
+
+                    double readRate =
+                            targetCount == 0
+                                    ? 0.0
+                                    : readCount * 100.0 / targetCount;
+
+                    TrackingStatDTO dto = new TrackingStatDTO();
+
+                    dto.setNoticeId(notice.getNoticeId());
+                    dto.setTitle(notice.getTitle());
+                    dto.setTargetCount(targetCount);
+                    dto.setReadCount(readCount);
+                    dto.setUnreadCount(unreadCount);
+                    dto.setReadRate(readRate);
+
+                    return dto;
+                })
+                .toList();
+    }
 }

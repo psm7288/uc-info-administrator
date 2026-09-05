@@ -4,113 +4,189 @@
     <th:block th:replace="~{fragments/meta :: common('열람 트래킹')}"></th:block>
     <link rel="stylesheet" th:href="@{/css/pages/tracking.css}" />
 </head>
+
 <body>
-    <div class="admin-view">
-        <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
+<div class="admin-view">
 
-        <main class="main-area">
-            <div th:replace="~{fragments/header :: header('열람 트래킹', 'Tracking')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
 
-            <section class="tracking-summary-grid">
-                <article class="metric-card">
-                    <span>전체 학생</span>
-                    <strong th:text="${totalUsers}">0</strong>
-                    <p>등록 학생 수</p>
-                </article>
-                <article class="metric-card">
-                    <span>게시 중 공지</span>
-                    <strong th:text="${#lists.size(notices)}">0</strong>
-                    <p>현재 노출 중</p>
-                </article>
-            </section>
+    <main class="main-area">
 
-            <section class="panel tracking-filter-panel">
-                <div class="panel-head">
-                    <div><h3>공지별 열람 현황</h3><p>공지별 열람률과 미확인자 수를 확인합니다.</p></div>
-                    <button class="secondary-btn" type="button" data-modal="resendModal">미확인자 재발송</button>
+        <div th:replace="~{fragments/header :: header('열람 트래킹', 'Tracking')}"></div>
+
+        <!-- 상단 요약 -->
+        <section class="tracking-summary-grid">
+
+            <article class="metric-card">
+                <span>게시 중 공지</span>
+                <strong th:text="${totalCount}">0</strong>
+                <p>현재 열람 현황을 확인할 수 있는 공지</p>
+            </article>
+
+        </section>
+
+
+        <!-- 열람 현황 안내 -->
+        <section class="panel tracking-filter-panel">
+
+            <div class="panel-head">
+
+                <div>
+                    <h3>공지별 열람 현황</h3>
+                    <p>공지별 대상 학생 수와 열람률, 미확인자 수를 확인합니다.</p>
                 </div>
-                <form class="tracking-filter-form">
-                    <select name="noticeId">
-                        <option value="">전체 공지</option>
-                        <option th:each="n : ${notices}"
-                                th:value="${n.noticeId}"
-                                th:text="${n.title}">공지명</option>
-                    </select>
-                    <select name="deptId">
-                        <option value="">전체 학과</option>
-                    </select>
-                    <select name="grade">
-                        <option value="">전체 학년</option>
-                        <option value="1">1학년</option>
-                        <option value="2">2학년</option>
-                        <option value="3">3학년</option>
-                    </select>
-                    <button class="secondary-btn" type="button" data-toast="열람 조건이 적용되었습니다.">조회</button>
-                </form>
-            </section>
 
-            <!-- 공지가 없을 때 -->
-            <div class="notice-empty" th:if="${#lists.isEmpty(notices)}">
-                <strong>게시 중인 공지가 없습니다</strong>
-                <p>공지를 등록하면 열람 현황을 확인할 수 있습니다.</p>
+                <a class="secondary-btn" th:href="@{/resend}">
+                    재발송 화면
+                </a>
+
             </div>
 
-            <!-- 공지 열람 현황 테이블 -->
-            <section class="panel tracking-table-panel" th:if="${not #lists.isEmpty(notices)}">
-                <div class="panel-head">
-                    <div><h3>공지 열람 현황</h3><p>공지별 열람 통계입니다.</p></div>
-                    <button class="primary-btn" type="button" data-modal="resendModal">전체 재발송</button>
-                </div>
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>공지 제목</th><th>카테고리</th><th>게시일</th><th>상태</th><th>관리</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr th:each="n : ${notices}">
-                            <td><strong th:text="${n.title}">제목</strong></td>
-                            <td th:text="${n.category}">카테고리</td>
-                            <td th:text="${#temporals.format(n.createdAt, 'MM.dd HH:mm')}">날짜</td>
-                            <td><span class="pill live">게시중</span></td>
-                            <td class="table-actions">
-                                <button type="button" data-modal="resendModal">재발송</button>
-                                <a th:href="@{'/notices/' + ${n.noticeId} + '/edit'}">수정</a>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+        </section>
 
-            <div th:replace="~{fragments/footer :: footer}"></div>
-        </main>
+
+        <!-- 게시 중 공지가 없을 때 -->
+        <div class="notice-empty"
+             th:if="${#lists.isEmpty(stats)}">
+
+            <strong>게시 중인 공지가 없습니다</strong>
+
+            <p>
+                게시 중인 공지가 등록되면 열람 현황을 확인할 수 있습니다.
+            </p>
+
+        </div>
+
+
+        <!-- 공지 열람 현황 테이블 -->
+        <section class="panel tracking-table-panel"
+                 th:if="${not #lists.isEmpty(stats)}">
+
+            <div class="panel-head">
+
+                <div>
+                    <h3>공지 열람 현황</h3>
+                    <p>게시 중인 공지의 열람 통계입니다.</p>
+                </div>
+
+            </div>
+
+
+            <div class="table-wrap">
+
+                <table>
+
+                    <thead>
+                    <tr>
+                        <th>공지 제목</th>
+                        <th>대상 학생 수</th>
+                        <th>열람 수</th>
+                        <th>미확인자 수</th>
+                        <th>열람률</th>
+                    </tr>
+                    </thead>
+
+
+                    <tbody>
+
+                    <tr th:each="stat : ${stats}">
+
+                        <!-- 공지 제목 -->
+                        <td>
+                            <strong th:text="${stat.title}">
+                                공지 제목
+                            </strong>
+                        </td>
+
+                        <!-- 대상 학생 수 -->
+                        <td th:text="${stat.targetCount}">
+                            0
+                        </td>
+
+                        <!-- 열람 수 -->
+                        <td th:text="${stat.readCount}">
+                            0
+                        </td>
+
+                        <!-- 미확인자 수 -->
+                        <td th:text="${stat.unreadCount}">
+                            0
+                        </td>
+
+                        <!-- 열람률 -->
+                        <td>
+                            <strong th:text="${#numbers.formatDecimal(stat.readRate, 1, 1)} + '%'">
+                                0.0%
+                            </strong>
+                        </td>
+
+                    </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
+
+    </main>
+
+</div>
+
+
+<!-- 알림 센터 -->
+<aside id="noticeDrawer" class="drawer hidden">
+
+    <div class="drawer-head">
+
+        <div>
+            <h3>알림 센터</h3>
+            <p>열람 관련 알림입니다.</p>
+        </div>
+
+        <button class="drawer-close" type="button">
+            ×
+        </button>
+
     </div>
 
-    <aside id="noticeDrawer" class="drawer hidden">
-        <div class="drawer-head">
-            <div><h3>알림 센터</h3><p>열람 관련 알림입니다.</p></div>
-            <button class="drawer-close" type="button">×</button>
-        </div>
-        <div class="drawer-list">
-            <article>
-                <span class="dot info"></span>
-                <div>
-                    <strong>열람 트래킹</strong>
-                    <p th:text="'게시 중 공지 ' + ${#lists.size(notices)} + '건의 열람 현황입니다.'">현황</p>
-                </div>
-            </article>
-        </div>
-    </aside>
 
-    <div th:replace="~{fragments/modals :: modals}"></div>
-    <div th:replace="~{fragments/toast :: toast}"></div>
+    <div class="drawer-list">
 
-    <script defer th:src="@{/js/common/toast.js}"></script>
-    <script defer th:src="@{/js/common/modal.js}"></script>
-    <script defer th:src="@{/js/common/sidebar.js}"></script>
-    <script defer th:src="@{/js/common/common.js}"></script>
-    <script defer th:src="@{/js/pages/tracking.js}"></script>
+        <article>
+
+            <span class="dot info"></span>
+
+            <div>
+
+                <strong>열람 트래킹</strong>
+
+                <p th:text="'게시 중 공지 ' + ${totalCount} + '건의 열람 현황입니다.'">
+                    현황
+                </p>
+
+            </div>
+
+        </article>
+
+    </div>
+
+</aside>
+
+
+<div th:replace="~{fragments/modals :: modals}"></div>
+<div th:replace="~{fragments/toast :: toast}"></div>
+
+
+<script defer th:src="@{/js/common/toast.js}"></script>
+<script defer th:src="@{/js/common/modal.js}"></script>
+<script defer th:src="@{/js/common/sidebar.js}"></script>
+<script defer th:src="@{/js/common/common.js}"></script>
+<script defer th:src="@{/js/pages/tracking.js}"></script>
+
 </body>
 </html>
