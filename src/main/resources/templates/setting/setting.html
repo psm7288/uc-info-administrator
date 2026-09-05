@@ -5,104 +5,284 @@
     <link rel="stylesheet" th:href="@{/css/pages/setting.css}" />
 </head>
 <body>
-    <div class="admin-view">
-        <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
+<div class="admin-view">
 
-        <main class="main-area">
-            <div th:replace="~{fragments/header :: header('관리자 설정', 'Settings')}"></div>
+    <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
 
-            <section class="setting-hero">
-                <div>
-                    <span>Admin Settings</span>
-                    <h3>관리자 계정, 권한, 시스템 연동 상태를 관리합니다.</h3>
-                    <p>학과 관리자와 부서 관리자의 권한을 구분하고, 공지 발송과 시스템 연동 상태를 확인합니다.</p>
-                </div>
-                <button class="white-btn" type="button" data-modal="accountModal">관리자 정보 수정</button>
-            </section>
+    <main class="main-area">
 
-            <section class="setting-grid">
-                <section class="panel">
-                    <div class="panel-head">
-                        <div><h3>관리자 계정</h3><p>현재 로그인한 관리자 정보입니다.</p></div>
-                    </div>
-                    <div class="setting-list">
-                        <article th:if="${admin != null}">
-                            <div>
-                                <strong th:text="${admin.adminName}">관리자명</strong>
-                                <p th:text="${admin.username} + ' · ' + (${admin.department != null} ? ${admin.department.deptName} : '전체 관리자') + ' · 공지 작성/수정 가능'">계정 정보</p>
-                            </div>
-                            <button type="button" data-modal="accountModal">수정</button>
-                        </article>
-                    </div>
-                </section>
+        <div th:replace="~{fragments/header :: header('관리자 설정', 'Settings')}"></div>
 
-                <section class="panel">
-                    <div class="panel-head">
-                        <div><h3>알림 설정</h3><p>공지 등록, 승인, 미확인자 알림 사용 여부입니다.</p></div>
-                    </div>
-                    <div class="setting-list">
-                        <article>
-                            <div><strong>공지 등록 알림</strong><p>새 공지가 등록되면 관리자에게 알림을 표시합니다.</p></div>
-                            <span class="switch" th:classappend="${admin?.alarmTracking == true} ? ' on'"></span>
-                        </article>
-                        <article>
-                            <div><strong>미확인자 재발송 알림</strong><p>열람률이 낮은 공지를 자동으로 표시합니다.</p></div>
-                            <span class="switch" th:classappend="${admin?.alarmSend == true} ? ' on'"></span>
-                        </article>
-                    </div>
-                </section>
-            </section>
+        <section class="setting-hero">
+            <div>
+                <span>Admin Settings</span>
+                <h3>관리자 계정, 권한, 시스템 연동 상태를 관리합니다.</h3>
+                <p>
+                    학과 관리자와 부서 관리자의 권한을 구분하고,
+                    공지 발송과 시스템 연동 상태를 확인합니다.
+                </p>
+            </div>
+        </section>
 
-            <section class="panel margin-top">
+        <section class="setting-grid">
+
+            <!-- 관리자 계정 -->
+            <section class="panel">
                 <div class="panel-head">
-                    <div><h3>시스템 연동 상태</h3><p>Firebase, 학생 데이터, 푸시 알림 서버 상태입니다.</p></div>
+                    <div>
+                        <h3>관리자 계정</h3>
+                        <p>현재 로그인한 관리자 정보를 수정합니다.</p>
+                    </div>
                 </div>
-                <div class="system-list">
-                    <article>
-                        <span class="system-dot success"></span>
-                        <div><strong>Firebase 연동</strong><p>실시간 공지 및 푸시 알림 준비 상태</p></div>
-                        <span class="pill live">정상</span>
-                    </article>
-                    <article>
-                        <span class="system-dot success"></span>
-                        <div><strong>학생 데이터</strong><p>학번 기반 인증 연결 예정</p></div>
-                        <span class="pill wait">준비중</span>
-                    </article>
-                    <article>
-                        <span class="system-dot success"></span>
-                        <div><strong>푸시 알림 서버</strong><p>미확인자 재발송 기능 연결 예정</p></div>
-                        <span class="pill wait">준비중</span>
-                    </article>
-                </div>
+
+                <form th:action="@{/settings/account}"
+                      th:object="${accountDTO}"
+                      method="post">
+
+                    <input th:if="${_csrf != null}"
+                           type="hidden"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}" />
+
+                    <p th:if="${formError != null}"
+                       class="form-error-message"
+                       th:text="${formError}">
+                    </p>
+
+                    <div class="setting-list">
+
+                        <article>
+                            <div>
+                                <strong>아이디</strong>
+                                <p th:text="${admin != null ? admin.username : '-'}">
+                                    관리자 아이디
+                                </p>
+                            </div>
+                        </article>
+
+                        <article>
+                            <div>
+                                <label for="accountName">
+                                    <strong>관리자명</strong>
+                                </label>
+
+                                <input id="accountName"
+                                       type="text"
+                                       th:field="*{adminName}"
+                                       required />
+                            </div>
+                        </article>
+
+                        <article>
+                            <div>
+                                <strong>소속 학과/부서</strong>
+
+                                <p th:text="${admin != null and admin.department != null
+                                        ? admin.department.deptName
+                                        : '전체 관리자'}">
+                                    소속 정보
+                                </p>
+                            </div>
+                        </article>
+
+                        <article>
+                            <div>
+                                <label for="currentPassword">
+                                    <strong>현재 비밀번호</strong>
+                                </label>
+
+                                <input id="currentPassword"
+                                       type="password"
+                                       th:field="*{currentPassword}"
+                                       required />
+                            </div>
+                        </article>
+
+                        <article>
+                            <div>
+                                <label for="newPassword">
+                                    <strong>새 비밀번호</strong>
+                                </label>
+
+                                <input id="newPassword"
+                                       type="password"
+                                       th:field="*{newPassword}"
+                                       placeholder="비워두면 기존 비밀번호를 유지합니다." />
+                            </div>
+                        </article>
+
+                    </div>
+
+                    <button type="submit" class="white-btn">
+                        계정 정보 저장
+                    </button>
+
+                </form>
             </section>
 
-            <div th:replace="~{fragments/footer :: footer}"></div>
-        </main>
+            <!-- 알림 설정 -->
+            <section class="panel">
+                <div class="panel-head">
+                    <div>
+                        <h3>알림 설정</h3>
+                        <p>
+                            열람 추적 및 재발송 관련 알림 사용 여부를 설정합니다.
+                        </p>
+                    </div>
+                </div>
+
+                <form th:action="@{/settings/alarm}"
+                      th:object="${alarmDTO}"
+                      method="post">
+
+                    <input th:if="${_csrf != null}"
+                           type="hidden"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}" />
+
+                    <div class="setting-list">
+
+                        <article>
+                            <div>
+                                <strong>미확인자 재발송 알림</strong>
+                                <p>
+                                    미확인자가 있는 공지의 재발송 관련 알림을 사용합니다.
+                                </p>
+                            </div>
+
+                            <label class="checkbox-row">
+                                <input type="checkbox"
+                                       name="alarmTracking"
+                                       value="true"
+                                       th:checked="*{alarmTracking == true}" />
+                            </label>
+                        </article>
+
+                        <article>
+                            <div>
+                                <strong>열람 추적 알림</strong>
+                                <p>
+                                    공지 열람 상태 추적 관련 알림을 사용합니다.
+                                </p>
+                            </div>
+
+                            <label class="checkbox-row">
+                                <input type="checkbox"
+                                       name="alarmSend"
+                                       value="true"
+                                       th:checked="*{alarmSend == true}" />
+                            </label>
+                        </article>
+
+                    </div>
+
+                    <button type="submit" class="white-btn">
+                        알림 설정 저장
+                    </button>
+
+                </form>
+            </section>
+
+        </section>
+
+        <!-- 시스템 연동 상태 -->
+        <section class="panel margin-top">
+            <div class="panel-head">
+                <div>
+                    <h3>시스템 연동 상태</h3>
+                    <p>
+                        Firebase, 학생 데이터, 푸시 알림 서버 상태입니다.
+                    </p>
+                </div>
+            </div>
+
+            <div class="system-list">
+
+                <article>
+                    <span class="system-dot success"></span>
+
+                    <div>
+                        <strong>Firebase 연동</strong>
+                        <p>실시간 공지 및 푸시 알림 준비 상태</p>
+                    </div>
+
+                    <span class="pill live">정상</span>
+                </article>
+
+                <article>
+                    <span class="system-dot success"></span>
+
+                    <div>
+                        <strong>학생 데이터</strong>
+                        <p>학번 기반 인증 연결 예정</p>
+                    </div>
+
+                    <span class="pill wait">준비중</span>
+                </article>
+
+                <article>
+                    <span class="system-dot success"></span>
+
+                    <div>
+                        <strong>푸시 알림 서버</strong>
+                        <p>미확인자 재발송 기능 연결 예정</p>
+                    </div>
+
+                    <span class="pill wait">준비중</span>
+                </article>
+
+            </div>
+        </section>
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
+
+    </main>
+</div>
+
+<!-- 알림 센터 -->
+<aside id="noticeDrawer" class="drawer hidden">
+
+    <div class="drawer-head">
+        <div>
+            <h3>알림 센터</h3>
+            <p>관리자 설정 알림입니다.</p>
+        </div>
+
+        <button class="drawer-close" type="button">×</button>
     </div>
 
-    <aside id="noticeDrawer" class="drawer hidden">
-        <div class="drawer-head">
-            <div><h3>알림 센터</h3><p>관리자 설정 알림입니다.</p></div>
-            <button class="drawer-close" type="button">×</button>
-        </div>
-        <div class="drawer-list">
-            <article>
-                <span class="dot info"></span>
-                <div>
-                    <strong th:text="${admin != null} ? ${admin.adminName} + ' 관리자' : '관리자'">관리자</strong>
-                    <p th:text="${admin != null and admin.department != null} ? ${admin.department.deptName} + ' 담당' : '전체 담당'">학과</p>
-                </div>
-            </article>
-        </div>
-    </aside>
+    <div class="drawer-list">
+        <article>
 
-    <div th:replace="~{fragments/modals :: modals}"></div>
-    <div th:replace="~{fragments/toast :: toast}"></div>
+            <span class="dot info"></span>
 
-    <script defer th:src="@{/js/common/toast.js}"></script>
-    <script defer th:src="@{/js/common/modal.js}"></script>
-    <script defer th:src="@{/js/common/sidebar.js}"></script>
-    <script defer th:src="@{/js/common/common.js}"></script>
-    <script defer th:src="@{/js/pages/setting.js}"></script>
+            <div>
+                <strong th:text="${admin != null
+                        ? admin.adminName + ' 관리자'
+                        : '관리자'}">
+                    관리자
+                </strong>
+
+                <p th:text="${admin != null and admin.department != null
+                        ? admin.department.deptName + ' 담당'
+                        : '전체 담당'}">
+                    학과
+                </p>
+            </div>
+
+        </article>
+    </div>
+
+</aside>
+
+<div th:replace="~{fragments/modals :: modals}"></div>
+<div th:replace="~{fragments/toast :: toast}"></div>
+
+<script defer th:src="@{/js/common/toast.js}"></script>
+<script defer th:src="@{/js/common/modal.js}"></script>
+<script defer th:src="@{/js/common/sidebar.js}"></script>
+<script defer th:src="@{/js/common/common.js}"></script>
+<script defer th:src="@{/js/pages/setting.js}"></script>
+
 </body>
 </html>
