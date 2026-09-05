@@ -131,6 +131,9 @@ public class ScholarshipController {
 
     /**
      * 장학금 목록 화면에 필요한 공통 데이터를 구성한다.
+     *
+     * @param model 화면에 전달할 모델
+     * @param admin 로그인 관리자
      */
     private void setListModel(Model model, Admin admin) {
         model.addAttribute("scholarships", toListItems(scholarshipService.findScholarshipsFor(admin)));
@@ -141,6 +144,9 @@ public class ScholarshipController {
 
     /**
      * Scholarship 엔티티 목록을 화면 표시용 DTO 목록으로 변환한다.
+     *
+     * @param scholarships 변환할 장학금 엔티티 목록
+     * @return 화면 표시용 장학금 DTO 목록
      */
     private List<ScholarshipDTO> toListItems(List<Scholarship> scholarships) {
         return scholarships.stream()
@@ -150,6 +156,9 @@ public class ScholarshipController {
 
     /**
      * Scholarship 엔티티를 화면 표시용 DTO로 변환한다.
+     *
+     * @param scholarship 변환할 장학금 엔티티
+     * @return 화면 표시용 장학금 DTO
      */
     private ScholarshipDTO toListItem(Scholarship scholarship) {
         ScholarshipDTO dto = new ScholarshipDTO();
