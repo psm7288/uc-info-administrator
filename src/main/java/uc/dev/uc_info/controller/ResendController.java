@@ -50,7 +50,6 @@ public class ResendController {
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserPrincipal principal,
             RedirectAttributes redirectAttributes) {
-
         resendService.resend(id, principal.getAdmin());
         redirectAttributes.addFlashAttribute("resendMessage", "재발송이 완료되었습니다.");
 
