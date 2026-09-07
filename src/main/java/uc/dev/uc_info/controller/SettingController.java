@@ -2,7 +2,10 @@ package uc.dev.uc_info.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -40,18 +43,13 @@ public class SettingController {
     public String list(
             Model model,
             @AuthenticationPrincipal CustomUserPrincipal principal) {
-
         Admin admin = principal.getAdmin();
 
         SettingAccountDTO accountDTO = new SettingAccountDTO();
         accountDTO.setAdminName(admin.getAdminName());
 
-        SettingAlarmDTO alarmDTO = new SettingAlarmDTO();
-        alarmDTO.setAlarmTracking(admin.getAlarmTracking());
-        alarmDTO.setAlarmSend(admin.getAlarmSend());
-
         model.addAttribute("accountDTO", accountDTO);
-        model.addAttribute("alarmDTO", alarmDTO);
+        addAlarmDTO(model, admin);
 
         return "setting/setting";
     }
@@ -60,8 +58,7 @@ public class SettingController {
      * 관리자 계정 정보를 수정한다.
      *
      * <p>현재 비밀번호를 확인한 후 관리자명과 새 비밀번호를 변경한다.
-     * 입력값 검증에 실패하거나 현재 비밀번호가 일치하지 않는 경우
-     * 설정 화면에 오류 메시지를 표시한다.</p>
+     * 입력값 검증에 실패하면 설정 화면에 오류 메시지를 표시한다.</p>
      *
      * @param dto 계정 수정 요청 데이터
      * @param bindingResult 입력값 검증 결과
@@ -75,35 +72,18 @@ public class SettingController {
             BindingResult bindingResult,
             Model model,
             @AuthenticationPrincipal CustomUserPrincipal principal) {
-
         Admin admin = principal.getAdmin();
 
         if (bindingResult.hasErrors()) {
             addAlarmDTO(model, admin);
-
-            model.addAttribute(
-                    "formError",
-                    ValidationMessages.firstError(bindingResult)
-            );
+            model.addAttribute("formError", ValidationMessages.firstError(bindingResult));
 
             return "setting/setting";
         }
+        Admin updatedAdmin = settingService.updateAccount(dto, admin);
+        refreshSecurityContext(updatedAdmin);
 
-        try {
-            settingService.updateAccount(dto, admin);
-
-            return "redirect:/settings";
-
-        } catch (IllegalArgumentException e) {
-            addAlarmDTO(model, admin);
-
-            model.addAttribute(
-                    "formError",
-                    e.getMessage()
-            );
-
-            return "setting/setting";
-        }
+        return "redirect:/settings";
     }
 
     /**
@@ -117,10 +97,10 @@ public class SettingController {
     public String updateAlarm(
             @ModelAttribute("alarmDTO") SettingAlarmDTO dto,
             @AuthenticationPrincipal CustomUserPrincipal principal) {
-
         Admin admin = principal.getAdmin();
 
-        settingService.updateAlarm(dto, admin);
+        Admin updatedAdmin = settingService.updateAlarm(dto, admin);
+        refreshSecurityContext(updatedAdmin);
 
         return "redirect:/settings";
     }
@@ -132,12 +112,32 @@ public class SettingController {
      * @param admin 현재 로그인한 관리자
      */
     private void addAlarmDTO(Model model, Admin admin) {
-
         SettingAlarmDTO alarmDTO = new SettingAlarmDTO();
 
         alarmDTO.setAlarmTracking(admin.getAlarmTracking());
         alarmDTO.setAlarmSend(admin.getAlarmSend());
 
         model.addAttribute("alarmDTO", alarmDTO);
+    }
+
+    /**
+     * 저장 직후 로그인 세션의 Authentication을 갱신된 Admin 정보로
+     * 교체한다. 이걸 안 하면 DB엔 새 값이 저장돼도, 세션에 캐시된
+     * {@code Authentication} 안의 옛 Admin 스냅샷이 그대로 남아있어서
+     * {@code GlobalModelAdvice}가 전역으로 뿌려주는 {@code admin}(사이드바/
+     * 헤더/이 화면 전부)이 재로그인 전까지 옛날 값을 계속 보여준다.
+     *
+     * @param updatedAdmin 저장 직후 최신 상태의 Admin
+     */
+    private void refreshSecurityContext(Admin updatedAdmin) {
+        Authentication currentAuth = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserPrincipal updatedPrincipal = new CustomUserPrincipal(updatedAdmin);
+
+        Authentication newAuth = new UsernamePasswordAuthenticationToken(
+                updatedPrincipal,
+                currentAuth.getCredentials(),
+                updatedPrincipal.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(newAuth);
     }
 }
