@@ -4,189 +4,133 @@
     <th:block th:replace="~{fragments/meta :: common('열람 트래킹')}"></th:block>
     <link rel="stylesheet" th:href="@{/css/pages/tracking.css}" />
 </head>
-
 <body>
-<div class="admin-view">
+    <div class="admin-view">
+        <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
+        <main class="main-area">
+            <div th:replace="~{fragments/header :: header('열람 트래킹', 'Tracking')}"></div>
+            <!-- 상단 요약 -->
+            <section class="tracking-summary-grid">
+                <article class="metric-card">
+                    <span>게시 중 공지</span>
+                    <strong th:text="${totalCount}">0</strong>
+                    <p>현재 열람 현황을 확인할 수 있는 공지</p>
+                </article>
+            </section>
 
-    <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
-
-    <main class="main-area">
-
-        <div th:replace="~{fragments/header :: header('열람 트래킹', 'Tracking')}"></div>
-
-        <!-- 상단 요약 -->
-        <section class="tracking-summary-grid">
-
-            <article class="metric-card">
-                <span>게시 중 공지</span>
-                <strong th:text="${totalCount}">0</strong>
-                <p>현재 열람 현황을 확인할 수 있는 공지</p>
-            </article>
-
-        </section>
-
-
-        <!-- 열람 현황 안내 -->
-        <section class="panel tracking-filter-panel">
-
-            <div class="panel-head">
-
-                <div>
-                    <h3>공지별 열람 현황</h3>
-                    <p>공지별 대상 학생 수와 열람률, 미확인자 수를 확인합니다.</p>
+            <!-- 열람 현황 안내 -->
+            <section class="panel tracking-filter-panel">
+                <div class="panel-head">
+                    <div>
+                        <h3>공지별 열람 현황</h3>
+                        <p>공지별 대상 학생 수와 열람률, 미확인자 수를 확인합니다.</p>
+                    </div>
+                    <a class="secondary-btn" th:href="@{/resend}">
+                        재발송 화면
+                    </a>
                 </div>
+            </section>
 
-                <a class="secondary-btn" th:href="@{/resend}">
-                    재발송 화면
-                </a>
-
-            </div>
-
-        </section>
-
-
-        <!-- 게시 중 공지가 없을 때 -->
-        <div class="notice-empty"
-             th:if="${#lists.isEmpty(stats)}">
-
-            <strong>게시 중인 공지가 없습니다</strong>
-
-            <p>
-                게시 중인 공지가 등록되면 열람 현황을 확인할 수 있습니다.
-            </p>
-
-        </div>
-
-
-        <!-- 공지 열람 현황 테이블 -->
-        <section class="panel tracking-table-panel"
-                 th:if="${not #lists.isEmpty(stats)}">
-
-            <div class="panel-head">
-
-                <div>
-                    <h3>공지 열람 현황</h3>
-                    <p>게시 중인 공지의 열람 통계입니다.</p>
-                </div>
-
-            </div>
-
-
-            <div class="table-wrap">
-
-                <table>
-
-                    <thead>
-                    <tr>
-                        <th>공지 제목</th>
-                        <th>대상 학생 수</th>
-                        <th>열람 수</th>
-                        <th>미확인자 수</th>
-                        <th>열람률</th>
-                    </tr>
-                    </thead>
-
-
-                    <tbody>
-
-                    <tr th:each="stat : ${stats}">
-
-                        <!-- 공지 제목 -->
-                        <td>
-                            <strong th:text="${stat.title}">
-                                공지 제목
-                            </strong>
-                        </td>
-
-                        <!-- 대상 학생 수 -->
-                        <td th:text="${stat.targetCount}">
-                            0
-                        </td>
-
-                        <!-- 열람 수 -->
-                        <td th:text="${stat.readCount}">
-                            0
-                        </td>
-
-                        <!-- 미확인자 수 -->
-                        <td th:text="${stat.unreadCount}">
-                            0
-                        </td>
-
-                        <!-- 열람률 -->
-                        <td>
-                            <strong th:text="${#numbers.formatDecimal(stat.readRate, 1, 1)} + '%'">
-                                0.0%
-                            </strong>
-                        </td>
-
-                    </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        </section>
-
-
-        <div th:replace="~{fragments/footer :: footer}"></div>
-
-    </main>
-
-</div>
-
-
-<!-- 알림 센터 -->
-<aside id="noticeDrawer" class="drawer hidden">
-
-    <div class="drawer-head">
-
-        <div>
-            <h3>알림 센터</h3>
-            <p>열람 관련 알림입니다.</p>
-        </div>
-
-        <button class="drawer-close" type="button">
-            ×
-        </button>
-
-    </div>
-
-
-    <div class="drawer-list">
-
-        <article>
-
-            <span class="dot info"></span>
-
-            <div>
-
-                <strong>열람 트래킹</strong>
-
-                <p th:text="'게시 중 공지 ' + ${totalCount} + '건의 열람 현황입니다.'">
-                    현황
+            <!-- 게시 중 공지가 없을 때 -->
+            <div class="notice-empty" th:if="${#lists.isEmpty(stats)}">
+                <strong>게시 중인 공지가 없습니다</strong>
+                <p>
+                    게시 중인 공지가 등록되면 열람 현황을 확인할 수 있습니다.
                 </p>
-
             </div>
 
-        </article>
+            <!-- 공지 열람 현황 테이블 -->
+            <section class="panel tracking-table-panel" th:if="${not #lists.isEmpty(stats)}">
+                <div class="panel-head">
+                    <div>
+                        <h3>공지 열람 현황</h3>
+                        <p>게시 중인 공지의 열람 통계입니다.</p>
+                    </div>
+                </div>
 
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>공지 제목</th>
+                            <th>대상 기준</th>
+                            <th>대상 학생 수</th>
+                            <th>열람 수</th>
+                            <th>미확인자 수</th>
+                            <th>열람률</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="stat : ${stats}">
+                            <!-- 공지 제목 -->
+                            <td>
+                                <strong th:text="${stat.title}">
+                                    공지 제목
+                                </strong>
+                            </td>
+                            <!-- 대상 기준 -->
+                            <td th:text="${stat.scopeLabel}">
+                                대상 기준
+                            </td>
+                            <!-- 대상 학생 수 -->
+                            <td th:text="${stat.targetCount}">
+                                0
+                            </td>
+                            <!-- 열람 수 -->
+                            <td th:text="${stat.readCount}">
+                                0
+                            </td>
+                            <!-- 미확인자 수 -->
+                            <td th:text="${stat.unreadCount}">
+                                0
+                            </td>
+                            <!-- 열람률 -->
+                            <td>
+                                <strong th:text="${#numbers.formatDecimal(stat.readRate, 1, 1)} + '%'">
+                                    0.0%
+                                </strong>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
     </div>
 
-</aside>
+    <!-- 알림 센터 -->
+    <aside id="noticeDrawer" class="drawer hidden">
+        <div class="drawer-head">
+            <div>
+                <h3>알림 센터</h3>
+                <p>열람 관련 알림입니다.</p>
+            </div>
+            <button class="drawer-close" type="button">
+                ×
+            </button>
+        </div>
 
+        <div class="drawer-list">
+            <article>
+                <span class="dot info"></span>
+                <div>
+                    <strong>열람 트래킹</strong>
+                    <p th:text="'게시 중 공지 ' + ${totalCount} + '건의 열람 현황입니다.'">
+                        현황
+                    </p>
+                </div>
+            </article>
+        </div>
+    </aside>
 
-<div th:replace="~{fragments/modals :: modals}"></div>
-<div th:replace="~{fragments/toast :: toast}"></div>
+    <div th:replace="~{fragments/modals :: modals}"></div>
+    <div th:replace="~{fragments/toast :: toast}"></div>
 
-
-<script defer th:src="@{/js/common/toast.js}"></script>
-<script defer th:src="@{/js/common/modal.js}"></script>
-<script defer th:src="@{/js/common/sidebar.js}"></script>
-<script defer th:src="@{/js/common/common.js}"></script>
-<script defer th:src="@{/js/pages/tracking.js}"></script>
-
+    <script defer th:src="@{/js/common/toast.js}"></script>
+    <script defer th:src="@{/js/common/modal.js}"></script>
+    <script defer th:src="@{/js/common/sidebar.js}"></script>
+    <script defer th:src="@{/js/common/common.js}"></script>
+    <script defer th:src="@{/js/pages/tracking.js}"></script>
 </body>
 </html>
