@@ -67,7 +67,6 @@ public class ScholarshipController {
             BindingResult bindingResult,
             Model model,
             @AuthenticationPrincipal CustomUserPrincipal principal) {
-
         Admin admin = principal.getAdmin();
 
         if (bindingResult.hasErrors()) {
@@ -98,7 +97,6 @@ public class ScholarshipController {
             BindingResult bindingResult,
             Model model,
             @AuthenticationPrincipal CustomUserPrincipal principal) {
-
         Admin admin = principal.getAdmin();
 
         if (bindingResult.hasErrors()) {
@@ -124,7 +122,6 @@ public class ScholarshipController {
     public String delete(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserPrincipal principal) {
-
         scholarshipService.deleteScholarship(id, principal.getAdmin());
         return "redirect:/scholarships";
     }
