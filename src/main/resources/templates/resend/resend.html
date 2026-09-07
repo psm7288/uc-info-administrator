@@ -45,12 +45,22 @@
                         <tr th:each="n : ${notices}">
                             <td>
                                 <strong th:text="${n.title}">제목</strong>
-                                <span th:text="${n.admin.departmentName}">학과</span>
+                                <span th:text="${n.department != null ? n.department.deptName : '전체 대상'}">
+                                    학과
+                                </span>
                             </td>
                             <td th:text="${n.admin.adminName}">관리자</td>
                             <td th:text="${#temporals.format(n.createdAt, 'MM.dd HH:mm')}">날짜</td>
                             <td class="table-actions">
-                                <button type="button" data-modal="resendModal">재발송</button>
+                                <form class="resend-form"
+                                      th:action="@{/resend/{id}(id=${n.noticeId})}"
+                                      method="post">
+                                    <input th:if="${_csrf != null}"
+                                           type="hidden"
+                                           th:name="${_csrf.parameterName}"
+                                           th:value="${_csrf.token}" />
+                                    <button type="submit">재발송</button>
+                                </form>
                                 <a th:href="@{/tracking}">열람률 보기</a>
                             </td>
                         </tr>
@@ -90,6 +100,10 @@
 
     <div th:replace="~{fragments/modals :: modals}"></div>
     <div th:replace="~{fragments/toast :: toast}"></div>
+    <div id="resendState"
+         hidden
+         th:data-message="${resendMessage}">
+    </div>
 
     <script defer th:src="@{/js/common/toast.js}"></script>
     <script defer th:src="@{/js/common/modal.js}"></script>
