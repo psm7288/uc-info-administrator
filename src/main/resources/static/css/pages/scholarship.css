@@ -108,3 +108,80 @@
         width: 100%;
     }
 }
+
+.scholarship-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.scholarship-card {
+    display: grid;
+    grid-template-columns: 140px minmax(260px, 1fr) 180px auto;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 24px;
+    border-top: 1px solid #edf1f7;
+    background: #fff;
+}
+
+.scholarship-card:first-child {
+    border-top: 0;
+}
+
+.scholarship-card > span {
+    color: #2563eb;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.scholarship-card h4 {
+    margin: 0;
+    color: #172033;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.scholarship-card p {
+    margin: 0;
+    color: var(--sub);
+    font-size: 13px;
+}
+
+.scholarship-card .table-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.scholarship-card .table-actions form {
+    margin: 0;
+}
+
+.scholarship-card .table-actions button {
+    height: 34px;
+    padding: 0 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.scholarship-card .scholarship-delete-form button {
+    color: #dc2626;
+    background: #fff7f7;
+    border-color: #fee2e2;
+}
+
+@media (max-width: 1000px) {
+    .scholarship-card {
+        grid-template-columns: 100px 1fr auto;
+    }
+
+    .scholarship-card p {
+        display: none;
+    }
+}
