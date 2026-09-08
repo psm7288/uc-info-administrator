@@ -22,7 +22,7 @@ import java.net.URISyntaxException;
  * 예외/캐치올은 여기서 함께 처리한다. <br> REST API(@RestController)는 대상 아님.
  */
 @Slf4j
-@ControllerAdvice(annotations = Controller.class)
+@ControllerAdvice(annotations = Controller.class , basePackages = "uc.dev.uc_info.controller")
 public class GlobalExceptionAdvice {
 
     /**
