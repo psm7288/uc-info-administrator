@@ -24,6 +24,11 @@
 }
 
 .notice-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
     margin-top: 24px;
     padding-top: 20px;
     border-top: 1px solid var(--line);
@@ -59,13 +64,6 @@
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
 }
 
-.notice-list-title {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-}
-
 .notice-title-cell strong {
     display: block;
     margin-bottom: 5px;
@@ -86,7 +84,7 @@
     gap: 6px;
 }
 
-.notice-meta span {
+.notice-meta > span:not(.pill) {
     display: inline-flex;
     padding: 5px 8px;
     border-radius: 999px;
@@ -96,61 +94,7 @@
     font-weight: 800;
 }
 
-.notice-empty {
-    padding: 64px 24px;
-    text-align: center;
-    color: var(--sub);
-}
-
-.notice-empty strong {
-    display: block;
-    margin-bottom: 8px;
-    color: var(--text);
-    font-size: 18px;
-    letter-spacing: -0.04em;
-}
-
-.notice-empty p {
-    font-size: 13px;
-    line-height: 1.6;
-}
-
-/* Preview card inside notice pages */
-
-.notice-preview-card {
-    padding: 22px;
-    border-radius: 22px;
-    background: #fff;
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow-soft);
-}
-
-.notice-preview-card .preview-label {
-    display: inline-flex;
-    margin-bottom: 14px;
-    padding: 6px 10px;
-    border-radius: 999px;
-    color: var(--primary);
-    background: var(--primary-soft);
-    font-size: 12px;
-    font-weight: 900;
-}
-
-.notice-preview-card h3 {
-    margin-bottom: 10px;
-    font-size: 22px;
-    line-height: 1.35;
-    letter-spacing: -0.05em;
-}
-
-.notice-preview-card p {
-    color: var(--sub);
-    font-size: 14px;
-    line-height: 1.7;
-}
-
-/* Responsive */
-
+/* 반응형 */
 @media (max-width: 980px) {
     .notice-filter-form {
         grid-template-columns: 1fr 1fr;
@@ -165,29 +109,24 @@
     .notice-form {
         padding: 18px;
     }
-}
 
-.notice-form-grid {
-    grid-template-columns: 1fr;
-}
+    .notice-form-grid {
+        grid-template-columns: 1fr;
+    }
 
-.notice-filter-form {
-    grid-template-columns: 1fr;
-    padding: 18px;
-}
+    .notice-filter-form {
+        grid-template-columns: 1fr;
+        padding: 18px;
+    }
 
-.notice-actions {
-    flex-direction: column;
-}
+    .notice-actions {
+        flex-direction: column;
+    }
 
-.notice-actions button,
-.notice-actions a {
-    width: 100%;
-}
-
-.notice-list-title {
-    align-items: flex-start;
-    flex-direction: column;
+    .notice-actions button,
+    .notice-actions a {
+        width: 100%;
+    }
 }
 
 /* Notice write form force layout */
@@ -231,10 +170,13 @@
 
 .notice-write-panel .line-btn,
 .notice-write-panel .primary-btn,
-.notice-write-panel .secondary-btn {
+.notice-write-panel .secondary-btn,
+.notice-write-panel .danger-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     min-height: 42px;
     padding: 0 16px;
+    font-size: 14px;
+    border-radius: 12px;
 }

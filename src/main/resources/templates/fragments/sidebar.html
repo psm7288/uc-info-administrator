@@ -1,11 +1,11 @@
 <aside th:fragment="sidebar(currentUri)" id="sidebar" class="sidebar">
-    <div class="sidebar-brand">
+    <a class="sidebar-brand" th:href="@{/dashboard}" aria-label="대시보드로 이동">
         <div class="brand-icon small">UC</div>
         <div>
             <strong>UC Info</strong>
             <p>Admin System</p>
         </div>
-    </div>
+    </a>
 
     <nav class="sidebar-nav">
         <a class="nav-item" th:href="@{/dashboard}"

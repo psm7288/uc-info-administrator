@@ -41,21 +41,38 @@
                         <a class="text-btn" th:href="@{/notices}">전체 보기</a>
                     </div>
 
-                    <div class="notice-list" th:if="${not #lists.isEmpty(recentNotices)}">
-                        <article class="notice-row" th:each="n : ${recentNotices}">
-                            <div class="notice-badge"
-                                 th:classappend="${n.category == 'SCHOLARSHIP'} ? 'scholarship' : (${n.category == 'ACADEMIC'} ? 'academic' : 'important')"
-                                 th:text="${n.category == 'SCHOLARSHIP'} ? '장학' : (${n.category == 'ACADEMIC'} ? '학사' : '공지')">공지</div>
-                            <div class="notice-info">
-                                <h4 th:text="${n.title}">공지 제목</h4>
-                                <p th:text="'게시일 ' + ${#temporals.format(n.createdAt, 'MM.dd')}">날짜</p>
-                            </div>
-                            <div class="row-actions">
-                                <span class="pill live" th:if="${n.status == 'PUBLISHED'}">게시중</span>
-                                <span class="pill wait" th:if="${n.status == 'WAITING'}">검토중</span>
-                                <button type="button" data-modal="previewModal">미리보기</button>
-                            </div>
-                        </article>
+                    <div class="table-wrap" th:if="${not #lists.isEmpty(recentNotices)}">
+                        <table>
+                            <thead>
+                            <tr>
+                                <th>공지 제목</th>
+                                <th>카테고리</th>
+                                <th>게시일</th>
+                                <th>상태</th>
+                                <th>관리</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="n : ${recentNotices}">
+                                <td>
+                                    <strong th:text="${n.title}">공지 제목</strong>
+                                </td>
+                                <td th:text="${n.category}">카테고리</td>
+                                <td>
+                                    <span th:text="${#temporals.format(n.createdAt, 'MM.dd')}">게시일</span>
+                                </td>
+                                <td>
+                                    <span class="pill live" th:if="${n.status == 'PUBLISHED'}">게시중</span>
+                                    <span class="pill wait" th:if="${n.status == 'WAITING'}">검토중</span>
+                                </td>
+                                <td>
+                                    <div class="table-actions">
+                                        <button type="button" data-modal="previewModal">미리보기</button>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
 
                     <div class="notice-empty" th:if="${#lists.isEmpty(recentNotices)}">
@@ -81,18 +98,38 @@
                 <div class="panel-head">
                     <div><h3>승인 대기 공지</h3><p>검토 후 승인하면 학생 앱에 노출됩니다.</p></div>
                 </div>
-                <div class="notice-list">
-                    <article class="notice-row" th:each="n : ${waitingNotices}">
-                        <div class="notice-badge wait">대기</div>
-                        <div class="notice-info">
-                            <h4 th:text="${n.title}">공지 제목</h4>
-                            <p th:text="${n.admin.adminName} + ' · ' + ${#temporals.format(n.createdAt, 'MM.dd HH:mm')}">작성자</p>
-                        </div>
-                        <div class="row-actions">
-                            <button type="button" data-modal="approveModal">승인</button>
-                            <a th:href="@{'/notices/' + ${n.noticeId} + '/edit'}">수정</a>
-                        </div>
-                    </article>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>공지 제목</th>
+                            <th>작성자</th>
+                            <th>작성일</th>
+                            <th>상태</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="n : ${waitingNotices}">
+                            <td>
+                                <strong th:text="${n.title}">공지 제목</strong>
+                            </td>
+                            <td th:text="${n.admin.adminName}">작성자</td>
+                            <td>
+                                <span th:text="${#temporals.format(n.createdAt, 'MM.dd HH:mm')}">작성일</span>
+                            </td>
+                            <td>
+                                <span class="pill wait">대기</span>
+                            </td>
+                            <td>
+                                <div class="table-actions">
+                                    <button type="button" data-modal="approveModal">승인</button>
+                                    <a th:href="@{'/notices/' + ${n.noticeId} + '/edit'}">수정</a>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
             </section>
 

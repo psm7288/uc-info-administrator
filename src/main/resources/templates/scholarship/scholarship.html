@@ -2,7 +2,6 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/meta :: common('장학금 관리')}"></th:block>
-    <link rel="stylesheet" th:href="@{/css/pages/scholarship.css}" />
 </head>
 <body>
     <div class="admin-view">
@@ -11,7 +10,7 @@
         <main class="main-area">
             <div th:replace="~{fragments/header :: header('장학금 관리', 'Scholarship')}"></div>
 
-            <section class="scholarship-hero">
+            <section class="page-hero">
                 <div>
                     <span>Scholarship Benefit</span>
                     <h3>교내·외 장학금 정보를 한 곳에서 관리합니다.</h3>
@@ -21,7 +20,7 @@
                         type="button"
                         data-modal="scholarshipModal"
                         data-scholarship-create>
-                    장학금 등록
+                    새 장학금 등록
                 </button>
             </section>
 
@@ -31,80 +30,80 @@
                         <h3>장학금 목록</h3>
                         <p>학생에게 안내할 장학금 정보를 관리합니다.</p>
                     </div>
-                    <button class="primary-btn"
-                            type="button"
-                            data-modal="scholarshipModal"
-                            data-scholarship-create>
-                        새 장학금 등록
-                    </button>
+                    <span class="pill info"
+                          th:text="'총 ' + ${#lists.size(scholarships)} + '건'">총 0건</span>
                 </div>
 
-                <div class="scholarship-list"
-                     th:if="${not #lists.isEmpty(scholarships)}">
-
-                    <article class="scholarship-card"
-                             th:each="s : ${scholarships}">
-
-                        <span th:text="${s.type == 'REGIONAL' ? '지역 장학' :
-                                            s.type == 'GRADE' ? '성적 장학' :
-                                            s.type == 'INTERNAL' ? '교내 장학' :
-                                            s.type == 'EXTERNAL' ? '외부 장학' : s.type}">
-                            유형
-                        </span>
-
-                        <h4 th:text="${s.name}">장학금명</h4>
-
-                        <p th:text="${s.deadline != null
-                            ? '마감 ' + #temporals.format(s.deadline, 'yyyy.MM.dd')
-                            : '마감일 없음'}">
-                            마감일
-                        </p>
-
-                        <div class="table-actions">
-                            <button type="button"
-                                    data-modal="scholarshipModal"
-                                    data-scholarship-edit
-                                    th:attr="
-                            data-id=${s.scholarshipId},
-                            data-name=${s.name},
-                            data-type=${s.type},
-                            data-dept-id=${s.deptId != null ? s.deptId : ''},
-                            data-target-grade=${s.targetGrade != null ? s.targetGrade : ''},
-                            data-residence-condition=${s.residenceCondition != null ? s.residenceCondition : ''},
-                            data-deadline=${s.deadline != null ? s.deadline : ''},
-                            data-visible=${s.visible},
-                            data-notice-id=${s.noticeId != null ? s.noticeId : ''}
-                        ">
-                                수정
-                            </button>
-
-                            <form class="scholarship-delete-form"
-                                  th:action="@{/scholarships/{id}/delete(id=${s.scholarshipId})}"
-                                  method="post">
-
-                                <input th:if="${_csrf != null}"
-                                       type="hidden"
-                                       th:name="${_csrf.parameterName}"
-                                       th:value="${_csrf.token}" />
-
-                                <button type="submit">삭제</button>
-                            </form>
-                        </div>
-                    </article>
+                <div class="table-wrap" th:if="${not #lists.isEmpty(scholarships)}">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>장학금명</th>
+                            <th>유형</th>
+                            <th>마감일</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="s : ${scholarships}">
+                            <td>
+                                <strong th:text="${s.name}">장학금명</strong>
+                            </td>
+                            <td th:text="${s.type == 'REGIONAL' ? '지역 장학' :
+                              s.type == 'GRADE' ? '성적 장학' :
+                              s.type == 'INTERNAL' ? '교내 장학' :
+                              s.type == 'EXTERNAL' ? '외부 장학' : s.type}">
+                                유형
+                            </td>
+                            <td>
+                    <span th:text="${s.deadline != null
+                        ? #temporals.format(s.deadline, 'yyyy.MM.dd')
+                        : '마감일 없음'}">마감일</span>
+                            </td>
+                            <td>
+                                <div class="table-actions">
+                                    <button type="button"
+                                            data-modal="scholarshipModal"
+                                            data-scholarship-edit
+                                            th:attr="
+                                    data-id=${s.scholarshipId},
+                                    data-name=${s.name},
+                                    data-type=${s.type},
+                                    data-dept-id=${s.deptId != null ? s.deptId : ''},
+                                    data-target-grade=${s.targetGrade != null ? s.targetGrade : ''},
+                                    data-residence-condition=${s.residenceCondition != null ? s.residenceCondition : ''},
+                                    data-deadline=${s.deadline != null ? s.deadline : ''},
+                                    data-visible=${s.visible},
+                                    data-notice-id=${s.noticeId != null ? s.noticeId : ''}">
+                                        수정
+                                    </button>
+                                    <form class="scholarship-delete-form"
+                                          th:action="@{/scholarships/{id}/delete(id=${s.scholarshipId})}"
+                                          method="post">
+                                        <input th:if="${_csrf != null}"
+                                               type="hidden"
+                                               th:name="${_csrf.parameterName}"
+                                               th:value="${_csrf.token}" />
+                                        <button type="submit">삭제</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
 
-                <div class="notice-empty"
-                     th:if="${#lists.isEmpty(scholarships)}">
+                <div class="notice-empty" th:if="${#lists.isEmpty(scholarships)}">
                     <strong>장학금 정보가 없습니다</strong>
                     <p>새 장학금 등록 버튼으로 장학금 정보를 추가하세요.</p>
                 </div>
             </section>
 
-            <section class="panel scholarship-guide-panel">
+            <section class="panel guide-panel">
                 <div class="panel-head">
                     <div><h3>장학금 운영 기준</h3><p>학생이 실질적인 혜택을 빠르게 확인할 수 있도록 관리합니다.</p></div>
                 </div>
-                <div class="scholarship-guide-list">
+                <div class="guide-list">
                     <article><strong>마감 임박 강조</strong><p>마감일이 가까운 장학금은 D-Day 배지로 표시합니다.</p></article>
                     <article><strong>대상 조건 명확화</strong><p>학과, 학년, 거주 조건 등 신청 대상을 명확하게 표시합니다.</p></article>
                     <article><strong>공지 연결</strong><p>장학금 상세 내용은 공지사항과 연결해 학생 앱에 노출합니다.</p></article>

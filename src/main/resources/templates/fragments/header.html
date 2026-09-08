@@ -30,7 +30,9 @@
             <div class="header__user" th:if="${admin != null}">
                 <span class="header__user-name" th:text="${admin.adminName}">관리자</span>
                 <span class="header__user-dept"
-                      th:text="${admin.department != null} ? ${admin.department.deptName} : '전체 관리자'">학과</span>
+                      th:if="${admin.department != null
+                          and admin.department.deptName != admin.adminName}"
+                      th:text="${admin.department.deptName}">학과</span>
             </div>
 
             <form class="header__logout" th:action="@{/logout}" method="post">
