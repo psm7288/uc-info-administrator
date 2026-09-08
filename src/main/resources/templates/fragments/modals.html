@@ -9,14 +9,9 @@
             <button class="modal-close" type="button" aria-label="닫기">×</button>
         </div>
         <div class="modal-body">
-            <div class="phone-preview">
-                <div class="phone-top">UC Info</div>
-                <article>
-                    <span>학과 공지</span>
-                    <h4>2026학년도 컴퓨터공학과 졸업작품 신청 안내</h4>
-                    <p>컴퓨터공학과 3학년 대상 · 신청 기간 05.11 ~ 06.07</p>
-                </article>
-            </div>
+            <p class="confirm-text">
+                미리보기 데이터가 아직 연결되지 않았습니다.
+            </p>
         </div>
         <div class="modal-actions">
             <button class="line-btn" type="button" data-modal-close>닫기</button>
@@ -31,14 +26,11 @@
         </div>
         <div class="modal-body">
             <div class="modal-summary">
-                <strong>119명</strong>
                 <p>아직 확인하지 않은 학생에게 푸시 알림을 다시 보냅니다.</p>
             </div>
             <div class="modal-form">
                 <label for="resendNotice">대상 공지</label>
                 <select id="resendNotice">
-                    <option>2026학년도 컴퓨터공학과 졸업작품 신청 안내</option>
-                    <option>기말고사 강의실 변경 안내</option>
                 </select>
 
                 <label for="resendMessage">알림 메시지</label>
@@ -81,22 +73,6 @@
         <div class="modal-actions">
             <button class="line-btn" type="button" data-modal-close>취소</button>
             <button class="danger-btn" type="button" data-save="삭제되었습니다.">삭제</button>
-        </div>
-    </div>
-
-    <!-- 업무 보기(대시보드 Today Task) -->
-    <div id="taskModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="taskModalTitle">
-        <div class="modal-head">
-            <h3 id="taskModalTitle">오늘의 업무</h3>
-            <button class="modal-close" type="button" aria-label="닫기">×</button>
-        </div>
-        <div class="modal-body">
-            <div class="modal-form">
-                <p class="confirm-text">검토 대기 2건 · 알림 재발송 1건 · 배너 예약 3건</p>
-            </div>
-        </div>
-        <div class="modal-actions">
-            <button class="line-btn" type="button" data-modal-close>닫기</button>
         </div>
     </div>
 
