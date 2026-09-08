@@ -35,6 +35,10 @@ spring:
             paths:
               - "/**"
 
+jwt:
+  secret: ${JWT_SECRET}
+  expiration-hours: 720
+
 logging:
   level:
     root: INFO
