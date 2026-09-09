@@ -12,7 +12,9 @@ import uc.dev.uc_info.dto.ScheduleDTO;
 import uc.dev.uc_info.model.Admin;
 import uc.dev.uc_info.model.Department;
 import uc.dev.uc_info.model.Schedule;
+import uc.dev.uc_info.model.User;
 import uc.dev.uc_info.repository.ScheduleRepository;
+import uc.dev.uc_info.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -28,6 +30,7 @@ public class ScheduleService {
     private final ScheduleRepository scheduleRepository;
     private final AdminScopeValidator adminScopeValidator;
     private final DepartmentResolver departmentResolver;
+    private final UserRepository userRepository;
 
     /**
      * 관리자 권한에 따른 학사 일정 목록을 조회한다.
@@ -104,8 +107,7 @@ public class ScheduleService {
     }
 
     /**
-     * 특정 학과 학생에게 노출할 일정 목록을 조회한다. Phase 2 학생 앱 REST
-     * API용으로 미리 만들어 둔 메서드다.
+     * 특정 학과 학생에게 노출할 일정 목록을 조회한다.
      *
      * @param deptId 조회할 학생의 소속 학과 PK
      * @return 노출 대상 일정 목록(시작일순)
@@ -117,6 +119,25 @@ public class ScheduleService {
             throw new IllegalArgumentException("학과 ID가 필요합니다.");
         }
         return scheduleRepository.findVisibleForStudent(deptId);
+    }
+
+    /**
+     * 학생 앱에 노출할 학사일정 목록을 조회한다. studentId로 학생을 찾아
+     * 소속 학과를 알아낸 뒤, 기존 {@link #findVisibleForStudent(Long)}에
+     * 위임한다
+     *
+     * @param studentId 조회 요청 학생의 학번(토큰에서 추출)
+     * @return 노출 대상 일정 목록(시작일순)
+     * @throws EntityNotFoundException studentId에 해당하는 학생이 없는 경우
+     */
+    @Transactional(readOnly = true)
+    public List<Schedule> findVisibleForStudent(String studentId) {
+        User user = userRepository.findByStudentNumber(studentId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
+
+        Long deptId = user.getDepartment() != null ? user.getDepartment().getDeptId() : null;
+
+        return findVisibleForStudent(deptId);
     }
 
     /**
