@@ -104,4 +104,21 @@ public interface BannerRepository extends JpaRepository<Banner, Long> {
           AND (n.department IS NULL OR n.department.deptId = :deptId)
     """)
     long countByStatusAndDepartmentOrAll(@Param("status") String status, @Param("deptId") Long deptId);
+
+    /**
+     * 학생 앱 메인 화면에 노출할 활성 배너 목록을 조회한다.
+     *
+     * @param deptId 학생의 소속 학과 PK
+     * @return ACTIVE 상태이면서, 공지 미연결이거나 전체 대상이거나 본인
+     *         학과 대상인 배너 목록(최신순)
+     */
+    @Query("""
+        SELECT b
+        FROM Banner b
+        LEFT JOIN b.notice n
+        WHERE b.status = 'ACTIVE'
+          AND (b.notice IS NULL OR n.department IS NULL OR n.department.deptId = :deptId)
+        ORDER BY b.createdAt DESC
+    """)
+    List<Banner> findActiveForStudent(@Param("deptId") Long deptId);
 }
