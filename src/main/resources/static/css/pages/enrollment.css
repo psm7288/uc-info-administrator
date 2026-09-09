@@ -1,0 +1,52 @@
+.enrollment-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 28px 32px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #1d2b64, #2563eb);
+    color: #fff;
+    margin-bottom: 24px;
+}
+
+.enrollment-hero span {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.enrollment-hero h3 {
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.enrollment-hero p {
+    font-size: 14px;
+    opacity: 0.85;
+    margin: 0;
+}
+
+.enrollment-search-form {
+    display: flex;
+    gap: 12px;
+}
+
+.enrollment-search-form input[type="text"] {
+    flex: 1;
+    height: 46px;
+    padding: 0 14px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+    color: var(--text);
+    font-size: 14px;
+    outline: none;
+}
+
+.enrollment-search-form input[type="text"]:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
