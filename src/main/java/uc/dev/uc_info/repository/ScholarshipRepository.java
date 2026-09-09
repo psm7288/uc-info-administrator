@@ -50,4 +50,21 @@ public interface ScholarshipRepository extends JpaRepository<Scholarship, Long> 
            OR s.department.deptId = :deptId
     """)
     long countByDepartmentOrAll(@Param("deptId") Long deptId);
+
+    /**
+     * 학생 앱에 노출할 장학금 목록을 조회한다. visible=true이면서 학생의
+     * 소속 학과 또는 전체 대상인 장학금만, 마감일이 가까운 순으로
+     * 반환한다
+     *
+     * @param deptId 학생의 소속 학과 PK
+     * @return 노출 대상 장학금 목록(마감일 오름차순)
+     */
+    @Query("""
+        SELECT s
+        FROM Scholarship s
+        WHERE s.visible = true
+          AND (s.department IS NULL OR s.department.deptId = :deptId)
+        ORDER BY s.deadline ASC
+    """)
+    List<Scholarship> findVisibleForStudent(@Param("deptId") Long deptId);
 }
