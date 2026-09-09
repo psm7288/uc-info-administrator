@@ -72,7 +72,7 @@ public class SecurityConfig {
                         .requestMatchers(   "/login",
                                 "/css/**", "/js/**", "/images/**", "/script/**",
                                 "/sitemap.xml", "/robots.txt", "/favicon.ico").permitAll()
-                        .requestMatchers("/shuttles/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/shuttles/**", "/meals/**").hasRole("SUPER_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
