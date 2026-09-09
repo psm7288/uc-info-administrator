@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -49,6 +50,7 @@ public class SecurityConfig {
      * @throws Exception HttpSecurity 설정 중 발생할 수 있는 예외
      */
     @Bean
+    @Order(2)
     public SecurityFilterChain filterChain (HttpSecurity http) throws Exception{
         http
                 .headers(headers -> headers
@@ -70,7 +72,7 @@ public class SecurityConfig {
                         .requestMatchers(   "/login",
                                 "/css/**", "/js/**", "/images/**", "/script/**",
                                 "/sitemap.xml", "/robots.txt", "/favicon.ico").permitAll()
-                        .requestMatchers("/shuttles/**").hasRole("SUPER_ADMIN")
+                        .requestMatchers("/shuttles/**", "/meals/**").hasRole("SUPER_ADMIN")
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex

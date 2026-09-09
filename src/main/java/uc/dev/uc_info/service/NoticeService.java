@@ -13,8 +13,12 @@ import uc.dev.uc_info.dto.NoticeDTO;
 import uc.dev.uc_info.model.Admin;
 import uc.dev.uc_info.model.Department;
 import uc.dev.uc_info.model.Notice;
+import uc.dev.uc_info.model.NoticeReadLog;
+import uc.dev.uc_info.model.User;
 import uc.dev.uc_info.repository.DepartmentRepository;
+import uc.dev.uc_info.repository.NoticeReadLogRepository;
 import uc.dev.uc_info.repository.NoticeRepository;
+import uc.dev.uc_info.repository.UserRepository;
 
 import java.util.List;
 
@@ -33,6 +37,8 @@ public class NoticeService {
     private final DepartmentRepository departmentRepository;
     private final AdminScopeValidator adminScopeValidator;
     private final DepartmentResolver departmentResolver;
+    private final NoticeReadLogRepository noticeReadLogRepository;
+    private final UserRepository userRepository;
 
     /**
      * 권한별 공지 목록. SUPER_ADMIN은 전체, DEPT_ADMIN은 본인 학과+전체 대상.
@@ -253,6 +259,116 @@ public class NoticeService {
     }
 
     /**
+     * 공지를 "재발송 처리"한다
+     *
+     * @param id    재발송할 공지 PK
+     * @param admin 요청 관리자(권한 판단)
+     * @return 갱신된 공지
+     * @throws IllegalStateException PUBLISHED 상태가 아닌 공지를 재발송하려는 경우
+     */
+    @Transactional
+    public Notice markPushSent(Long id, Admin admin) {
+        Notice notice = getNotice(id);
+        adminScopeValidator.validateAccess(admin, notice);
+
+        if (!"PUBLISHED".equals(notice.getStatus())) {
+            throw new IllegalStateException("게시중인 공지만 재발송할 수 있습니다.");
+        }
+
+        notice.setPushSent(true);
+        return noticeRepository.save(notice);
+    }
+
+    /**
+     * 학생 앱에 노출할 게시중 공지 목록을 조회한다. studentId로 학생을
+     * 찾아 소속 학과를 알아낸 뒤, 본인 학과+전체 대상 공지만 가져온다
+     *
+     * @param studentId 조회 요청 학생의 학번(토큰에서 추출)
+     * @param category  좁힐 카테고리(null/빈 문자열이면 전체 카테고리 유지)
+     * @return 조건에 맞는 게시중 공지 목록(상단고정 우선, 최신순)
+     * @throws EntityNotFoundException studentId에 해당하는 학생이 없는 경우
+     */
+    @Transactional(readOnly = true)
+    public List<Notice> findPublishedForStudent(String studentId, String category) {
+        User user = getStudentOrThrow(studentId);
+        Long deptId = user.getDepartment() != null ? user.getDepartment().getDeptId() : null;
+
+        List<Notice> notices = noticeRepository.findPublishedForStudent(deptId);
+
+        if (category == null || category.isBlank()) {
+            return notices;
+        }
+
+        return notices.stream()
+                .filter(n -> category.equals(n.getCategory()))
+                .toList();
+    }
+
+    /**
+     * 학생 앱의 공지 상세 조회. 게시중 상태가 아니거나, 학생의 학과와
+     * 무관한(다른 학과 전용) 공지면 "없는 공지"로 취급한다
+     *
+     * @param id        조회할 공지 PK
+     * @param studentId 조회 요청 학생의 학번(토큰에서 추출)
+     * @return 조회된 공지
+     * @throws EntityNotFoundException 없는 id이거나, 게시중이 아니거나, 다른 학과 전용 공지이거나, 학생이 없는 경우
+     */
+    @Transactional(readOnly = true)
+    public Notice getPublishedNoticeForStudent(Long id, String studentId) {
+        Notice notice = getNotice(id);
+        User user = getStudentOrThrow(studentId);
+        Long deptId = user.getDepartment() != null ? user.getDepartment().getDeptId() : null;
+
+        boolean isPublished = "PUBLISHED".equals(notice.getStatus());
+        boolean isVisibleToDept = notice.getDepartment() == null
+                || notice.getDepartment().getDeptId().equals(deptId);
+
+        if (!isPublished || !isVisibleToDept) {
+            throw new EntityNotFoundException("공지 정보를 찾을 수 없습니다.");
+        }
+
+        return notice;
+    }
+
+    /**
+     * 학생의 공지 열람을 기록한다(POST /api/notices/{id}/view). 이미 열람
+     * 기록이 있으면 아무 것도 안 하고 조용히 끝난다
+     *
+     * @param noticeId  열람한 공지 PK
+     * @param studentId 열람한 학생의 학번(토큰에서 추출)
+     * @throws EntityNotFoundException 공지 또는 학생이 존재하지 않는 경우
+     */
+    @Transactional
+    public void recordView(Long noticeId, String studentId) {
+        Notice notice = getNotice(noticeId);
+        User user = getStudentOrThrow(studentId);
+
+        boolean alreadyRead = noticeReadLogRepository
+                .existsByNotice_NoticeIdAndUser_UserId(notice.getNoticeId(), user.getUserId());
+
+        if (alreadyRead) {
+            return;
+        }
+        NoticeReadLog log = new NoticeReadLog();
+        log.setNotice(notice);
+        log.setUser(user);
+
+        noticeReadLogRepository.save(log);
+    }
+
+    /**
+     * studentId로 학생을 조회한다.
+     *
+     * @param studentId 조회할 학번
+     * @return 조회된 학생
+     * @throws EntityNotFoundException 해당 학번의 학생이 없는 경우
+     */
+    private User getStudentOrThrow(String studentId) {
+        return userRepository.findByStudentNumber(studentId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
+    }
+
+    /**
      * 게시 종료일이 시작일보다 빠르면 안 된다(둘 다 있을 때만 비교).
      *
      * @param dto 검사할 DTO
@@ -277,25 +393,5 @@ public class NoticeService {
             return status;
         }
         return "DRAFT";
-    }
-
-    /**
-     * 공지 재발송 처리를 위해 pushSent 상태를 true로 변경한다.
-     *
-     * @param id 공지 PK
-     * @param admin 로그인 관리자
-     * @return 재발송 처리된 공지
-     */
-    @Transactional
-    public Notice markPushSent(Long id, Admin admin) {
-        Notice notice = getNotice(id);
-        adminScopeValidator.validateAccess(admin, notice);
-
-        if (!"PUBLISHED".equals(notice.getStatus())) {
-            throw new IllegalStateException("게시중인 공지만 재발송할 수 있습니다.");
-        }
-
-        notice.setPushSent(true);
-        return noticeRepository.save(notice);
     }
 }

@@ -5,13 +5,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import uc.dev.uc_info.model.User;
 
+import java.util.Optional;
+
 /**
  * 학생(User) 영속성 접근 인터페이스. 기본 CRUD는 JpaRepository가 제공한다.
- * Tracking(열람현황)에서 "공지 대상 학생 수"를 계산하는 데 필요한 카운트
- * 메서드를 추가한다.
  */
 public interface UserRepository extends JpaRepository<User, Long> {
-
 
     /**
      * 공지 대상 학생 수를 센다. 앱 접근이 허용되고(access=true) 재학 중인
@@ -35,4 +34,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
               AND (:grade IS NULL OR u.grade = :grade)
             """)
     long countTargetStudents(@Param("deptId") Long deptId, @Param("grade") Integer grade);
+
+    /**
+     * 학번으로 학생을 조회한다. Flutter 학생 앱의 인증(/api/auth/verify)과
+     * 인증 후 개인정보 조회(/api/users/me)에서 사용한다.
+     *
+     * @param studentNumber 조회할 학번(User 엔티티의 실제 필드명은 studentNumber)
+     * @return 조회된 학생, 없으면 빈 Optional
+     */
+    Optional<User> findByStudentNumber(String studentNumber);
 }

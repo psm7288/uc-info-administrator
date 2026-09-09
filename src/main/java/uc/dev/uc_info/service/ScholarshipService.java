@@ -13,7 +13,9 @@ import uc.dev.uc_info.model.Admin;
 import uc.dev.uc_info.model.Department;
 import uc.dev.uc_info.model.Notice;
 import uc.dev.uc_info.model.Scholarship;
+import uc.dev.uc_info.model.User;
 import uc.dev.uc_info.repository.ScholarshipRepository;
+import uc.dev.uc_info.repository.UserRepository;
 
 import java.util.List;
 
@@ -31,6 +33,7 @@ public class ScholarshipService {
     private final AdminScopeValidator adminScopeValidator;
     private final DepartmentResolver departmentResolver;
     private final NoticeService noticeService;
+    private final UserRepository userRepository;
 
     /**
      * 관리자 권한 범위에 맞는 장학금 목록을 조회한다.
@@ -171,6 +174,60 @@ public class ScholarshipService {
     }
 
     /**
+     * 학생 앱에 노출할 장학금 목록을 조회한다. studentId로 학생을 찾아
+     * 소속 학과를 알아낸 뒤, visible=true + 본인 학과/전체 대상 장학금만
+     * 가져온다
+     *
+     * @param studentId 조회 요청 학생의 학번(토큰에서 추출)
+     * @param type      좁힐 유형(REGIONAL/GRADE/INTERNAL/EXTERNAL, null/빈
+     *                  문자열이면 전체 유형 유지)
+     * @return 조건에 맞는 노출 대상 장학금 목록(마감일순)
+     * @throws EntityNotFoundException studentId에 해당하는 학생이 없는 경우
+     */
+    @Transactional(readOnly = true)
+    public List<Scholarship> findVisibleForStudent(String studentId, String type) {
+        User user = getStudentOrThrow(studentId);
+        Long deptId = user.getDepartment() != null ? user.getDepartment().getDeptId() : null;
+
+        List<Scholarship> scholarships = scholarshipRepository.findVisibleForStudent(deptId);
+
+        if (type == null || type.isBlank()) {
+            return scholarships;
+        }
+
+        return scholarships.stream()
+                .filter(s -> type.equals(s.getType()))
+                .toList();
+    }
+
+    /**
+     * 학생 앱의 장학금 상세 조회. 노출 안 함(visible=false) 상태이거나
+     * 학생의 학과와 무관한(다른 학과 전용) 장학금이면 "없는 장학금"으로
+     * 취급한다
+     *
+     * @param id        조회할 장학금 PK
+     * @param studentId 조회 요청 학생의 학번(토큰에서 추출)
+     * @return 조회된 장학금
+     * @throws EntityNotFoundException 없는 id이거나, 비노출이거나, 다른 학과 전용이거나, 학생이 없는 경우
+     */
+    @Transactional(readOnly = true)
+    public Scholarship getVisibleScholarshipForStudent(Long id, String studentId) {
+        Scholarship scholarship = getScholarship(id);
+        User user = getStudentOrThrow(studentId);
+        Long deptId = user.getDepartment() != null ? user.getDepartment().getDeptId() : null;
+
+        boolean isVisible = Boolean.TRUE.equals(scholarship.getVisible());
+        boolean isVisibleToDept = scholarship.getDepartment() == null
+                || scholarship.getDepartment().getDeptId().equals(deptId);
+
+        if (!isVisible || !isVisibleToDept) {
+            throw new EntityNotFoundException("장학금 정보를 찾을 수 없습니다.");
+        }
+
+        return scholarship;
+    }
+
+    /**
      * noticeId를 Notice 엔티티로 변환한다.
      *
      * @param noticeId 연결 공지 PK
@@ -182,5 +239,17 @@ public class ScholarshipService {
         }
 
         return noticeService.getNotice(noticeId);
+    }
+
+    /**
+     * studentId로 학생을 조회한다.
+     *
+     * @param studentId 조회할 학번
+     * @return 조회된 학생
+     * @throws EntityNotFoundException 해당 학번의 학생이 없는 경우
+     */
+    private User getStudentOrThrow(String studentId) {
+        return userRepository.findByStudentNumber(studentId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
     }
 }

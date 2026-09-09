@@ -11,7 +11,9 @@ import uc.dev.uc_info.dto.BannerDTO;
 import uc.dev.uc_info.model.Admin;
 import uc.dev.uc_info.model.Banner;
 import uc.dev.uc_info.model.Notice;
+import uc.dev.uc_info.model.User;
 import uc.dev.uc_info.repository.BannerRepository;
+import uc.dev.uc_info.repository.UserRepository;
 
 import java.util.List;
 
@@ -30,6 +32,7 @@ public class BannerService {
     private final BannerRepository bannerRepository;
     private final NoticeService noticeService;
     private final AdminScopeValidator adminScopeValidator;
+    private final UserRepository userRepository;
 
     /**
      * 권한별 배너 목록. SUPER_ADMIN은 전체, DEPT_ADMIN은 연결된 공지가
@@ -217,6 +220,24 @@ public class BannerService {
         Banner banner = getBanner(id);
         validateBannerAccess(admin, banner);
         bannerRepository.delete(banner);
+    }
+
+    /**
+     * 학생 앱 메인 화면에 노출할 활성 배너 목록을 조회한다. studentId로
+     * 학생을 찾아 소속 학과를 알아낸 뒤, 그 학과 기준으로 스코프한다
+     *
+     * @param studentId 조회 요청 학생의 학번(토큰에서 추출)
+     * @return 노출 대상 활성 배너 목록(최신순)
+     * @throws EntityNotFoundException studentId에 해당하는 학생이 없는 경우
+     */
+    @Transactional(readOnly = true)
+    public List<Banner> findActiveForStudent(String studentId) {
+        User user = userRepository.findByStudentNumber(studentId)
+                .orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
+
+        Long deptId = user.getDepartment() != null ? user.getDepartment().getDeptId() : null;
+
+        return bannerRepository.findActiveForStudent(deptId);
     }
 
     /**

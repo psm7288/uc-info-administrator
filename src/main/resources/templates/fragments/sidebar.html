@@ -57,6 +57,25 @@
             <strong>셔틀버스</strong>
         </a>
 
+        <a class="nav-item" th:href="@{/course-offerings}"
+           th:classappend="${currentUri != null and #strings.startsWith(currentUri, '/course-offerings')} ? 'active'">
+            <span class="nav-dot"></span>
+            <strong>개설과목 관리</strong>
+        </a>
+
+        <a class="nav-item" th:href="@{/enrollments}"
+           th:classappend="${currentUri != null and #strings.startsWith(currentUri, '/enrollments')} ? 'active'">
+            <span class="nav-dot"></span>
+            <strong>수강 조회</strong>
+        </a>
+
+        <a class="nav-item" th:if="${admin != null and admin.role == 'SUPER_ADMIN'}"
+           th:href="@{/meals}"
+           th:classappend="${currentUri != null and #strings.startsWith(currentUri, '/meals')} ? 'active'">
+            <span class="nav-dot"></span>
+            <strong>식단 관리</strong>
+        </a>
+
         <a class="nav-item" th:href="@{/settings}"
            th:classappend="${currentUri != null and #strings.startsWith(currentUri, '/settings')} ? 'active'">
             <span class="nav-dot"></span>
