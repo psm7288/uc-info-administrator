@@ -3,12 +3,17 @@ package uc.dev.uc_info.security.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import java.util.Date;
 
 /**
@@ -16,34 +21,62 @@ import java.util.Date;
  *
  * <p>토큰의 subject(sub) 클레임에 studentId(학번)를 담는다.</p>
  *
- * <p>시크릿 키는 {@code jwt.secret}(환경변수 {@code JWT_SECRET})에서 읽는다.
- * HS256 서명이라 최소 32바이트(256비트) 이상이어야 한다</p>
+ * <p>ES256(ECDSA P-256) 비대칭 서명을 쓴다 — 개인키({@code JWT_PRIVATE_KEY})로
+ * 서명하고 공개키({@code JWT_PUBLIC_KEY})로 검증한다. 둘 다 PKCS8/X.509 PEM
+ * 문자열(헤더·개행 포함해도 되고 Base64만 있어도 됨)을 환경변수로 받는다.</p>
  */
 @Component
 public class JwtTokenProvider {
 
-    private final SecretKey key;
+    private final PrivateKey privateKey;
+    private final PublicKey publicKey;
     private final long expirationMillis;
 
     /**
-     * JWT 서명에 쓸 키와 만료 시간을 초기화한다.
+     * JWT 서명·검증에 쓸 EC 키쌍과 만료 시간을 초기화한다.
      *
-     * @param secret          서명용 시크릿 문자열(환경변수 JWT_SECRET, 최소 32바이트/256비트)
+     * @param privateKeyValue 서명용 EC 개인키(PKCS8, 환경변수 JWT_PRIVATE_KEY)
+     * @param publicKeyValue  검증용 EC 공개키(X.509, 환경변수 JWT_PUBLIC_KEY)
      * @param expirationHours 토큰 만료 시간(시간 단위, 예: 720 = 30일)
+     * @throws IllegalStateException 키 형식이 잘못되어 파싱에 실패한 경우
      */
     public JwtTokenProvider(
-            @Value("${jwt.secret}") String secret,
+            @Value("${jwt.private-key}") String privateKeyValue,
+            @Value("${jwt.public-key}") String publicKeyValue,
             @Value("${jwt.expiration-hours}") long expirationHours
     ) {
-        this.key = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+        try {
+            KeyFactory keyFactory = KeyFactory.getInstance("EC");
+            this.privateKey = keyFactory.generatePrivate(
+                    new PKCS8EncodedKeySpec(decode(privateKeyValue)));
+            this.publicKey = keyFactory.generatePublic(
+                    new X509EncodedKeySpec(decode(publicKeyValue)));
+        } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
+            throw new IllegalStateException(
+                    "JWT_PRIVATE_KEY/JWT_PUBLIC_KEY 형식이 올바르지 않습니다 (PKCS8/X.509 EC 키여야 함).", e);
+        }
         this.expirationMillis = expirationHours * 60 * 60 * 1000;
+    }
+
+    /**
+     * PEM 헤더/개행이 섞여 있어도 순수 Base64 DER 바이트로 디코딩한다.
+     *
+     * @param pemOrBase64 "-----BEGIN ...-----" 헤더가 있는 PEM 문자열이거나 순수 Base64 문자열
+     * @return 디코딩된 DER 바이트
+     */
+    private static byte[] decode(String pemOrBase64) {
+        String cleaned = pemOrBase64
+                .replaceAll("-----BEGIN [A-Z ]+-----", "")
+                .replaceAll("-----END [A-Z ]+-----", "")
+                .replaceAll("\\s", "");
+        return Base64.getDecoder().decode(cleaned);
     }
 
     /**
      * studentId를 담은 토큰을 발급한다.
      *
      * @param studentId 토큰에 담을 학번
-     * @return 서명된 JWT 문자열
+     * @return ES256으로 서명된 JWT 문자열
      */
     public String createToken(String studentId) {
         Date now = new Date();
@@ -53,7 +86,7 @@ public class JwtTokenProvider {
                 .subject(studentId)
                 .issuedAt(now)
                 .expiration(expiry)
-                .signWith(key)
+                .signWith(privateKey, Jwts.SIG.ES256)
                 .compact();
     }
 
@@ -96,7 +129,7 @@ public class JwtTokenProvider {
      */
     private Claims parseClaims(String token) {
         return Jwts.parser()
-                .verifyWith(key)
+                .verifyWith(publicKey)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
