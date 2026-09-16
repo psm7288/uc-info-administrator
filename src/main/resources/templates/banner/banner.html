@@ -2,7 +2,6 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/meta :: common('배너 관리')}"></th:block>
-    <link rel="stylesheet" th:href="@{/css/pages/banner.css}" />
 </head>
 <body>
     <div class="admin-view">
@@ -11,7 +10,7 @@
         <main class="main-area">
             <div th:replace="~{fragments/header :: header('배너 관리', 'Banner')}"></div>
 
-            <section class="banner-hero">
+            <section class="page-hero">
                 <div>
                     <span>Main Banner</span>
                     <h3>학생 앱 메인 화면에 노출되는 주요 배너를 관리합니다.</h3>
@@ -20,69 +19,75 @@
                 <button class="primary-btn" type="button" data-modal="bannerModal" data-banner-create> 새 배너 등록 </button>
             </section>
 
-            <section class="banner-summary-grid">
-                <article class="metric-card">
-                    <span>활성 배너</span>
-                    <strong th:text="${activeCount}">0</strong>
-                    <p>현재 노출 중</p>
-                </article>
-                <article class="metric-card">
-                    <span>예약 배너</span>
-                    <strong th:text="${scheduledCount}">0</strong>
-                    <p>노출 예정</p>
-                </article>
-            </section>
-
             <section class="panel">
                 <div class="panel-head">
-                    <div><h3>배너 목록</h3><p>학생 앱 메인에 표시되는 배너입니다.</p></div>
-                    <button class="primary-btn" type="button" data-modal="bannerModal" data-banner-create> 새 배너 등록 </button>
+                    <div>
+                        <h3>배너 목록</h3>
+                        <p>학생 앱 메인에 표시되는 배너입니다.</p>
+                    </div>
+                    <span class="pill info"
+                          th:text="'총 ' + ${#lists.size(banners)} + '건'">총 0건</span>
                 </div>
 
-                <div class="banner-card-list" th:if="${not #lists.isEmpty(banners)}">
-                    <article class="banner-manage-card" th:each="b : ${banners}">
-                        <div class="banner-preview blue">
-                            <span th:text="${b.linkedDeptName}">학과</span>
-                            <strong th:text="${b.title}">배너 제목</strong>
-                            <p th:if="${b.startDate != null}"
-                               th:text="${#temporals.format(b.startDate,'MM.dd')} + (${b.endDate} != null ? ' ~ ' + ${#temporals.format(b.endDate,'MM.dd')} : '')">기간</p>
-                        </div>
-                        <div class="banner-info">
-                            <div>
-                                <span class="pill live"      th:if="${b.status == 'ACTIVE'}">노출중</span>
-                                <span class="pill wait"      th:if="${b.status == 'SCHEDULED'}">예약</span>
-                                <span class="pill off"       th:if="${b.status == 'INACTIVE'}">비활성</span>
-                                <h4 th:text="${b.title}">배너 제목</h4>
-                                <p th:text="${b.linkedDeptName} + ' · 메인 배너'">설명</p>
-                            </div>
-                            <div class="table-actions">
-                                <button type="button"
-                                        data-modal="bannerModal"
-                                        data-banner-edit
-                                        th:attr="
-                                            data-id=${b.bannerId},
-                                            data-title=${b.title},
-                                            data-subtitle=${b.subtitle},
-                                            data-status=${b.status},
-                                            data-start-date=${b.startDate},
-                                            data-end-date=${b.endDate},
-                                            data-notice-id=${b.noticeId != null ? b.noticeId : ''}">
-                                    수정
-                                </button>
-                                <form th:action="@{/banners/{id}/delete(id=${b.bannerId})}"
-                                      method="post"
-                                      onsubmit="return confirm('정말 이 배너를 삭제하시겠습니까?');">
-
-                                    <input th:if="${_csrf != null}"
-                                           type="hidden"
-                                           th:name="${_csrf.parameterName}"
-                                           th:value="${_csrf.token}" />
-
-                                    <button type="submit">삭제</button>
-                                </form>
-                            </div>
-                        </div>
-                    </article>
+                <div class="table-wrap" th:if="${not #lists.isEmpty(banners)}">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>배너 제목</th>
+                            <th>학과</th>
+                            <th>게시 기간</th>
+                            <th>상태</th>
+                            <th>관리</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="b : ${banners}">
+                            <td>
+                                <strong th:text="${b.title}">배너 제목</strong>
+                                <span>메인 배너</span>
+                            </td>
+                            <td th:text="${b.linkedDeptName}">학과</td>
+                            <td>
+                <span th:if="${b.startDate != null}"
+                      th:text="${#temporals.format(b.startDate, 'MM.dd')}"></span>
+                                <span th:if="${b.endDate != null}">
+                    ~ <span th:text="${#temporals.format(b.endDate, 'MM.dd')}"></span>
+                </span>
+                            </td>
+                            <td>
+                                <span class="pill live" th:if="${b.status == 'ACTIVE'}">노출중</span>
+                                <span class="pill wait" th:if="${b.status == 'SCHEDULED'}">예약</span>
+                                <span class="pill off" th:if="${b.status == 'INACTIVE'}">비활성</span>
+                            </td>
+                            <td>
+                                <div class="table-actions">
+                                    <button type="button"
+                                            data-modal="bannerModal"
+                                            data-banner-edit
+                                            th:attr="
+                                data-id=${b.bannerId},
+                                data-title=${b.title},
+                                data-subtitle=${b.subtitle},
+                                data-status=${b.status},
+                                data-start-date=${b.startDate},
+                                data-end-date=${b.endDate},
+                                data-notice-id=${b.noticeId != null ? b.noticeId : ''}">
+                                        수정
+                                    </button>
+                                    <form th:action="@{/banners/{id}/delete(id=${b.bannerId})}"
+                                          method="post"
+                                          onsubmit="return confirm('정말 이 배너를 삭제하시겠습니까?');">
+                                        <input th:if="${_csrf != null}"
+                                               type="hidden"
+                                               th:name="${_csrf.parameterName}"
+                                               th:value="${_csrf.token}" />
+                                        <button type="submit">삭제</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
                 </div>
 
                 <div class="notice-empty" th:if="${#lists.isEmpty(banners)}">
@@ -91,11 +96,11 @@
                 </div>
             </section>
 
-            <section class="panel banner-guide-panel">
+            <section class="panel guide-panel">
                 <div class="panel-head">
                     <div><h3>배너 운영 기준</h3><p>공식 정보 앱의 신뢰성을 위해 배너 등록 기준을 유지합니다.</p></div>
                 </div>
-                <div class="banner-guide-list">
+                <div class="guide-list">
                     <article><strong>공식성 유지</strong><p>발신 주체가 명확한 정보만 등록합니다.</p></article>
                     <article><strong>노출 기간 설정</strong><p>마감일이 있는 공지는 게시 종료일을 반드시 설정합니다.</p></article>
                     <article><strong>중복 등록 방지</strong><p>같은 내용의 공지는 배너와 연결하여 관리합니다.</p></article>
