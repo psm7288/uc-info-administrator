@@ -267,3 +267,12 @@ VALUES
       'SUPER_ADMIN', 'super',
       '$2a$10$4.uklpPfAX1.z5aSicUgIuq1/Mu6pHqtjjBTZPZRWAQJH7ZBag4y6',
       '전체 관리자', true, true );
+
+-- 사용자
+INSERT INTO users (dept_id, student_number, user_name, grade, tel, email, academic_status, gender, advisor_name, score, access)
+VALUES
+    ((SELECT dept_id FROM department WHERE dept_code = 1), '20231234', '김민준', 2, '010-1234-5678', 'minjun.kim@example.ac.kr', '재학', 'M', '홍길동', 3.75, true),
+    ((SELECT dept_id FROM department WHERE dept_code = 1), '20231235', '이서연', 3, '010-2345-6789', 'seoyeon.lee@example.ac.kr', '재학', 'F', '홍길동', 4.12, true),
+    ((SELECT dept_id FROM department WHERE dept_code = 2), '20221001', '박지훈', 3, '010-3456-7890', 'jihoon.park@example.ac.kr', '재학', 'M', '김철수', 3.45, true),
+    ((SELECT dept_id FROM department WHERE dept_code = 3), '20241001', '최유나', 1, '010-4567-8901', 'yuna.choi@example.ac.kr', '재학', 'F', '이영희', 3.90, true),
+    ((SELECT dept_id FROM department WHERE dept_code = 2), '20201050', '정도윤', 4, '010-5678-9012', 'doyoon.jung@example.ac.kr', '휴학', 'M', '김철수', 2.98, false);
