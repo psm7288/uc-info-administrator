@@ -1,13 +1,66 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const bannerButtons = document.querySelectorAll("[data-banner-toast]");
+    const bannerForm = document.getElementById("bannerForm");
+    const bannerModalTitle = document.getElementById("bannerModalTitle");
 
-    bannerButtons.forEach(function (button) {
+    const titleInput = document.getElementById("bannerTitle");
+    const subtitleInput = document.getElementById("bannerSubtitle");
+    const statusInput = document.getElementById("bannerStatus");
+    const startDateInput = document.getElementById("bannerStartDate");
+    const endDateInput = document.getElementById("bannerEndDate");
+    const noticeInput = document.getElementById("bannerNotice");
+
+    const modalState = document.getElementById("bannerModalState");
+
+    const createButtons = document.querySelectorAll("[data-banner-create]");
+    const editButtons = document.querySelectorAll("[data-banner-edit]");
+
+    createButtons.forEach(function (button) {
         button.addEventListener("click", function () {
-            const message = button.dataset.bannerToast || "배너 작업이 처리되었습니다.";
-
-            if (typeof showToast === "function") {
-                showToast(message);
-            }
+            resetBannerForm();
         });
     });
+
+    editButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+            const id = button.dataset.id;
+
+            bannerModalTitle.textContent = "배너 수정";
+            bannerForm.action = "/banners/" + id + "/edit";
+
+            titleInput.value = button.dataset.title || "";
+            subtitleInput.value = button.dataset.subtitle || "";
+            statusInput.value = button.dataset.status || "";
+            startDateInput.value = button.dataset.startDate || "";
+            endDateInput.value = button.dataset.endDate || "";
+            noticeInput.value = button.dataset.noticeId || "";
+        });
+    });
+
+    function resetBannerForm() {
+        bannerModalTitle.textContent = "배너 등록";
+        bannerForm.action = "/banners";
+
+        titleInput.value = "";
+        subtitleInput.value = "";
+        statusInput.value = "";
+        startDateInput.value = "";
+        endDateInput.value = "";
+        noticeInput.value = "";
+    }
+
+    if (modalState && modalState.dataset.open === "true") {
+        const editingId = modalState.dataset.editingId;
+
+        if (editingId) {
+            bannerModalTitle.textContent = "배너 수정";
+            bannerForm.action = "/banners/" + editingId + "/edit";
+        } else {
+            bannerModalTitle.textContent = "배너 등록";
+            bannerForm.action = "/banners";
+        }
+
+        if (typeof openModal === "function") {
+            openModal("bannerModal");
+        }
+    }
 });

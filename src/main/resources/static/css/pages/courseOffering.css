@@ -1,0 +1,70 @@
+.course-hero {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 28px 32px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #1d2b64, #2563eb);
+    color: #fff;
+    margin-bottom: 24px;
+}
+
+.course-hero span {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.85;
+}
+
+.course-hero h3 {
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0;
+}
+
+.course-hero p {
+    font-size: 14px;
+    opacity: 0.85;
+    margin: 0;
+}
+
+.course-upload-panel form {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border: 1px dashed var(--line);
+    border-radius: 14px;
+    background: var(--soft);
+    margin-top: 12px;
+}
+
+.course-upload-panel input[type="file"] {
+    flex: 1;
+    font-size: 14px;
+    color: var(--text);
+}
+
+.course-csv-example {
+    margin-top: 16px;
+}
+
+.course-csv-example strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    color: var(--sub);
+}
+
+.course-csv-example pre {
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 12.5px;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}

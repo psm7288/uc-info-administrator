@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/meta :: common('수강 조회')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/pages/enrollment.css}" />
+</head>
+<body>
+    <div class="admin-view">
+        <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
+
+        <main class="main-area">
+            <div th:replace="~{fragments/header :: header('수강 조회', 'Enrollment')}"></div>
+
+            <section class="enrollment-hero">
+                <div>
+                    <span>Student Timetable</span>
+                    <h3>학번으로 학생이 담은 과목(시간표)을 조회합니다.</h3>
+                    <p>조회 전용입니다. 학생이 앱에서 직접 담고 뺀 내역을 그대로 보여줍니다.</p>
+                </div>
+            </section>
+
+            <section class="panel enrollment-search-panel">
+                <form th:action="@{/enrollments}" method="get" class="enrollment-search-form">
+                    <input type="text"
+                           name="studentNumber"
+                           placeholder="학번을 입력하세요 (예: 2411206)"
+                           th:value="${studentNumber}" />
+                    <button class="primary-btn" type="submit">조회</button>
+                </form>
+            </section>
+
+            <section class="panel enrollment-result-panel" th:if="${searched != null}">
+                <div class="panel-head">
+                    <div>
+                        <h3 th:text="${studentNumber} + '의 수강 목록'">수강 목록</h3>
+                        <p th:text="${#lists.size(enrollments)} + '개 과목을 담고 있습니다.'">현황</p>
+                    </div>
+                </div>
+
+                <div class="table-wrap" th:if="${not #lists.isEmpty(enrollments)}">
+                    <table>
+                        <thead>
+                        <tr><th>과목명</th><th>요일</th><th>시간</th><th>강의실</th><th>교수</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="e : ${enrollments}">
+                            <td th:text="${e.courseOffering.subject}">과목명</td>
+                            <td th:text="${e.courseOffering.day}">요일</td>
+                            <td th:text="${e.courseOffering.startHour} + '~' + ${e.courseOffering.endHour}">시간</td>
+                            <td th:text="${e.courseOffering.room}">강의실</td>
+                            <td th:text="${e.courseOffering.professor}">교수</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="notice-empty" th:if="${#lists.isEmpty(enrollments)}">
+                    <strong>담은 과목이 없습니다</strong>
+                    <p>해당 학번이 존재하지 않거나, 아직 담은 과목이 없습니다.</p>
+                </div>
+            </section>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <div th:replace="~{fragments/toast :: toast}"></div>
+
+    <script defer th:src="@{/js/common/toast.js}"></script>
+    <script defer th:src="@{/js/common/sidebar.js}"></script>
+    <script defer th:src="@{/js/common/common.js}"></script>
+</body>
+</html>

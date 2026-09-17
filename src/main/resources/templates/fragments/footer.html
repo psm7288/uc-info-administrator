@@ -1,0 +1,15 @@
+<footer th:fragment="footer" role="contentinfo" class="footer">
+    <div class="footer__inner">
+        <p class="footer__copy">
+            Copyright
+            <span th:text="${#temporals.format(T(java.time.LocalDate).now(),'yyyy')}">2026</span>.
+            UC Info Admin. All rights reserved.
+        </p>
+
+        <p class="footer__org">울산과학대학교 공식 학과 정보 통합 관리 시스템</p>
+
+        <p class="footer__disclaimer">
+            관리자 전용 페이지입니다. 학생 대상 노출 정보는 각 화면의 미리보기로 확인하세요.
+        </p>
+    </div>
+</footer>

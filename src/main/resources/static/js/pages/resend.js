@@ -1,13 +1,18 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const resendButtons = document.querySelectorAll("[data-resend-toast]");
+    const resendForms = document.querySelectorAll(".resend-form");
+    const resendState = document.getElementById("resendState");
 
-    resendButtons.forEach(function (button) {
-        button.addEventListener("click", function () {
-            const message = button.dataset.resendToast || "재발송 처리가 완료되었습니다.";
-
-            if (typeof showToast === "function") {
-                showToast(message);
+    resendForms.forEach(function (form) {
+        form.addEventListener("submit", function (event) {
+            if (!confirm("이 공지를 다시 발송하시겠습니까?")) {
+                event.preventDefault();
             }
         });
     });
+
+    if (resendState && resendState.dataset.message) {
+        if (typeof showToast === "function") {
+            showToast(resendState.dataset.message);
+        }
+    }
 });

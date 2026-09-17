@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/meta :: common('개설과목 관리')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/pages/courseOffering.css}" />
+</head>
+<body>
+    <div class="admin-view">
+        <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
+
+        <main class="main-area">
+            <div th:replace="~{fragments/header :: header('개설과목 관리', 'Course Offering')}"></div>
+
+            <section class="course-hero">
+                <div>
+                    <span>Timetable Source</span>
+                    <h3>이번 학기 개설과목을 CSV 파일로 일괄 등록합니다.</h3>
+                    <p>학생은 여기 등록된 과목 중에서 본인 시간표에 담을 과목을 앱에서 직접 선택합니다.</p>
+                </div>
+            </section>
+
+            <section class="course-summary-grid">
+                <article class="metric-card">
+                    <span>등록된 개설과목</span>
+                    <strong th:text="${totalCount}">0</strong>
+                    <p>권한 범위 기준</p>
+                </article>
+            </section>
+
+            <section class="panel course-upload-panel">
+                <div class="panel-head">
+                    <div>
+                        <h3>CSV 업로드</h3>
+                        <p>형식: department,subject,targetGrade,day,startHour,endHour,room,professor (헤더 포함, UTF-8)</p>
+                    </div>
+                </div>
+
+                <p th:if="${uploadMessage != null}" class="upload-success-message" th:text="${uploadMessage}"></p>
+                <p th:if="${formError != null}" class="form-error-message" th:text="${formError}"></p>
+
+                <form th:action="@{/course-offerings/upload}" method="post" enctype="multipart/form-data">
+                    <input th:if="${_csrf != null}"
+                           type="hidden"
+                           th:name="${_csrf.parameterName}"
+                           th:value="${_csrf.token}" />
+
+                    <input type="file" name="file" accept=".csv" required />
+                    <button class="primary-btn" type="submit">업로드</button>
+                </form>
+
+                <div class="course-csv-example">
+                    <strong>예시</strong>
+                    <pre>department,subject,targetGrade,day,startHour,endHour,room,professor
+    컴퓨터공학과,데이터베이스,3,월,9,11,공학관 301,김영수
+    컴퓨터공학과,자료구조,2,화,13,15,공학관 205,이철수</pre>
+                </div>
+            </section>
+
+            <section class="panel course-list-panel">
+                <div class="panel-head">
+                    <div><h3>등록된 개설과목</h3><p>최신 등록순으로 표시됩니다.</p></div>
+                </div>
+
+                <div class="table-wrap" th:if="${not #lists.isEmpty(offerings)}">
+                    <table>
+                        <thead>
+                        <tr><th>학과</th><th>과목명</th><th>대상학년</th><th>요일</th><th>시간</th><th>강의실</th><th>교수</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="o : ${offerings}">
+                            <td th:text="${o.department.deptName}">학과</td>
+                            <td th:text="${o.subject}">과목명</td>
+                            <td th:text="${o.targetGrade != null ? o.targetGrade : '전체'}">학년</td>
+                            <td th:text="${o.day}">요일</td>
+                            <td th:text="${o.startHour} + '~' + ${o.endHour}">시간</td>
+                            <td th:text="${o.room}">강의실</td>
+                            <td th:text="${o.professor}">교수</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="notice-empty" th:if="${#lists.isEmpty(offerings)}">
+                    <strong>등록된 개설과목이 없습니다</strong>
+                    <p>CSV 파일을 업로드해서 개설과목을 등록하세요.</p>
+                </div>
+            </section>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <div th:replace="~{fragments/toast :: toast}"></div>
+
+    <script defer th:src="@{/js/common/toast.js}"></script>
+    <script defer th:src="@{/js/common/sidebar.js}"></script>
+    <script defer th:src="@{/js/common/common.js}"></script>
+</body>
+</html>

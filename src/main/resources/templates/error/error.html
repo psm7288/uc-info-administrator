@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/meta :: common('오류')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/pages/error.css}" />
+</head>
+<body>
+    <div class="admin-view">
+        <div th:replace="~{fragments/sidebar :: sidebar(${currentUri})}"></div>
+
+        <main class="main-area">
+            <div th:replace="~{fragments/header :: header('오류', 'Error')}"></div>
+
+            <section class="error-hero">
+                <div class="error-hero__inner">
+                    <span class="error-code" th:text="${statusCode}">오류</span>
+                    <h3 th:text="${errorHeading}">오류가 발생했습니다</h3>
+                    <p th:text="${errorMessage}">요청을 처리하는 중 문제가 발생했습니다.</p>
+
+                    <div class="error-actions">
+                        <a class="white-btn" th:href="@{/dashboard}">대시보드로 이동</a>
+                        <a class="dark-btn" th:href="@{/login}">로그인 화면</a>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel error-help">
+                <div class="panel-head">
+                    <div>
+                        <h3>문제가 계속되나요?</h3>
+                        <p>아래 사항을 확인해보세요.</p>
+                    </div>
+                </div>
+                <div class="error-help-list">
+                    <article>
+                        <strong>주소 확인</strong>
+                        <p>입력하신 주소에 오타가 없는지 확인해주세요.</p>
+                    </article>
+                    <article>
+                        <strong>로그인 상태 확인</strong>
+                        <p>세션이 만료되었을 수 있습니다. 다시 로그인해주세요.</p>
+                    </article>
+                    <article>
+                        <strong>잠시 후 재시도</strong>
+                        <p>일시적인 서버 문제라면 잠시 후 다시 시도하면 해결될 수 있습니다.</p>
+                    </article>
+                </div>
+            </section>
+
+            <div th:replace="~{fragments/footer :: footer}"></div>
+        </main>
+    </div>
+
+    <div th:replace="~{fragments/modals :: modals}"></div>
+    <div th:replace="~{fragments/toast :: toast}"></div>
+
+    <script defer th:src="@{/js/common/toast.js}"></script>
+    <script defer th:src="@{/js/common/modal.js}"></script>
+    <script defer th:src="@{/js/common/sidebar.js}"></script>
+    <script defer th:src="@{/js/common/common.js}"></script>
+</body>
+</html>

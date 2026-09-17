@@ -38,6 +38,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const modalBackdrop = document.getElementById("modalBackdrop");
     const modalOpenButtons = document.querySelectorAll("[data-modal]");
     const modalCloseButtons = document.querySelectorAll(".modal-close");
+    const modalDismissButtons = document.querySelectorAll("[data-modal-close]");
     const saveButtons = document.querySelectorAll("[data-save]");
 
     modalOpenButtons.forEach(function (button) {
@@ -48,6 +49,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     modalCloseButtons.forEach(function (button) {
+        button.addEventListener("click", function () {
+            closeAllModals();
+        });
+    });
+
+    modalDismissButtons.forEach(function (button) {
         button.addEventListener("click", function () {
             closeAllModals();
         });

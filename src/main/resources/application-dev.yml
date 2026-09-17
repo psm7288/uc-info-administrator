@@ -1,0 +1,35 @@
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  thymeleaf:
+    cache: false
+
+server:
+  servlet:
+    session:
+      timeout: 30m
+      cookie:
+        secure: false
+        same-site: lax
+
+app:
+  security:
+    csp: >-
+      default-src 'self';
+      img-src 'self' https: data:;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      script-src 'self';
+      connect-src 'self';
+      object-src 'none';
+      base-uri 'self';
+      frame-ancestors 'none';
+      form-action 'self';
+    csrfEnabled: false
+    cspReportOnly: true
