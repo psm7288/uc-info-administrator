@@ -8,6 +8,8 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./uc-info-ddl.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "${TAILSCALE_IP}:5432:5432"
     restart: unless-stopped
 
   app:
