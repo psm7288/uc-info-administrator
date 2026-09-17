@@ -11,11 +11,19 @@
         <main class="main-area">
             <div th:replace="~{fragments/header :: header('공지 관리', 'Notice')}"></div>
 
-            <section class="panel notice-filter-panel">
-                <div class="panel-head">
-                    <div><h3>공지 검색</h3><p>카테고리, 상태, 키워드 기준으로 공지를 찾습니다.</p></div>
-                    <a class="primary-btn" th:href="@{/notices/new}">새 공지 작성</a>
+            <section class="page-hero">
+                <div>
+                    <span>Notice Management</span>
+                    <h3>학생에게 전달할 공식 공지를 관리합니다.</h3>
+                    <p>공지를 작성하고 게시 기간, 공개 상태와 대상 학생을 관리합니다.</p>
                 </div>
+
+                <a class="white-btn" th:href="@{/notices/new}">
+                    새 공지 작성
+                </a>
+            </section>
+
+            <section class="panel notice-filter-panel">
                 <form class="notice-filter-form">
                     <input type="text" name="keyword" placeholder="공지 제목 또는 내용 검색" />
                     <select name="category">
@@ -79,18 +87,19 @@
                                 <span class="pill off" th:if="${n.status == 'DRAFT'}">임시저장</span>
                                 <span class="pill off" th:if="${n.status == 'CLOSED'}">게시종료</span>
                             </td>
-                            <td class="table-actions">
+                            <td>
+                                <div class="table-actions">
                                 <a th:href="@{'/notices/' + ${n.noticeId} + '/edit'}">수정</a>
                                 <button type="button" data-modal="previewModal">미리보기</button>
                                 <button type="button" data-modal="resendModal">재발송</button>
                                 <form th:action="@{'/notices/' + ${n.noticeId} + '/delete'}"
                                       method="post"
-                                      style="display:inline"
                                       onsubmit="return confirm('정말 삭제하시겠습니까? 게시종료 상태로 변경됩니다.');">
                                     <input th:if="${_csrf != null}" type="hidden"
                                            th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                     <button type="submit">삭제</button>
                                 </form>
+                                </div>
                             </td>
                         </tr>
                         </tbody>

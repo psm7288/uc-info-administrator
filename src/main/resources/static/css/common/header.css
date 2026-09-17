@@ -1,4 +1,4 @@
-/* 헤더 (BEM). fragments/header.html 의 header__* 클래스에 대응 */
+/* 헤더 레이아웃 */
 .header {
     min-height: 72px;
     margin-bottom: 24px;
@@ -9,23 +9,18 @@
     align-items: center;
     justify-content: space-between;
     gap: 18px;
+    min-width: 0;
 }
 
 .header__left {
     display: flex;
     align-items: center;
     gap: 12px;
+    flex-shrink: 0;
 }
 
-.header__menu-button {
-    width: 54px;
-    min-width: 54px;
-    height: 54px;
-    padding: 0;
-    border-radius: 14px;
-    color: #344054;
-    background: #fff;
-    border: 1px solid var(--line);
+.header__titles {
+    min-width: 0;
 }
 
 .header__label {
@@ -35,136 +30,220 @@
     font-size: 12px;
     font-weight: 900;
     letter-spacing: 0.06em;
+    white-space: nowrap;
 }
 
 .header__title {
     font-size: 28px;
     line-height: 1.2;
     letter-spacing: -0.06em;
+    white-space: nowrap;
 }
 
+/* 모바일 메뉴 버튼 */
+.header__menu-button {
+    width: 40px;
+    min-width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    color: #344054;
+    background: #fff;
+    font-size: 20px;
+    line-height: 1;
+}
+
+.mobile-only {
+    display: none;
+}
+
+/* 우측 도구 영역 */
 .header__right {
     display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    flex: 1;
+    gap: 8px;
+    min-width: 0;
 }
 
+/* 검색 */
 .header__search {
-    width: 300px;
-    height: 44px;
     display: flex;
     align-items: center;
-    padding: 0 5px 0 14px;
-    border-radius: 15px;
-    background: #fff;
+    width: 260px;
+    min-width: 180px;
+    height: 40px;
+    padding: 0 5px 0 12px;
     border: 1px solid var(--line);
-    box-shadow: var(--shadow-soft);
+    border-radius: 10px;
+    background: #fff;
+}
+
+.header__search:focus-within {
+    border-color: var(--primary);
 }
 
 .header__search-input {
-    min-width: 0;
     flex: 1;
+    width: 100%;
+    min-width: 0;
     border: 0;
     outline: none;
     color: var(--text);
-    font-size: 13px;
+    background: transparent;
+    font-size: 12px;
 }
 
 .header__search-button {
-    height: 34px;
-    padding: 0 12px;
-    border-radius: 11px;
+    flex-shrink: 0;
+    height: 30px;
+    padding: 0 10px;
+    border-radius: 7px;
     color: var(--primary);
-    background: var(--primary-soft);
+    background: transparent;
     font-size: 12px;
-    font-weight: 900;
+    font-weight: 700;
+}
+
+.header__search-button:hover {
+    background: var(--primary-soft);
+}
+
+/* 알림·공지 작성 버튼 */
+.header__icon-button,
+.header__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    height: 40px;
+    padding: 0 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
 .header__icon-button {
     position: relative;
-    min-width: 64px;
-    height: 54px;
-    display: inline-flex;
-    align-items: center;
+    min-width: 56px;
     gap: 6px;
-    padding: 0 20px;
-    border-radius: 18px;
+    border: 1px solid var(--line);
     color: #344054;
     background: #fff;
-    border: 1px solid var(--line);
-    box-shadow: var(--shadow-soft);
-    font-size: 15px;
-    font-weight: 800;
 }
 
 .header__icon {
     position: absolute;
-    top: 12px;
-    right: 14px;
-    width: 8px;
-    height: 8px;
+    top: 7px;
+    right: 7px;
+    width: 6px;
+    height: 6px;
+    border: 1px solid #fff;
     border-radius: 50%;
     background: var(--red);
-    border: 2px solid #fff;
 }
 
-/* 헤더 버튼(공통 버튼과 별개로 헤더 높이 맞춤) */
 .header__btn {
-    height: 54px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 24px;
-    border-radius: 18px;
-    font-size: 15px;
-    font-weight: 900;
-    white-space: nowrap;
     cursor: pointer;
     transition: 0.18s ease;
 }
 
 .header__btn--primary {
-    color: var(--primary);
-    background: var(--primary-soft);
     border: 1px solid transparent;
+    color: #fff;
+    background: var(--primary);
+}
+
+.header__btn--primary:hover {
+    background: var(--primary-dark);
 }
 
 .header__btn--ghost {
+    border: 1px solid var(--line);
     color: #111827;
     background: #fff;
-    border: 1px solid var(--line);
 }
 
-.header__btn:hover {
-    transform: translateY(-1px);
-}
-
+/* 관리자 정보 */
 .header__user {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    flex-shrink: 0;
+    gap: 3px;
+    min-height: 32px;
+    margin-left: 6px;
+    padding-left: 14px;
+    border-left: 1px solid var(--line);
     line-height: 1.3;
+    white-space: nowrap;
 }
 
 .header__user-name {
-    font-size: 13px;
-    font-weight: 900;
     color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
 }
 
 .header__user-dept {
-    font-size: 12px;
     color: var(--sub);
+    font-size: 11px;
 }
 
+/* 로그아웃 */
 .header__logout {
-    margin: 0;
     display: flex;
+    flex-shrink: 0;
+    margin: 0;
 }
 
-/* 모바일 메뉴 버튼은 좁은 화면에서만 노출 */
-.mobile-only {
-    display: none;
+.header__logout .header__btn--ghost {
+    padding: 0 10px;
+    border-color: transparent;
+    color: var(--sub);
+    background: transparent;
+    font-size: 12px;
+}
+
+.header__logout .header__btn--ghost:hover {
+    color: var(--text);
+    background: #e9edf5;
+}
+
+/* 키보드 포커스 */
+.header__right button:focus-visible,
+.header__right a:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+}
+
+/* 반응형 */
+@media (max-width: 1180px) {
+    .header__inner {
+        flex-wrap: wrap;
+        align-items: flex-start;
+    }
+
+    .header__left {
+        width: 100%;
+    }
+
+    .header__right {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .header__search {
+        flex: 1 1 220px;
+        width: auto;
+    }
 }
 
 @media (max-width: 980px) {
@@ -174,12 +253,10 @@
 }
 
 @media (max-width: 700px) {
-    .header__inner {
-        flex-wrap: wrap;
-    }
-
     .header__search {
-        width: 100%;
         order: 3;
+        flex: 1 1 100%;
+        width: 100%;
+        min-width: 0;
     }
 }

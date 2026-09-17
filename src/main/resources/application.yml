@@ -36,7 +36,8 @@ spring:
               - "/**"
 
 jwt:
-  secret: ${JWT_SECRET}
+  private-key: ${JWT_PRIVATE_KEY}
+  public-key: ${JWT_PUBLIC_KEY}
   expiration-hours: 720
 
 logging:
