@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * 오늘의 식단 응답(GET /api/meal/today) DTO.
+ * 식단 응답(GET /api/meal/today?date=yyyy-MM-dd) DTO. date 생략 시 오늘.
  */
 @Getter
 @Setter
