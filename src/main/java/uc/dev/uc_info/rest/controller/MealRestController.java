@@ -1,9 +1,11 @@
 package uc.dev.uc_info.rest.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uc.dev.uc_info.model.Meal;
 import uc.dev.uc_info.rest.dto.MealResponse;
@@ -11,6 +13,7 @@ import uc.dev.uc_info.rest.dto.MealSlotResponse;
 import uc.dev.uc_info.service.MealService;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
@@ -27,21 +30,27 @@ public class MealRestController {
     private static final DateTimeFormatter DATE_FORMAT =
             DateTimeFormatter.ofPattern("yyyy년 M월 d일 EEEE", Locale.KOREAN);
 
+    /** 서버 기본 타임존(UTC 등)과 무관하게 학교 기준 날짜를 계산하기 위한 존 */
+    private static final ZoneId SEOUL = ZoneId.of("Asia/Seoul");
+
     private final MealService mealService;
 
     /**
-     * 오늘 날짜의 식단(조식/중식/석식)을 조회한다. 데이터 없는 끼니는
-     * null로 나간다.
+     * 지정한 날짜의 식단(조식/중식/석식)을 조회한다. 데이터 없는 끼니는
+     * null로 나간다. 경로는 앱 호환을 위해 {@code /today}를 유지한다.
      *
-     * @return 200 + 오늘 식단
+     * @param date 조회할 날짜(yyyy-MM-dd). 생략하면 서울 기준 오늘
+     * @return 200 + 해당 날짜 식단, date 형식이 잘못되면 400
      */
     @GetMapping("/today")
-    public ResponseEntity<MealResponse> today() {
-        LocalDate today = LocalDate.now();
-        List<Meal> meals = mealService.getMealsByDate(today);
+    public ResponseEntity<MealResponse> today(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        LocalDate target = (date != null) ? date : LocalDate.now(SEOUL);
+        List<Meal> meals = mealService.getMealsByDate(target);
 
         MealResponse response = new MealResponse();
-        response.setDate(today.format(DATE_FORMAT));
+        response.setDate(target.format(DATE_FORMAT));
         response.setBreakfast(toSlot(meals, "BREAKFAST"));
         response.setLunch(toSlot(meals, "LUNCH"));
         response.setDinner(toSlot(meals, "DINNER"));
