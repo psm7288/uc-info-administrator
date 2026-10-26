@@ -73,17 +73,22 @@ public class JwtTokenProvider {
     }
 
     /**
-     * studentId를 담은 토큰을 발급한다.
+     * studentId와 학과명을 담은 토큰을 발급한다.
+     *
+     * <p>dept 클레임은 공지 챗봇 서버가 같은 공개키로 토큰을 검증한 뒤
+     * 학과별 공지 검색 범위를 정하는 데 쓴다.</p>
      *
      * @param studentId 토큰에 담을 학번
+     * @param deptName  토큰에 담을 학과명
      * @return ES256으로 서명된 JWT 문자열
      */
-    public String createToken(String studentId) {
+    public String createToken(String studentId, String deptName) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMillis);
 
         return Jwts.builder()
                 .subject(studentId)
+                .claim("dept", deptName)
                 .issuedAt(now)
                 .expiration(expiry)
                 .signWith(privateKey, Jwts.SIG.ES256)
