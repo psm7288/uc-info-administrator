@@ -45,7 +45,8 @@ public class AuthService {
             throw new AccessDeniedException("인증 정보가 일치하지 않습니다.");
         }
 
-        String token = jwtTokenProvider.createToken(user.getStudentNumber());
+        String token = jwtTokenProvider.createToken(
+                user.getStudentNumber(), user.getDepartment().getDeptName());
 
         AuthResponse response = new AuthResponse();
         response.setToken(token);
